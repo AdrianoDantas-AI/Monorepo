@@ -76,6 +76,8 @@ test("resolveNextStopForTrip em trip active usa destino da perna corrente por di
           polyline: "abc123",
           distance_m: 1_000,
           duration_s: 180,
+          baseline_distance_m: 1_000,
+          baseline_eta_s: 180,
         },
         {
           id: "trip_deep_links_001_leg_2",
@@ -84,6 +86,8 @@ test("resolveNextStopForTrip em trip active usa destino da perna corrente por di
           polyline: "def456",
           distance_m: 1_500,
           duration_s: 240,
+          baseline_distance_m: 1_500,
+          baseline_eta_s: 240,
         },
       ],
       total_distance_m: 2_500,

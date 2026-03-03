@@ -463,9 +463,10 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 - [x] `S2-013` Aplicar fallback automático para `mock` quando `MAPBOX_ACCESS_TOKEN` estiver ausente.
 - [x] `S2-014` Implementar `POST /api/v1/trips/:tripId/start` com mudança de status para `active`.
 - [x] `S2-015` Implementar deep links (Google/Waze) da próxima parada via `GET /api/v1/trips/:tripId/deep-links/next-stop`.
+- [x] `S2-016` Persistir baseline de ETA/distância por leg (`baseline_eta_s` e `baseline_distance_m`).
 - [x] `S2-020` Documentar API de trips via OpenAPI (`/openapi.json`) e Swagger (`/docs`).
-- [ ] `S2-016` a `S2-019` (pendentes).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-api-swagger-openapi/`.
+- [ ] `S2-017` a `S2-019` (pendentes).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-leg-baseline-metrics/`.
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 

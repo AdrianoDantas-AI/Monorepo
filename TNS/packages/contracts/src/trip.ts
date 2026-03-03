@@ -23,6 +23,8 @@ export const legDTOSchemaV1 = z
     polyline: z.string().min(1),
     distance_m: z.number().min(0),
     duration_s: z.number().min(0),
+    baseline_distance_m: z.number().min(0),
+    baseline_eta_s: z.number().min(0),
   })
   .strict();
 

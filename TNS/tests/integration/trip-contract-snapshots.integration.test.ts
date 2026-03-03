@@ -38,6 +38,8 @@ test("LegDTO v1 snapshot permanece estavel", () => {
     polyline: "snapshot_polyline_001",
     distance_m: 12500,
     duration_s: 2100,
+    baseline_distance_m: 12500,
+    baseline_eta_s: 2100,
   });
 
   assert.equal(toSnapshotText(legPayload), readSnapshot("leg-dto.v1.snapshot.json"));
@@ -81,6 +83,8 @@ test("TripDTO v1 snapshot permanece estavel", () => {
           polyline: "snapshot_polyline_001",
           distance_m: 12500,
           duration_s: 2100,
+          baseline_distance_m: 12500,
+          baseline_eta_s: 2100,
         },
       ],
       total_distance_m: 12500,

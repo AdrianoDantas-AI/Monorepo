@@ -46,6 +46,8 @@ export const generateRoutePlanFromStops = (
       polyline: encodeMockPolyline(from, to),
       distance_m: distanceM,
       duration_s: durationS,
+      baseline_distance_m: distanceM,
+      baseline_eta_s: durationS,
     });
   }
 

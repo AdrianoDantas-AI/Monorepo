@@ -44,4 +44,6 @@ test("TripModule normaliza ordem de stops e anexa route_plan", () => {
   assert.equal(withPlan.stops[1]?.order, 1);
   assert.equal(withPlan.route_plan?.total_distance_m, 2500);
   assert.equal(withPlan.route_plan?.total_duration_s, 600);
+  assert.equal(withPlan.route_plan?.legs[0]?.baseline_distance_m, 2500);
+  assert.equal(withPlan.route_plan?.legs[0]?.baseline_eta_s, 600);
 });

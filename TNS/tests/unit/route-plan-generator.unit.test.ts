@@ -31,6 +31,8 @@ test("gerador de route plan cria legs com metrica e polyline", () => {
   assert.match(routePlan.legs[0].polyline, /-23\./);
   assert.ok(routePlan.legs[0].distance_m > 0);
   assert.ok(routePlan.legs[0].duration_s >= 60);
+  assert.equal(routePlan.legs[0].baseline_distance_m, routePlan.legs[0].distance_m);
+  assert.equal(routePlan.legs[0].baseline_eta_s, routePlan.legs[0].duration_s);
   assert.equal(
     routePlan.total_distance_m,
     routePlan.legs[0].distance_m + routePlan.legs[1].distance_m,

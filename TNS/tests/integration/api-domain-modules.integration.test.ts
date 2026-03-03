@@ -60,6 +60,8 @@ test("fluxo de dominio: create trip -> plan legs -> update route_track", () => {
   assert.equal(plannedTrip.route_plan?.legs.length, 2);
   assert.equal(plannedTrip.route_plan?.total_distance_m, 3800);
   assert.equal(plannedTrip.route_plan?.total_duration_s, 960);
+  assert.equal(plannedTrip.route_plan?.legs[0]?.baseline_distance_m, 1500);
+  assert.equal(plannedTrip.route_plan?.legs[0]?.baseline_eta_s, 420);
   assert.equal(trackedTrip.route_track?.distance_done_m, 1900);
   assert.equal(trackedTrip.route_track?.distance_remaining_m, 1900);
   assert.equal(trackedTrip.route_track?.eta_s, 700);

@@ -244,3 +244,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Melhorar onboarding, integracao cliente e verificacao de contratos HTTP.
 - Impacto no backlog/sprint: `S2-020` considerado concluido com documentacao publica dos endpoints de trips/ops/health.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/openapi.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/openapi-docs.unit.test.ts`, `TNS/tests/integration/api-openapi-docs.integration.test.ts`, `openspec/changes/tns-api-swagger-openapi/`.
+
+## 2026-03-03 - Execucao do S2-016 com baseline por leg
+- Contexto: Proximo item da Sprint 2 exigia base explicita para calculos futuros de detour por tempo/distancia.
+- Decisao anterior: `LegDTO` continha apenas `distance_m` e `duration_s`.
+- Decisao nova: Tornar baseline explicito em `LegDTO` com `baseline_distance_m` e `baseline_eta_s`.
+- Motivo da mudanca: Evitar ambiguidade entre valores planejados e valores dinamicos na fase de tracking.
+- Impacto no backlog/sprint: `S2-016` concluido; Sprint 2 segue para `S2-017` (fluxo integrado criar trip -> otimizar -> gerar legs).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/route-plan-generator.ts`, `TNS/services/api/src/modules/leg/leg.module.ts`, `TNS/packages/contracts/src/trip.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `openspec/changes/tns-leg-baseline-metrics/`.

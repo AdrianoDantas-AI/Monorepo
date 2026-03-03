@@ -120,7 +120,14 @@ test("POST/GET /api/v1/trips respeitam tenant scoping e detectam conflito", asyn
         trip: {
           stops: Array<{ id: string; order: number }>;
           route_plan?: {
-            legs: Array<{ id: string; polyline: string; distance_m: number; duration_s: number }>;
+            legs: Array<{
+              id: string;
+              polyline: string;
+              distance_m: number;
+              duration_s: number;
+              baseline_distance_m: number;
+              baseline_eta_s: number;
+            }>;
             total_distance_m: number;
             total_duration_s: number;
           };
@@ -140,6 +147,14 @@ test("POST/GET /api/v1/trips respeitam tenant scoping e detectam conflito", asyn
     assert.equal(optimizePayload.data.trip.route_plan?.legs.length, 2);
     assert.match(optimizePayload.data.trip.route_plan?.legs[0].id ?? "", /trip_api_001_leg_1/);
     assert.ok((optimizePayload.data.trip.route_plan?.legs[0].distance_m ?? 0) > 0);
+    assert.equal(
+      optimizePayload.data.trip.route_plan?.legs[0].baseline_distance_m,
+      optimizePayload.data.trip.route_plan?.legs[0].distance_m,
+    );
+    assert.equal(
+      optimizePayload.data.trip.route_plan?.legs[0].baseline_eta_s,
+      optimizePayload.data.trip.route_plan?.legs[0].duration_s,
+    );
     assert.ok((optimizePayload.data.trip.route_plan?.total_distance_m ?? 0) > 0);
 
     const getAfterOptimizeResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001`, {

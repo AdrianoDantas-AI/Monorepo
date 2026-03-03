@@ -60,7 +60,16 @@ export const openApiSpec = {
       },
       LegDTO: {
         type: "object",
-        required: ["id", "from_stop_id", "to_stop_id", "polyline", "distance_m", "duration_s"],
+        required: [
+          "id",
+          "from_stop_id",
+          "to_stop_id",
+          "polyline",
+          "distance_m",
+          "duration_s",
+          "baseline_distance_m",
+          "baseline_eta_s",
+        ],
         properties: {
           id: { type: "string" },
           from_stop_id: { type: "string" },
@@ -68,6 +77,8 @@ export const openApiSpec = {
           polyline: { type: "string" },
           distance_m: { type: "number", minimum: 0 },
           duration_s: { type: "number", minimum: 0 },
+          baseline_distance_m: { type: "number", minimum: 0 },
+          baseline_eta_s: { type: "number", minimum: 0 },
         },
       },
       RoutePlanDTO: {
