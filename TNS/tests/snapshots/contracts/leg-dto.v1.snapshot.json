@@ -1,0 +1,8 @@
+{
+  "id": "leg_snapshot_001",
+  "from_stop_id": "stop_snapshot_001",
+  "to_stop_id": "stop_snapshot_002",
+  "polyline": "snapshot_polyline_001",
+  "distance_m": 12500,
+  "duration_s": 2100
+}

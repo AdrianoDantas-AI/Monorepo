@@ -156,3 +156,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterio de aceite do `S2-004` ("seed reproduzivel") e habilitar base consistente para `S2-005+`.
 - Impacto no backlog/sprint: Ambiente local pode ser populado de forma repetivel e validada por testes unit/integration.
 - Referencias (arquivos/PR/issue): `TNS/services/api/prisma/seed-demo.ts`, `TNS/tests/unit/trip-seed.unit.test.ts`, `TNS/tests/integration/trip-seed.integration.test.ts`, `TNS/package.json`.
+
+## 2026-03-03 - Execucao do S2-005/S2-006 com contratos versionados e snapshots
+- Contexto: A Sprint 2 precisava fechar contratos publicos de viagem antes dos endpoints de `trips`.
+- Decisao anterior: Contratos de `trip` sem nomeacao explicita de versao e sem snapshots dedicados por DTO.
+- Decisao nova: Versionar contratos em `v1` (`TripDTO/StopDTO/LegDTO`) mantendo aliases retrocompativeis e adicionar testes de snapshot estavel.
+- Motivo da mudanca: Cumprir criterios de aceite do `S2-005` e `S2-006`, reduzindo risco de regressao silenciosa em contratos.
+- Impacto no backlog/sprint: Base contratual pronta para implementar `POST/GET trips` com validacao automatica de compatibilidade.
+- Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/trip.ts`, `TNS/tests/integration/trip-contract-snapshots.integration.test.ts`, `TNS/tests/snapshots/contracts/*.json`.

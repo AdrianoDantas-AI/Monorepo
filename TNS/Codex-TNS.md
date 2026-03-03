@@ -452,7 +452,9 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 - [x] `S2-002` Expandir schema Prisma com entidades de viagem + migration SQL inicial.
 - [x] `S2-003` Criar migration SQL para índices geoespaciais essenciais.
 - [x] `S2-004` Criar seed de dados para trips/stops demo (idempotente, com dry-run e testes).
-- [ ] `S2-005` em diante (pendente).
+- [x] `S2-005` Definir `TripDTO/StopDTO/LegDTO` versionados (`v1`) em `packages/contracts`.
+- [x] `S2-006` Adicionar testes de contrato com snapshots estáveis para DTOs de viagem.
+- [ ] `S2-007` em diante (pendente).
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 
