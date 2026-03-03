@@ -76,3 +76,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Padronizar triagem, garantir rastreabilidade e acelerar correcao de apontamentos.
 - Impacto no backlog/sprint: Findings do review passam a gerar issues com severidade e plano de correcao de forma consistente.
 - Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, `docs/codex-review-issues.md`, `AGENTS.md`.
+
+## 2026-03-03 - Entrega via PR obrigatoria por ruleset ativo
+- Contexto: Publicacao do workflow de catalogacao foi inicialmente tentada com push direto em `main`.
+- Decisao anterior: Enviar alteracao diretamente para `main`.
+- Decisao nova: Publicar via branch dedicada e PR, respeitando gates de branch protection.
+- Motivo da mudanca: Repositorio passou a exigir merge via PR + status check `CI / verify`.
+- Impacto no backlog/sprint: Leve aumento no ciclo de entrega (abertura de PR), com ganho de governanca e rastreabilidade.
+- Referencias (arquivos/PR/issue): erro `GH013` no push para `main`, rules de branch no GitHub.

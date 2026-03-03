@@ -67,3 +67,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Conexao ajustada e novo retry em `PR #2`; o bot respondeu com review concluido ("Didn't find any major issues").
 - Prevencao/acao futura: Manter verificacao de onboarding do conector em novos repos antes de smoke e documentar PR de validacao.
 - Referencias (comando/arquivo): `gh pr comment 2 --body \"@codex review\"`, `repos/AdrianoDantas-AI/Monorepo/issues/2/comments`.
+
+## 2026-03-03 - Push direto em `main` bloqueado por ruleset
+- Sintoma: `git push origin main` falhou com `GH013` informando `Changes must be made through a pull request` e check obrigatorio `CI / verify`.
+- Causa raiz: Ruleset de branch protection ativo no repositorio para `main`.
+- Correcao aplicada: Troca de fluxo para branch dedicada + PR, com execucao dos checks no pipeline antes do merge.
+- Prevencao/acao futura: Nao tentar push direto em `main`; sempre trabalhar via branch e PR.
+- Referencias (comando/arquivo): `git push origin main`, rules URL `.../rules?ref=refs/heads/main`.
