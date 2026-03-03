@@ -68,3 +68,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Novo comentario no PR #2 retornou resposta positiva do bot com review concluido.
 - Impacto no backlog/sprint: Reativacao do reviewer automatico para PRs futuros; remover bloqueio operacional do checklist.
 - Referencias (arquivos/PR/issue): `PR #2`, comentario `chatgpt-codex-connector[bot]` em `2026-03-03T02:55:47Z`.
+
+## 2026-03-03 - Catalogacao de findings do Codex em issues automatizada
+- Contexto: Necessidade de transformar findings de review em backlog acionavel sem trabalho manual repetitivo.
+- Decisao anterior: Catalogar findings manualmente em issues.
+- Decisao nova: Automatizar catalogacao via workflow GitHub com comando no PR (`@codex create-issues`) e deduplicacao.
+- Motivo da mudanca: Padronizar triagem, garantir rastreabilidade e acelerar correcao de apontamentos.
+- Impacto no backlog/sprint: Findings do review passam a gerar issues com severidade e plano de correcao de forma consistente.
+- Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, `docs/codex-review-issues.md`, `AGENTS.md`.

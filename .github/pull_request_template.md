@@ -12,6 +12,7 @@
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] Manual validation executed (describe below)
+- [ ] Se houve finding do Codex, catalogado em issue (`@codex create-issues`)
 
 Manual validation notes:
 - 

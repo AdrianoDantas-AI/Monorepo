@@ -17,6 +17,7 @@ Este repositorio usa review do Codex via GitHub App (OAuth), sem workflow local 
 1. Ativar `Code review` nas configuracoes do Codex para este repositorio.
 2. Abrir/atualizar PR normalmente.
 3. Comentar no PR: `@codex review`.
+4. Para catalogar findings em issues rastreaveis, comentar: `/codex-create-issues` (ou `@codex create-issues`).
 
 ### Review guidelines
 - Priorizar bugs, regressao comportamental, risco de seguranca e quebra de contrato.
@@ -24,6 +25,8 @@ Este repositorio usa review do Codex via GitHub App (OAuth), sem workflow local 
 - Verificar isolamento multi-tenant por `tenant_id` em endpoints e queries.
 - Validar observabilidade minima (logs com `tenant_id`, `trip_id`, `vehicle_id` e metricas essenciais).
 - Reportar findings por severidade (`Critical`, `High`, `Medium`, `Low`) com path e recomendacao objetiva.
+- Converter findings em issues usando o workflow `.github/workflows/codex-findings-to-issues.yml`.
+- Seguir o fluxo operacional em `docs/codex-review-issues.md`.
 
 ## Registro de Mudancas e Erros (Obrigatorio)
 Antes de encerrar qualquer ciclo de trabalho, o agente deve:
