@@ -463,8 +463,9 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 - [x] `S2-013` Aplicar fallback automático para `mock` quando `MAPBOX_ACCESS_TOKEN` estiver ausente.
 - [x] `S2-014` Implementar `POST /api/v1/trips/:tripId/start` com mudança de status para `active`.
 - [x] `S2-015` Implementar deep links (Google/Waze) da próxima parada via `GET /api/v1/trips/:tripId/deep-links/next-stop`.
-- [ ] `S2-016` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-trip-deep-links-next-stop/`.
+- [x] `S2-020` Documentar API de trips via OpenAPI (`/openapi.json`) e Swagger (`/docs`).
+- [ ] `S2-016` a `S2-019` (pendentes).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-api-swagger-openapi/`.
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 
@@ -503,7 +504,7 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 | S2-017 | Testes integração fluxo criar trip -> otimizar -> gerar legs                     |         2h | S2-007..S2-016     | fluxo e2e backend verde          |
 | S2-018 | Logs estruturados de viagem (`tenant_id/trip_id`)                                |       0.5h | S2-007             | logs rastreáveis                 |
 | S2-019 | Métricas de latência endpoints de trips                                          |       0.5h | S2-007             | métrica exportada                |
-| S2-020 | Documentar API de trips no MD                                                    |         1h | S2-005..S2-014     | contratos e exemplos registrados |
+| S2-020 | Documentar API de trips no MD + OpenAPI/Swagger                                  |         1h | S2-005..S2-014     | contratos e exemplos registrados |
 
 ### Critério de conclusão da Sprint 2
 

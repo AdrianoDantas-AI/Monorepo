@@ -236,3 +236,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar `S2-015` com scoping multi-tenant, erro de dominio explicito e payload pronto para consumo do app.
 - Impacto no backlog/sprint: `S2-015` concluido; Sprint 2 segue para `S2-016` (baseline ETA/distancia planejada por leg).
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-next-stop-deep-links.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/trip-next-stop-deep-links.unit.test.ts`, `TNS/tests/integration/api-trip-next-stop-deep-links.integration.test.ts`, `TNS/packages/contracts/src/trip.ts`.
+
+## 2026-03-03 - Documentacao OpenAPI/Swagger adicionada na API
+- Contexto: Foi solicitada documentacao REST navegavel e contrato formal para os endpoints da API.
+- Decisao anterior: API sem endpoint de OpenAPI e sem Swagger UI publicado.
+- Decisao nova: Expor `GET /openapi.json` com OpenAPI 3.0.3 e `GET /docs` com Swagger UI.
+- Motivo da mudanca: Melhorar onboarding, integracao cliente e verificacao de contratos HTTP.
+- Impacto no backlog/sprint: `S2-020` considerado concluido com documentacao publica dos endpoints de trips/ops/health.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/openapi.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/openapi-docs.unit.test.ts`, `TNS/tests/integration/api-openapi-docs.integration.test.ts`, `openspec/changes/tns-api-swagger-openapi/`.

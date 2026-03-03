@@ -13,8 +13,10 @@ import {
   NextStopUnavailableError,
   buildNextStopDeepLinksForTrip,
 } from "./trip-next-stop-deep-links.js";
+import { createSwaggerUiHtml, openApiSpec } from "./openapi.js";
 
 const jsonContentType = { "content-type": "application/json" };
+const htmlContentType = { "content-type": "text/html; charset=utf-8" };
 
 export interface ApiAppDependencies {
   domainModules?: DomainModules;
@@ -25,6 +27,11 @@ export interface ApiAppDependencies {
 const sendJson = (res: ServerResponse, statusCode: number, payload: unknown): void => {
   res.writeHead(statusCode, jsonContentType);
   res.end(JSON.stringify(payload));
+};
+
+const sendHtml = (res: ServerResponse, statusCode: number, html: string): void => {
+  res.writeHead(statusCode, htmlContentType);
+  res.end(html);
 };
 
 const readJsonBody = async (req: IncomingMessage): Promise<unknown> =>
@@ -377,6 +384,16 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
 
       if (pathname === "/health" && req.method === "GET") {
         sendJson(res, 200, { status: "ok", service: "api" });
+        return;
+      }
+
+      if (pathname === "/openapi.json" && req.method === "GET") {
+        sendJson(res, 200, openApiSpec);
+        return;
+      }
+
+      if ((pathname === "/docs" || pathname === "/docs/") && req.method === "GET") {
+        sendHtml(res, 200, createSwaggerUiHtml("/openapi.json"));
         return;
       }
 
