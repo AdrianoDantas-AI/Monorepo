@@ -6,6 +6,7 @@ import {
   TripConflictError,
   type TripRepository,
 } from "./trip.repository.js";
+import { optimizeStopsNearestNeighbor } from "./stop-optimizer.js";
 
 const jsonContentType = { "content-type": "application/json" };
 
@@ -60,6 +61,16 @@ const readTenantIdFromHeaders = (req: IncomingMessage): string | null => {
 
 export const extractTripIdFromPathname = (pathname: string): string | null => {
   const match = /^\/api\/v1\/trips\/([^/]+)$/.exec(pathname);
+  if (!match) {
+    return null;
+  }
+
+  const tripId = decodeURIComponent(match[1] ?? "").trim();
+  return tripId.length > 0 ? tripId : null;
+};
+
+export const extractTripIdForStopOptimizationPath = (pathname: string): string | null => {
+  const match = /^\/api\/v1\/trips\/([^/]+)\/stops\/optimize$/.exec(pathname);
   if (!match) {
     return null;
   }
@@ -161,6 +172,53 @@ const handleGetTripById = async (
   sendJson(res, 200, { data: trip });
 };
 
+const handleOptimizeTripStops = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  tripRepository: TripRepository,
+  tripId: string,
+): Promise<void> => {
+  const tenantId = readTenantIdFromHeaders(req);
+  if (!tenantId) {
+    sendJson(res, 400, {
+      error: "Tenant ausente. Informe o header x-tenant-id.",
+    });
+    return;
+  }
+
+  const trip = await tripRepository.getById(tenantId, tripId);
+  if (!trip) {
+    sendJson(res, 404, {
+      error: "Trip nao encontrada para o tenant informado.",
+      trip_id: tripId,
+      tenant_id: tenantId,
+    });
+    return;
+  }
+
+  const optimization = optimizeStopsNearestNeighbor(trip.stops);
+  const updatedTrip = await tripRepository.update({
+    ...trip,
+    stops: optimization.stops,
+  });
+
+  if (!updatedTrip) {
+    sendJson(res, 404, {
+      error: "Trip nao encontrada para atualizar.",
+      trip_id: tripId,
+      tenant_id: tenantId,
+    });
+    return;
+  }
+
+  sendJson(res, 200, {
+    data: {
+      trip: updatedTrip,
+      strategy: optimization.strategy,
+    },
+  });
+};
+
 export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const domainModules = dependencies.domainModules ?? createDomainModules();
   const tripRepository = dependencies.tripRepository ?? new InMemoryTripRepository();
@@ -190,6 +248,12 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
       const tripId = extractTripIdFromPathname(pathname);
       if (tripId && req.method === "GET") {
         await handleGetTripById(req, res, tripRepository, tripId);
+        return;
+      }
+
+      const optimizeTripId = extractTripIdForStopOptimizationPath(pathname);
+      if (optimizeTripId && req.method === "POST") {
+        await handleOptimizeTripStops(req, res, tripRepository, optimizeTripId);
         return;
       }
 

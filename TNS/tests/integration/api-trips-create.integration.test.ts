@@ -40,18 +40,25 @@ test("POST/GET /api/v1/trips respeitam tenant scoping e detectam conflito", asyn
     status: "planned",
     stops: [
       {
-        id: "stop_api_002",
-        order: 1,
-        name: "Destino",
-        address: "Rua B",
-        location: { lat: -23.56, lng: -46.64 },
-      },
-      {
         id: "stop_api_001",
         order: 0,
         name: "Origem",
         address: "Rua A",
         location: { lat: -23.55, lng: -46.63 },
+      },
+      {
+        id: "stop_api_002",
+        order: 1,
+        name: "Longe",
+        address: "Rua B",
+        location: { lat: -23.55, lng: -46.13 },
+      },
+      {
+        id: "stop_api_003",
+        order: 2,
+        name: "Perto",
+        address: "Rua C",
+        location: { lat: -23.55, lng: -46.62 },
       },
     ],
   };
@@ -78,7 +85,7 @@ test("POST/GET /api/v1/trips respeitam tenant scoping e detectam conflito", asyn
     assert.equal(createdPayload.data.tenant_id, "tenant_api_001");
     assert.deepEqual(
       createdPayload.data.stops.map((stop) => stop.order),
-      [0, 1],
+      [0, 1, 2],
     );
 
     const getCreatedResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001`, {
@@ -96,6 +103,34 @@ test("POST/GET /api/v1/trips respeitam tenant scoping e detectam conflito", asyn
     };
     assert.equal(getCreatedPayload.data.id, "trip_api_001");
     assert.equal(getCreatedPayload.data.tenant_id, "tenant_api_001");
+
+    const optimizeResponse = await fetch(
+      `${app.baseUrl}/api/v1/trips/trip_api_001/stops/optimize`,
+      {
+        method: "POST",
+        headers: {
+          "x-tenant-id": "tenant_api_001",
+        },
+      },
+    );
+    assert.equal(optimizeResponse.status, 200);
+    const optimizePayload = (await optimizeResponse.json()) as {
+      data: {
+        strategy: string;
+        trip: {
+          stops: Array<{ id: string; order: number }>;
+        };
+      };
+    };
+    assert.equal(optimizePayload.data.strategy, "nearest-neighbor-v1");
+    assert.deepEqual(
+      optimizePayload.data.trip.stops.map((stop) => stop.id),
+      ["stop_api_001", "stop_api_003", "stop_api_002"],
+    );
+    assert.deepEqual(
+      optimizePayload.data.trip.stops.map((stop) => stop.order),
+      [0, 1, 2],
+    );
 
     const getWithOtherTenantResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001`, {
       method: "GET",
@@ -176,6 +211,19 @@ test("GET /api/v1/trips/:tripId exige header de tenant", async () => {
   try {
     const response = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001`, {
       method: "GET",
+    });
+
+    assert.equal(response.status, 400);
+  } finally {
+    await app.close();
+  }
+});
+
+test("POST /api/v1/trips/:tripId/stops/optimize exige header de tenant", async () => {
+  const app = await startServer();
+  try {
+    const response = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001/stops/optimize`, {
+      method: "POST",
     });
 
     assert.equal(response.status, 400);

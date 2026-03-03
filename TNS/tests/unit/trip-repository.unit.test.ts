@@ -38,4 +38,11 @@ test("repositorio em memoria aplica escopo por tenant e bloqueia duplicidade", a
   await assert.rejects(() => repository.create(sampleTrip), TripConflictError);
   assert.deepEqual(await repository.getById("tenant_repo_a", "trip_repo_001"), created);
   assert.equal(await repository.getById("tenant_repo_b", "trip_repo_001"), null);
+
+  const updated = await repository.update({
+    ...created,
+    status: "active",
+  });
+  assert.equal(updated?.status, "active");
+  assert.equal((await repository.getById("tenant_repo_a", "trip_repo_001"))?.status, "active");
 });

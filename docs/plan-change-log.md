@@ -180,3 +180,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterio de aceite do `S2-008` e manter consistencia de contrato para proxima etapa de otimizacao de stops.
 - Impacto no backlog/sprint: API suporta criar e consultar trip de forma segura por tenant, com cobertura unit/integration dedicada.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `TNS/tests/unit/api-paths.unit.test.ts`.
+
+## 2026-03-03 - Execucao do S2-009 com otimizacao de ordem de stops
+- Contexto: Com criacao/consulta de trips prontas, faltava endpoint de otimizacao para destravar geracao de legs.
+- Decisao anterior: Ordem de stops permanecia exatamente como cadastrada, sem endpoint de otimização.
+- Decisao nova: Implementar `POST /api/v1/trips/:tripId/stops/optimize` com estrategia deterministica `nearest-neighbor-v1`.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-009` ("retorna ordem otimizada") e preparar base para `S2-010`.
+- Impacto no backlog/sprint: Trip passa a ser atualizada no repositorio com nova ordem dos stops e resposta explicita da estrategia aplicada.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/stop-optimizer.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/stop-optimizer.unit.test.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.

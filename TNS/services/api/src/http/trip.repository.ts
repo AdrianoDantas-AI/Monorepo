@@ -13,6 +13,7 @@ export class TripConflictError extends Error {
 export interface TripRepository {
   create(trip: TripDTO): Promise<TripDTO>;
   getById(tenantId: string, tripId: string): Promise<TripDTO | null>;
+  update(trip: TripDTO): Promise<TripDTO | null>;
 }
 
 const cloneTrip = (trip: TripDTO): TripDTO => structuredClone(trip);
@@ -35,6 +36,17 @@ export class InMemoryTripRepository implements TripRepository {
     const key = this.toScopedKey(tenantId, tripId);
     const trip = this.tripsByTenantAndId.get(key);
     return trip ? cloneTrip(trip) : null;
+  }
+
+  async update(trip: TripDTO): Promise<TripDTO | null> {
+    const key = this.toScopedKey(trip.tenant_id, trip.id);
+    if (!this.tripsByTenantAndId.has(key)) {
+      return null;
+    }
+
+    const persisted = cloneTrip(trip);
+    this.tripsByTenantAndId.set(key, persisted);
+    return cloneTrip(persisted);
   }
 
   private toScopedKey(tenantId: string, tripId: string): string {
