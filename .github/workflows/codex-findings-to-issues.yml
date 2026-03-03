@@ -34,8 +34,8 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const prNumber = context.eventName === "workflow_dispatch"
-              ? Number(core.getInput("pr_number"))
-              : Number(context.payload.issue.number);
+              ? Number(context.payload.inputs?.pr_number)
+              : Number(context.payload.issue?.number);
 
             if (!prNumber || Number.isNaN(prNumber)) {
               core.setFailed("PR numero invalido para catalogacao.");

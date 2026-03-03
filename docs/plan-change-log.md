@@ -100,3 +100,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Evitar PR bloqueado por check esperado e nao executado quando houver mudanca de workflow.
 - Impacto no backlog/sprint: Todo ajuste de workflow passa a validar no mesmo pipeline obrigatorio.
 - Referencias (arquivos/PR/issue): `.github/workflows/ci.yml`, `PR #3`.
+
+## 2026-03-03 - Ajuste de input do workflow de catalogacao para dispatch manual
+- Contexto: Validacao manual do workflow de catalogacao falhou apos merge inicial.
+- Decisao anterior: Ler numero do PR via `core.getInput(\"pr_number\")`.
+- Decisao nova: Ler numero do PR via `context.payload.inputs?.pr_number` para evento `workflow_dispatch`.
+- Motivo da mudanca: Corrigir leitura de input no contexto de `actions/github-script`.
+- Impacto no backlog/sprint: Permite disparo manual confiavel para smoke e operacao de catalogacao.
+- Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, run `22606740685`.

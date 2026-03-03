@@ -88,3 +88,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Refatoracao de `Invoke-Gh` para invocacao nativa com array de argumentos, fallback para ambientes sem `PSNativeCommandUseErrorActionPreference` e normalizacao de output.
 - Prevencao/acao futura: Validar script em caminhos com espacos e incluir smoke de update real apos alteracoes no helper.
 - Referencias (comando/arquivo): `scripts/github/apply-ruleset.ps1`, `powershell -File .\\scripts\\github\\apply-ruleset.ps1`.
+
+## 2026-03-03 - Workflow de catalogacao falhou em `workflow_dispatch` por leitura incorreta do input
+- Sintoma: Run `22606740685` falhou com `PR numero invalido para catalogacao`.
+- Causa raiz: O script leu input com `core.getInput`, que nao captura `workflow_dispatch` inputs neste contexto.
+- Correcao aplicada: Troca para `context.payload.inputs?.pr_number` no workflow `.github/workflows/codex-findings-to-issues.yml`.
+- Prevencao/acao futura: Validar disparo manual imediatamente apos merge de workflows novos.
+- Referencias (comando/arquivo): `gh workflow run codex-findings-to-issues.yml -f pr_number=2`, run `22606740685`.
