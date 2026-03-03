@@ -60,3 +60,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: O bot respondeu explicitamente com instrucao para conectar conta no link de settings do Codex.
 - Impacto no backlog/sprint: Review automatico segue bloqueado ate concluir conexao do conector; smoke deve ser repetido apos habilitacao.
 - Referencias (arquivos/PR/issue): `PR #2`, comentarios `chatgpt-codex-connector[bot]`.
+
+## 2026-03-03 - Codex review validado apos ajuste de conector
+- Contexto: Usuario confirmou ajuste do conector e solicitou novo retry.
+- Decisao anterior: Considerar review automatico bloqueado no repositorio.
+- Decisao nova: Retomar uso de `@codex review` como fluxo padrao de smoke/review.
+- Motivo da mudanca: Novo comentario no PR #2 retornou resposta positiva do bot com review concluido.
+- Impacto no backlog/sprint: Reativacao do reviewer automatico para PRs futuros; remover bloqueio operacional do checklist.
+- Referencias (arquivos/PR/issue): `PR #2`, comentario `chatgpt-codex-connector[bot]` em `2026-03-03T02:55:47Z`.

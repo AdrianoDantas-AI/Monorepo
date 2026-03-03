@@ -60,3 +60,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Retry executado no PR #2 e evidencias capturadas com resposta do `chatgpt-codex-connector[bot]`.
 - Prevencao/acao futura: Finalizar conexao em `https://chatgpt.com/codex/settings/connectors` e repetir smoke com novo `@codex review`.
 - Referencias (comando/arquivo): `gh pr comment 2 --body \"@codex review\"`, `gh api repos/CaosHorseman/Monorepo/issues/2/comments`.
+
+## 2026-03-03 - Resolucao do bloqueio do Codex reviewer (conector)
+- Sintoma: Historico anterior de `@codex review` sem revisao tecnica, apenas aviso de conexao pendente.
+- Causa raiz: Conector Codex-GitHub nao estava habilitado para a conta/repositorio.
+- Correcao aplicada: Conexao ajustada e novo retry em `PR #2`; o bot respondeu com review concluido ("Didn't find any major issues").
+- Prevencao/acao futura: Manter verificacao de onboarding do conector em novos repos antes de smoke e documentar PR de validacao.
+- Referencias (comando/arquivo): `gh pr comment 2 --body \"@codex review\"`, `repos/AdrianoDantas-AI/Monorepo/issues/2/comments`.
