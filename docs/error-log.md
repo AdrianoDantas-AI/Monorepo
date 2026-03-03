@@ -144,3 +144,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Troca para `assert.deepEqual` no teste.
 - Prevencao/acao futura: Em testes de DTO/entidades retornadas por copia, usar comparacao estrutural por padrao.
 - Referencias (comando/arquivo): `TNS/tests/unit/trip-repository.unit.test.ts`, `corepack pnpm --dir TNS verify`.
+
+## 2026-03-03 - OpenSpec instalado com aviso de engine do Node
+- Sintoma: `npm install -g @fission-ai/openspec@latest` concluiu com `npm WARN EBADENGINE` para `@fission-ai/openspec@1.2.0` e `posthog-node`.
+- Causa raiz: Ambiente atual com `node v20.10.0`, abaixo do minimo recomendado pelo pacote (`>=20.19.0`).
+- Correcao aplicada: Instalacao mantida e validada funcionalmente (`openspec --version`, `openspec validate --all`); fluxo aplicado no repo.
+- Prevencao/acao futura: Atualizar Node para `>=20.19.0` (idealmente LTS atual) para eliminar risco de incompatibilidade futura.
+- Referencias (comando/arquivo): `npm install -g @fission-ai/openspec@latest`, `openspec --version`, `openspec validate --all`.

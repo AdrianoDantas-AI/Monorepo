@@ -212,3 +212,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterio de aceite do `S2-014` e preparar fluxo para progresso em tempo real (`S3`).
 - Impacto no backlog/sprint: Trip pode ser iniciada explicitamente, com status `active` e baseline de acompanhamento persistidos.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `TNS/tests/unit/api-paths.unit.test.ts`.
+
+## 2026-03-03 - Adocao do OpenSpec como fluxo oficial de mudancas
+- Contexto: Foi solicitada implantacao do OpenSpec no monorepo com aplicacao completa do workflow.
+- Decisao anterior: Planejamento e especificacao eram conduzidos principalmente em Markdown livre (`Codex-TNS.md`, logs e docs centrais).
+- Decisao nova: Adotar OpenSpec na raiz com `openspec/`, skills locais para Codex e capability consolidada em `openspec/specs/`.
+- Motivo da mudanca: Padronizar proposta/design/requisitos/tasks com validacao formal e arquivamento versionado.
+- Impacto no backlog/sprint: Mudancas relevantes passam a seguir fluxo OpenSpec antes/durante implementacao; baseline consolidado em `openspec/specs/openspec-monorepo-governance/spec.md`.
+- Referencias (arquivos/PR/issue): `openspec/README.md`, `.codex/skills/openspec-*`, `openspec/specs/openspec-monorepo-governance/spec.md`, `MONOREPO.md`, `AGENTS.md`.
