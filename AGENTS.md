@@ -23,3 +23,16 @@ Este repositorio usa review do Codex via GitHub App (OAuth), sem workflow local 
 - Verificar isolamento multi-tenant por `tenant_id` em endpoints e queries.
 - Validar observabilidade minima (logs com `tenant_id`, `trip_id`, `vehicle_id` e metricas essenciais).
 - Reportar findings por severidade (`Critical`, `High`, `Medium`, `Low`) com path e recomendacao objetiva.
+
+## Registro de Mudancas e Erros (Obrigatorio)
+Antes de encerrar qualquer ciclo de trabalho, o agente deve:
+
+1. Registrar mudancas de plano em `docs/plan-change-log.md`.
+2. Registrar erros e correcoes em `docs/error-log.md`.
+3. Incluir motivo da mudanca e causa raiz do erro quando houver.
+4. Manter entradas curtas, datadas e objetivas.
+
+Checklist de fechamento do agente:
+- Plano mudou? Registrar em `docs/plan-change-log.md`.
+- Ocorreu erro relevante? Registrar em `docs/error-log.md`.
+- Houve mitigacao/prevecao? Registrar junto na mesma entrada.

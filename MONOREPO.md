@@ -10,6 +10,8 @@ O objetivo e compartilhar contexto, padroes e uma governanca minima comum entre 
 - Todo projeto deve ter ao menos um documento de entrada (README, Codex ou equivalente).
 - Nomes de pastas devem ser curtos, descritivos e sem espacos.
 - Alteracoes que afetem multiplos projetos devem indicar impacto cruzado no PR/commit.
+- Toda mudanca de plano (escopo, prioridade, abordagem, ferramenta) deve ser registrada com motivo em `docs/plan-change-log.md`.
+- Todo erro relevante encontrado durante execucao deve ser registrado com causa e correcao em `docs/error-log.md`.
 
 ## 3. Regra Obrigatoria para Agentes
 Qualquer agente deve ler este `MONOREPO.md` antes de entrar em qualquer projeto interno.
@@ -69,3 +71,24 @@ Copie e preencha o bloco abaixo para cada novo projeto:
 - `Ultima atualizacao`: <AAAA-MM-DD>
 - `Documento de entrada`: /<pasta>/<arquivo-inicial>.md
 ```
+
+## 8. Registro Obrigatorio de Contexto
+Para manter historico tecnico reutilizavel:
+
+1. Sempre registrar mudancas de plano em `docs/plan-change-log.md`, incluindo:
+- contexto,
+- decisao anterior,
+- decisao nova,
+- motivo da mudanca,
+- impacto no backlog/sprint.
+
+2. Sempre registrar erros e correcoes em `docs/error-log.md`, incluindo:
+- sintoma,
+- causa raiz,
+- correcao aplicada,
+- prevencao para recorrencia.
+
+3. Regras de operacao:
+- O registro deve ser feito no mesmo ciclo de trabalho da mudanca/erro.
+- Entradas devem ser curtas e objetivas.
+- Priorizar fatos verificaveis (comando, arquivo, workflow ou etapa impactada).
