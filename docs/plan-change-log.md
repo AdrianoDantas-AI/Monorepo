@@ -316,3 +316,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Fechar `S3-007` com contrato público estável e proteção contra regressões.
 - Impacto no backlog/sprint: `S3-007` concluído; Sprint 3 segue para `S3-008` (eventos de desvio de rota).
 - Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/trip.ts`, `TNS/tests/unit/trip-contract-versioning.unit.test.ts`, `TNS/tests/integration/contracts.integration.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-endpoint-finalize/`.
+
+## 2026-03-03 - Execucao do S3-008/S3-009/S3-010 com emissao de eventos off-route v1
+- Contexto: A máquina de estado de desvio já detectava transições, mas não produzia eventos versionados.
+- Decisao anterior: Fluxo retornava apenas estado/razão interna (`suspected/confirmed/normal`) sem objeto de evento operacional.
+- Decisao nova: Implementar builder de transição para emitir `off_route.suspected.v1`, `off_route.confirmed.v1` e `back_on_route.v1`.
+- Motivo da mudanca: Fechar bloco de eventos da Sprint 3 e preparar consumo por `alerts`/`ws`.
+- Impacto no backlog/sprint: `S3-008`, `S3-009` e `S3-010` concluídos; próxima task é `S3-011` (`GET /api/v1/alerts`).
+- Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-events.ts`, `TNS/tests/unit/off-route-events.unit.test.ts`, `TNS/tests/integration/off-route-events.integration.test.ts`, `openspec/changes/tns-off-route-events-v1/`.

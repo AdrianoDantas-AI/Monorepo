@@ -534,8 +534,11 @@ Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dash
 - [x] `S3-005` Expor cálculo de km percorrido/restante por trip ativa em `GET /api/v1/trips/:tripId/progress`.
 - [x] `S3-006` Atualizar `eta_s` de forma dinâmica no endpoint de progresso com base na distância restante.
 - [x] `S3-007` Finalizar `GET /api/v1/trips/:tripId/progress` com contrato versionado `TripProgressDTO`.
-- [ ] `S3-008` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-trip-progress-endpoint-finalize/`.
+- [x] `S3-008` Emitir evento `off_route.suspected.v1`.
+- [x] `S3-009` Emitir evento `off_route.confirmed.v1`.
+- [x] `S3-010` Emitir evento `back_on_route.v1`.
+- [ ] `S3-011` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-off-route-events-v1/`.
 
 ### Backlog granular (Sprint 3)
 
