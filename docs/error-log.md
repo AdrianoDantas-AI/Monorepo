@@ -172,3 +172,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Reexecucao sem a flag (`openspec new change tns-dashboard-trips-realtime`) e continuidade do fluxo normalmente.
 - Prevencao/acao futura: Validar opcoes suportadas com `openspec --help` antes de usar flags em comandos de scaffold.
 - Referencias (comando/arquivo): `openspec new change tns-dashboard-trips-realtime --json`, `openspec new change tns-dashboard-trips-realtime`.
+
+## 2026-03-03 - Falha de `verify` por regex invalida em teste de integracao
+- Sintoma: `corepack pnpm --dir TNS verify` falhou com `TransformError` em `web-dashboard.integration.test.ts` (`Syntax error`).
+- Causa raiz: Expressao regular no assert do HTML de detalhe foi escrita com delimitacao invalida.
+- Correcao aplicada: Troca da regex por verificacao direta com `detailHtml.includes(...)`.
+- Prevencao/acao futura: Para payloads HTML/JSON serializados em string, priorizar asserts por `includes` quando regex nao agrega ganho claro.
+- Referencias (comando/arquivo): `TNS/tests/integration/web-dashboard.integration.test.ts`, `corepack pnpm --dir TNS verify`.

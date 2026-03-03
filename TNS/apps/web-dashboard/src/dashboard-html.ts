@@ -139,6 +139,7 @@ export const renderDashboardHtml = (config: DashboardHtmlConfig): string => {
           <thead>
             <tr>
               <th>Trip</th>
+              <th>Status</th>
               <th>Progresso</th>
               <th>Distancia restante (m)</th>
               <th>ETA (s)</th>
@@ -241,8 +242,15 @@ export const renderDashboardHtml = (config: DashboardHtmlConfig): string => {
 
           for (const row of rows) {
             const tr = document.createElement("tr");
+            const tripCell = document.createElement("td");
+            const tripLink = document.createElement("a");
+            tripLink.href = "/trips/" + encodeURIComponent(row.trip_id);
+            tripLink.textContent = row.trip_id;
+            tripCell.appendChild(tripLink);
+            tr.appendChild(tripCell);
+
             const values = [
-              row.trip_id,
+              row.status || "-",
               row.progress_pct === null ? "-" : row.progress_pct.toFixed(1) + "%",
               formatNumber(row.distance_remaining_m),
               formatNumber(row.eta_s),
@@ -263,6 +271,7 @@ export const renderDashboardHtml = (config: DashboardHtmlConfig): string => {
         const applyEvent = (event) => {
           const current = rowsByTrip.get(event.trip_id) || {
             trip_id: event.trip_id,
+            status: null,
             progress_pct: null,
             distance_remaining_m: null,
             eta_s: null,

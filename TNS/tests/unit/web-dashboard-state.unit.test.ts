@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   applyRealtimeUpdateToTrips,
+  buildTripLiveStatusFromApiTrip,
   parseDashboardRealtimeUpdate,
   sortTripsByLastUpdate,
 } from "../../apps/web-dashboard/src/dashboard-state.js";
@@ -109,13 +110,40 @@ test("config de runtime do dashboard usa env vars e monta URL de subscription", 
     WEB_DASHBOARD_PORT: "3010",
     WEB_DASHBOARD_TENANT_ID: "tenant_unit_001",
     WEB_DASHBOARD_REALTIME_WS_URL: "ws://127.0.0.1:3002/ws",
+    WEB_DASHBOARD_API_BASE_URL: "http://127.0.0.1:3000",
   });
 
   assert.equal(config.port, 3010);
   assert.equal(config.tenantId, "tenant_unit_001");
+  assert.equal(config.apiBaseUrl, "http://127.0.0.1:3000");
 
   const subscriptionUrl = buildRealtimeSubscriptionUrl(config.realtimeWsUrl, config.tenantId);
   const parsedUrl = new URL(subscriptionUrl);
   assert.equal(parsedUrl.searchParams.get("tenant_id"), "tenant_unit_001");
   assert.equal(parsedUrl.searchParams.get("channels"), "trip.progress.v1,alert.event.v1");
+});
+
+test("buildTripLiveStatusFromApiTrip normaliza snapshot da API para o dashboard", () => {
+  const normalized = buildTripLiveStatusFromApiTrip(
+    {
+      id: "trip_snapshot_001",
+      status: "active",
+      route_track: {
+        progress_pct: 61.2,
+        distance_remaining_m: 4200,
+        eta_s: 360,
+      },
+    },
+    "2026-03-03T20:10:00.000Z",
+  );
+
+  assert.deepEqual(normalized, {
+    trip_id: "trip_snapshot_001",
+    status: "active",
+    progress_pct: 61.2,
+    distance_remaining_m: 4200,
+    eta_s: 360,
+    alert_event: null,
+    last_update_ts: "2026-03-03T20:10:00.000Z",
+  });
 });

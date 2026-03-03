@@ -3,6 +3,7 @@ export type RealtimeDashboardChannel = (typeof realtimeDashboardChannels)[number
 
 export type TripLiveStatus = {
   trip_id: string;
+  status: string | null;
   progress_pct: number | null;
   distance_remaining_m: number | null;
   eta_s: number | null;
@@ -119,6 +120,7 @@ export const parseDashboardRealtimeUpdate = (
 
 const createEmptyTripLiveStatus = (tripId: string, ts: string): TripLiveStatus => ({
   trip_id: tripId,
+  status: null,
   progress_pct: null,
   distance_remaining_m: null,
   eta_s: null,
@@ -164,3 +166,37 @@ export const sortTripsByLastUpdate = (state: TripsLiveState): TripLiveStatus[] =
 
     return left.trip_id.localeCompare(right.trip_id);
   });
+
+export const buildTripLiveStatusFromApiTrip = (
+  rawTrip: unknown,
+  observedAt: string = new Date().toISOString(),
+): TripLiveStatus | null => {
+  if (!isRecord(rawTrip)) {
+    return null;
+  }
+
+  const tripId = asNonEmptyString(rawTrip.id);
+  if (!tripId) {
+    return null;
+  }
+
+  const status = asNonEmptyString(rawTrip.status);
+  const routeTrack = rawTrip.route_track;
+  const routeTrackRecord = isRecord(routeTrack) ? routeTrack : null;
+
+  const progressPct = routeTrackRecord ? asFiniteNumber(routeTrackRecord.progress_pct) : null;
+  const distanceRemainingM = routeTrackRecord
+    ? asFiniteNumber(routeTrackRecord.distance_remaining_m)
+    : null;
+  const etaS = routeTrackRecord ? asFiniteNumber(routeTrackRecord.eta_s) : null;
+
+  return {
+    trip_id: tripId,
+    status,
+    progress_pct: progressPct,
+    distance_remaining_m: distanceRemainingM,
+    eta_s: etaS,
+    alert_event: null,
+    last_update_ts: observedAt,
+  };
+};

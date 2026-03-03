@@ -348,3 +348,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar criterio de aceite do `S3-013` ("lista ao vivo") com base no contrato de realtime da Sprint 3.
 - Impacto no backlog/sprint: `S3-013` concluido; proxima task passa para `S3-014` (detalhe da viagem com progresso e ETA).
 - Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/dashboard-html.ts`, `TNS/apps/web-dashboard/src/dashboard-state.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `openspec/changes/tns-dashboard-trips-realtime/`.
+
+## 2026-03-03 - Execucao do S3-014 com detalhe da viagem em tempo real
+- Contexto: A lista de trips ao vivo estava pronta, mas faltava visao detalhada por viagem para operacao diaria.
+- Decisao anterior: Dashboard apresentava apenas lista agregada sem rota de detalhe por `tripId`.
+- Decisao nova: Implementar rota `/trips/:tripId`, endpoint interno de snapshot (`/api/trips/:tripId/snapshot`) e atualizacao realtime filtrada por `trip_id`.
+- Motivo da mudanca: Entregar criterio de aceite do `S3-014` (detalhe funcional com progresso e ETA) aproveitando contratos e canais ja concluídos.
+- Impacto no backlog/sprint: `S3-014` concluido; proxima task passa para `S3-015` (tela de alerts com filtros).
+- Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/trip-detail-html.ts`, `TNS/apps/web-dashboard/src/dashboard-state.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `openspec/changes/tns-dashboard-trip-detail-progress/`.
