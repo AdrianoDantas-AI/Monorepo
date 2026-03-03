@@ -391,3 +391,169 @@ Quando um agente for implementar algo:
    - testes do core,
    - observabilidade (logs + métricas).
 
+---
+
+## 13) Sprint 2 — MVP Core (Trip/Stops/Rotas)
+
+### Objetivo
+Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tracking.
+
+### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
+1. `POST /api/v1/trips`
+2. `POST /api/v1/trips/:tripId/stops/optimize`
+3. `GET /api/v1/trips/:tripId`
+4. `POST /api/v1/trips/:tripId/start`
+5. `GET /api/v1/trips/:tripId/progress` (solidificado com cálculo real)
+6. `GET /api/v1/alerts` (filtros por tenant/trip/severidade/status)
+7. `GET /ops/release-status` (finalizado para operação local)
+8. WebSocket channels `trip.progress.v1` e `alert.event.v1`
+9. Contratos `TripDTO`, `StopDTO`, `LegDTO`, `RoutePlanDTO`, `RouteTrackDTO`, `AlertEventV1`, `ReleaseStatusDTO`
+10. Interface `MapProvider` com modo `mock` e `mapbox` via feature flag (`MAP_PROVIDER_MODE`)
+
+### Backlog granular (Sprint 2)
+
+| ID | Tarefa | Estimativa | Dependência | Critério de aceite |
+|---|---|---:|---|---|
+| S2-001 | Criar módulos `Trip`, `Stop`, `Leg`, `RoutePlan`, `RouteTrack` no `services/api` | 2h | Sprint 1 API base | módulos compilam e sobem |
+| S2-002 | Expandir schema Prisma com entidades de viagem | 2h | S2-001 | migração gerada sem erro |
+| S2-003 | Criar migrations SQL para índices geoespaciais essenciais | 1.5h | S2-002 | índices aplicados |
+| S2-004 | Criar seed de dados para trips/stops demo | 1h | S2-002 | seed reproduzível |
+| S2-005 | Definir `TripDTO/StopDTO/LegDTO` em `packages/contracts` | 1.5h | S2-001 | schemas versionados |
+| S2-006 | Testes de contrato para DTOs de viagem | 1h | S2-005 | snapshots estáveis |
+| S2-007 | Implementar `POST /api/v1/trips` | 1.5h | S2-002,S2-005 | cria trip com tenant scoping |
+| S2-008 | Implementar `GET /api/v1/trips/:tripId` | 1h | S2-007 | retorno consistente com contrato |
+| S2-009 | Implementar `POST /api/v1/trips/:tripId/stops/optimize` | 2h | S2-007 | retorna ordem otimizada |
+| S2-010 | Implementar geração de `Legs` com polyline e métricas | 2h | S2-009 | legs persistidas |
+| S2-011 | Criar `MapProvider` runtime selector (`mock`/`mapbox`) | 1.5h | Sprint 1 contratos | troca por env var |
+| S2-012 | Implementar `MapboxProvider` mínimo (directions/geocoding) | 2h | S2-011 | integração funcional |
+| S2-013 | Implementar fallback mock quando token ausente | 1h | S2-011 | dev local não bloqueia |
+| S2-014 | Endpoint `POST /api/v1/trips/:tripId/start` | 1h | S2-010 | status da trip muda para ativa |
+| S2-015 | Gerador de deep links (Google/Waze) para próxima parada | 1h | S2-010 | link válido por leg |
+| S2-016 | Persistir baseline de ETA/distância planejada por leg | 1h | S2-010 | dados base para detour |
+| S2-017 | Testes integração fluxo criar trip -> otimizar -> gerar legs | 2h | S2-007..S2-016 | fluxo e2e backend verde |
+| S2-018 | Logs estruturados de viagem (`tenant_id/trip_id`) | 0.5h | S2-007 | logs rastreáveis |
+| S2-019 | Métricas de latência endpoints de trips | 0.5h | S2-007 | métrica exportada |
+| S2-020 | Documentar API de trips no MD | 1h | S2-005..S2-014 | contratos e exemplos registrados |
+
+### Critério de conclusão da Sprint 2
+1. Trip com múltiplas paradas criada, otimizada e iniciada.
+2. Legs com polyline e baseline ETA/distância persistidas.
+3. Deep link da próxima parada disponível.
+4. Testes unit/integração de domínio e contratos verdes.
+
+---
+
+## 14) Sprint 3 — Tracking + Alertas + Dashboard
+
+### Objetivo
+Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dashboard).
+
+### Backlog granular (Sprint 3)
+
+| ID | Tarefa | Estimativa | Dependência | Critério de aceite |
+|---|---|---:|---|---|
+| S3-001 | Consolidar tiers Bronze/Silver/Gold em config versionada | 1h | Sprint 1 ingest | thresholds centralizados |
+| S3-002 | Implementar máquina de estado `normal/suspeita/confirmado` | 2h | S3-001 | transições testadas |
+| S3-003 | Filtro anti-ruído por `accuracy_m` | 1h | S3-002 | ruído não gera alerta imediato |
+| S3-004 | Cálculo real de progresso sobre polyline | 2h | Sprint 2 legs | progresso consistente |
+| S3-005 | Cálculo km percorrido/restante por trip ativa | 1h | S3-004 | valores no endpoint |
+| S3-006 | Cálculo ETA aproximado atualizado por ping | 1.5h | S3-004 | ETA disponível |
+| S3-007 | Finalizar `GET /api/v1/trips/:tripId/progress` | 1h | S3-004..S3-006 | resposta final contratada |
+| S3-008 | Emitir evento `off_route.suspected.v1` | 1h | S3-002 | evento versionado |
+| S3-009 | Emitir evento `off_route.confirmed.v1` | 1h | S3-002 | evento versionado |
+| S3-010 | Emitir evento `back_on_route.v1` | 1h | S3-002 | retorno de rota detectado |
+| S3-011 | Criar `GET /api/v1/alerts` com filtros | 1.5h | S3-008..S3-010 | lista de alertas funcional |
+| S3-012 | Publicar canais WS `trip.progress.v1` e `alert.event.v1` | 1.5h | S3-007..S3-010 | stream ativo |
+| S3-013 | Tela dashboard `trips` com status em tempo real | 2h | Sprint 1 web | lista ao vivo |
+| S3-014 | Tela detalhe da viagem com progresso e ETA | 2h | S3-007,S3-012 | detalhe funcional |
+| S3-015 | Tela `alerts` com filtros básicos | 1.5h | S3-011 | operação de alertas funcional |
+| S3-016 | Integrar mapa em tempo real no dashboard (Mapbox GL) | 2h | S3-013 | rota + posição atual |
+| S3-017 | Mecanismo mínimo de envio email para alertas confirmados | 1.5h | S3-009 | envio assíncrono funcionando |
+| S3-018 | Testes integração ingest -> worker -> ws -> dashboard payload | 2h | S3-012 | contrato ponta-a-ponta validado |
+| S3-019 | Testes unitários regras Bronze e confirmação temporal | 1.5h | S3-002 | regras sem regressão |
+| S3-020 | Documentar fluxo operacional em `Codex-TNS.md` | 1h | S3-001..S3-017 | guia atualizado |
+
+### Critério de conclusão da Sprint 3
+1. Fluxo real-time completo disponível no dashboard.
+2. Alertas suspeito/confirmado/back-on-route emitidos e listáveis.
+3. Progresso, km e ETA disponíveis por trip.
+4. Contratos WS/API cobertos por testes.
+
+---
+
+## 15) Sprint 4 — Deploy Local RC + AWS Staging-Ready
+
+### Objetivo
+Colocar o sistema em estado de release local confiável e com trilha pronta para staging AWS.
+
+### Backlog granular (Sprint 4)
+
+| ID | Tarefa | Estimativa | Dependência | Critério de aceite |
+|---|---|---:|---|---|
+| S4-001 | Revisar Dockerfiles multi-stage de todos serviços | 1.5h | Sprints 1-3 | imagens estáveis |
+| S4-002 | Ajustar `compose.yml` com profiles (`core`, `full`) | 1h | S4-001 | subida por perfil |
+| S4-003 | Adicionar healthchecks finais (api/ingest/worker/ws/web/db/redis) | 1h | S4-002 | status saudável |
+| S4-004 | Padronizar variáveis de ambiente por serviço | 1h | S4-002 | `.env.example` completo |
+| S4-005 | Implementar readiness endpoint por serviço | 1h | S4-003 | readiness consultável |
+| S4-006 | Finalizar `GET /ops/release-status` (version, commit, env, health) | 1h | S4-005 | payload completo |
+| S4-007 | Finalizar tela `/deploy` consumindo release-status | 1h | S4-006 | tela operacional |
+| S4-008 | Incluir links de runbook/logs na `/deploy` | 0.5h | S4-007 | operação guiada |
+| S4-009 | Criar workflow CI `build-and-test` com matriz de serviços | 1.5h | Sprint 1 CI | pipeline consistente |
+| S4-010 | Criar workflow `docker-build` para imagens tagged por commit | 1.5h | S4-009 | artefatos versionados |
+| S4-011 | Configurar scan Trivy nas imagens geradas | 0.5h | S4-010 | relatório de segurança |
+| S4-012 | Configurar gates finais (lint/typecheck/test/security High/Critical) | 1h | S4-009..011 | política aplicada |
+| S4-013 | Criar pasta `infra/terraform/staging` (skeleton) | 1h | S4-004 | estrutura IaC pronta |
+| S4-014 | Definir módulos placeholders `network`, `data`, `services` | 1.5h | S4-013 | plano organizacional pronto |
+| S4-015 | Criar `tfvars.example` de staging | 0.5h | S4-013 | parâmetros documentados |
+| S4-016 | Mapear serviços Docker -> serviços ECS (documento de mapping) | 1h | S4-013 | trilha de migração clara |
+| S4-017 | Criar runbook `local-release.md` (subir, validar, rollback) | 1h | S4-002..S4-008 | operação reprodutível |
+| S4-018 | Criar runbook `staging-readiness.md` (checklist pré-AWS) | 1h | S4-013..S4-016 | checklist fechado |
+| S4-019 | Teste de carga leve no ingest (cenário bronze) | 1h | Sprints 2-3 | comportamento conhecido |
+| S4-020 | Teste de chaos básico (restart worker/realtime) | 1h | S4-003 | recuperação validada |
+| S4-021 | Auditoria final de multi-tenant em APIs críticas | 1h | Sprints 2-3 | sem vazamento entre tenants |
+| S4-022 | Congelar contratos v1 para release local | 0.5h | S3-020 | versão estável |
+| S4-023 | Checklist final Go/No-Go de deploy local | 0.5h | S4-001..S4-022 | release decisionável |
+| S4-024 | Registrar retro técnica e backlog pós-deploy | 0.5h | fim sprint | próximos passos definidos |
+
+### Critério de conclusão da Sprint 4
+1. `docker compose --profile full up -d` sobe stack completa sem erro crítico.
+2. Tela `/deploy` mostra estado operacional real.
+3. Pipelines de CI e build de imagem estáveis.
+4. Runbooks de operação local e readiness de staging prontos.
+5. Checklist Go/No-Go aprovado.
+
+---
+
+## 16) Critérios de Go/No-Go de Deploy
+
+1. Todos serviços `healthy` por pelo menos 30 minutos em execução contínua.
+2. Fluxo ponta-a-ponta validado: `trip criada -> pings -> alerta -> dashboard`.
+3. Zero falhas `High/Critical` nos scans obrigatórios.
+4. `pnpm -r test` e integrações críticas com sucesso.
+5. `/deploy` consistente com estado real.
+6. Logs com `tenant_id/trip_id/vehicle_id` nos fluxos críticos.
+
+---
+
+## 17) Riscos, Mitigações e Itens Pós-Deploy
+
+### Riscos principais
+1. Custo e latência de chamadas de mapas acima do previsto.
+2. Falso positivo em detecção de desvio por ruído de GPS.
+3. Gargalo no ingest/worker com aumento de pings.
+4. Regressões de isolamento multi-tenant.
+5. Instabilidade de serviços em reinício local.
+
+### Mitigações
+1. `MapProvider` com modo `mock`/`mapbox`, cache e fallback para reduzir custo.
+2. Filtro por `accuracy_m` + confirmação por janela antes de alerta confirmado.
+3. Rate limit por tenant + fila assíncrona + testes de carga leve por sprint.
+4. Testes de integração específicos para `tenant_id` em endpoints críticos.
+5. Healthchecks + runbook de rollback + teste de chaos básico.
+
+### Itens pós-deploy local (próxima etapa)
+1. Aplicar Terraform de staging AWS (`network/data/services`) com segredos gerenciados.
+2. Publicar imagens em registry e amarrar pipeline de promoção para staging.
+3. Implementar detour (tempo/distância) em produção com controle de custo.
+4. Evoluir alertas para push/SMS por plano.
+5. Iniciar `driver-mobile` (integração real de ping/deep link) após estabilização do backend.
