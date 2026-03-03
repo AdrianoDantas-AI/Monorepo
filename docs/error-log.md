@@ -95,3 +95,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Troca para `context.payload.inputs?.pr_number` no workflow `.github/workflows/codex-findings-to-issues.yml`.
 - Prevencao/acao futura: Validar disparo manual imediatamente apos merge de workflows novos.
 - Referencias (comando/arquivo): `gh workflow run codex-findings-to-issues.yml -f pr_number=2`, run `22606740685`.
+
+## 2026-03-03 - Workflow de catalogacao falhou ao comentar em PR fechado
+- Sintoma: Run `22606907603` falhou com `Resource not accessible by integration` ao postar comentario em `issues/2/comments`.
+- Causa raiz: Execucao manual apontou para PR fechado e o token da Action nao tinha permissao efetiva para criar comentario nesse contexto.
+- Correcao aplicada: Workflow passou a detectar estado do PR e omitir comentario em PR fechado; em caso de 403 no comentario, segue com `warning` sem falhar o job.
+- Prevencao/acao futura: Preferir smoke em PR aberto quando a validacao incluir comentario de resumo.
+- Referencias (comando/arquivo): run `22606907603`, `.github/workflows/codex-findings-to-issues.yml`.
