@@ -332,3 +332,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar o critério de aceite da Sprint 3 para operação de alertas no backend.
 - Impacto no backlog/sprint: `S3-011` concluído; próxima task é `S3-012` (publicação de canais WS).
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/alerts.ts`, `TNS/services/api/src/http/alert.repository.ts`, `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/openapi.ts`, `TNS/tests/integration/api-alerts-list.integration.test.ts`, `openspec/changes/tns-alerts-list-endpoint/`.
+
+## 2026-03-03 - Execucao do S3-012 com canais WebSocket versionados
+- Contexto: A Sprint 3 exigia stream realtime para progresso de viagem e eventos de alerta.
+- Decisao anterior: Servico `realtime` retornava apenas endpoints HTTP basicos sem canal WS funcional.
+- Decisao nova: Implementar runtime WebSocket com canais `trip.progress.v1` e `alert.event.v1`, scoping por `tenant_id` e endpoints operacionais `/ops/channels` + `/ops/publish`.
+- Motivo da mudanca: Cumprir criterio de aceite do `S3-012` e destravar o consumo em dashboard nas tasks seguintes.
+- Impacto no backlog/sprint: `S3-012` concluido; proxima task passa para `S3-013` (dashboard `trips` em tempo real).
+- Referencias (arquivos/PR/issue): `TNS/services/realtime/src/realtime-server.ts`, `TNS/services/realtime/src/main.ts`, `TNS/tests/unit/realtime-channels.unit.test.ts`, `TNS/tests/integration/realtime-ws-channels.integration.test.ts`, `openspec/changes/tns-realtime-ws-channels/`.

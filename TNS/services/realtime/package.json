@@ -9,5 +9,11 @@
     "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
   }
 }
