@@ -79,7 +79,8 @@ jobs:
             const noFindingPatterns = [
               /didn.t find any major issues/i,
               /no major issues/i,
-              /create a codex account and connect to github/i
+              /create a codex account and connect to github/i,
+              /here are some automated review suggestions for this pull request/i
             ];
 
             const ensureLabel = async (name, color, description) => {
@@ -175,6 +176,19 @@ jobs:
 
               if (noFindingPatterns.some((pattern) => pattern.test(trimmedBody))) {
                 return [];
+              }
+
+              const pBadge = trimmedBody.match(/\[P([0-3])\s+Badge\]/i);
+              if (pBadge) {
+                const severityByPriority = {
+                  "0": "critical",
+                  "1": "high",
+                  "2": "medium",
+                  "3": "low"
+                };
+
+                const severity = severityByPriority[pBadge[1]] ?? "triage";
+                return [{ severity, detail: trimmedBody }];
               }
 
               const findings = [];

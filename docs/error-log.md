@@ -102,3 +102,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Workflow passou a detectar estado do PR e omitir comentario em PR fechado; em caso de 403 no comentario, segue com `warning` sem falhar o job.
 - Prevencao/acao futura: Preferir smoke em PR aberto quando a validacao incluir comentario de resumo.
 - Referencias (comando/arquivo): run `22606907603`, `.github/workflows/codex-findings-to-issues.yml`.
+
+## 2026-03-03 - Catalogacao criou issue de ruido a partir de comentario-resumo do Codex
+- Sintoma: No PR de smoke foram criadas duas issues (`#7` e `#8`), sendo `#8` apenas resumo generico do review.
+- Causa raiz: Parser tratava texto-resumo do review como finding, sem filtro de metacomentario.
+- Correcao aplicada: Adicionado filtro de comentario generico e mapeamento de badge `P0..P3` para severidade real.
+- Prevencao/acao futura: Manter smoke com finding real e revisar parser sempre que formato do comentario do bot mudar.
+- Referencias (comando/arquivo): issue `#8`, `.github/workflows/codex-findings-to-issues.yml`, `docs/codex-review-issues.md`.
