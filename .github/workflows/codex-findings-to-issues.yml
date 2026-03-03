@@ -1,0 +1,262 @@
+name: Codex Findings To Issues
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Numero do PR alvo"
+        required: true
+        type: number
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+
+jobs:
+  catalog:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.pull_request &&
+      (contains(github.event.comment.body, '/codex-create-issues') ||
+       contains(github.event.comment.body, '@codex create-issues')) &&
+      (github.event.comment.author_association == 'OWNER' ||
+       github.event.comment.author_association == 'MEMBER' ||
+       github.event.comment.author_association == 'COLLABORATOR'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Catalog Codex findings into issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.eventName === "workflow_dispatch"
+              ? Number(core.getInput("pr_number"))
+              : Number(context.payload.issue.number);
+
+            if (!prNumber || Number.isNaN(prNumber)) {
+              core.setFailed("PR numero invalido para catalogacao.");
+              return;
+            }
+
+            const isCodexBot = (login) => {
+              if (!login) return false;
+              return login.toLowerCase().startsWith("chatgpt-codex-connector");
+            };
+
+            const noFindingPatterns = [
+              /didn.t find any major issues/i,
+              /no major issues/i,
+              /create a codex account and connect to github/i
+            ];
+
+            const ensureLabel = async (name, color, description) => {
+              try {
+                await github.rest.issues.createLabel({ owner, repo, name, color, description });
+              } catch (error) {
+                if (error.status !== 422) throw error;
+              }
+            };
+
+            await ensureLabel("codex-review", "1d76db", "Issue criada a partir de finding do Codex review");
+            await ensureLabel("severity/critical", "b60205", "Severidade Critical");
+            await ensureLabel("severity/high", "d93f0b", "Severidade High");
+            await ensureLabel("severity/medium", "fbca04", "Severidade Medium");
+            await ensureLabel("severity/low", "0e8a16", "Severidade Low");
+            await ensureLabel("triage-needed", "5319e7", "Necessita triagem manual");
+
+            const issueComments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: prNumber,
+              per_page: 100
+            });
+
+            const reviewComments = await github.paginate(github.rest.pulls.listReviewComments, {
+              owner,
+              repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner,
+              repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
+            const sources = [];
+
+            for (const comment of issueComments) {
+              if (!isCodexBot(comment.user?.login)) continue;
+              sources.push({
+                sourceType: "issue_comment",
+                id: comment.id,
+                body: comment.body || "",
+                url: comment.html_url || `https://github.com/${owner}/${repo}/pull/${prNumber}#issuecomment-${comment.id}`
+              });
+            }
+
+            for (const comment of reviewComments) {
+              if (!isCodexBot(comment.user?.login)) continue;
+              sources.push({
+                sourceType: "review_comment",
+                id: comment.id,
+                body: comment.body || "",
+                url: comment.html_url || `https://github.com/${owner}/${repo}/pull/${prNumber}#discussion_r${comment.id}`
+              });
+            }
+
+            for (const review of reviews) {
+              if (!isCodexBot(review.user?.login)) continue;
+              sources.push({
+                sourceType: "review",
+                id: review.id,
+                body: review.body || "",
+                url: review.html_url || `https://github.com/${owner}/${repo}/pull/${prNumber}#pullrequestreview-${review.id}`
+              });
+            }
+
+            if (sources.length === 0) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: "Catalogacao Codex -> Issues: nenhum comentario/review do bot encontrado para este PR."
+              });
+              return;
+            }
+
+            const existingIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: "all",
+              labels: "codex-review",
+              per_page: 100
+            });
+
+            const existingBodies = new Set(
+              existingIssues
+                .filter((issue) => !issue.pull_request)
+                .map((issue) => issue.body || "")
+            );
+
+            const buildFindingParts = (body) => {
+              const trimmedBody = (body || "").trim();
+              if (!trimmedBody) return [];
+
+              if (noFindingPatterns.some((pattern) => pattern.test(trimmedBody))) {
+                return [];
+              }
+
+              const findings = [];
+              const lines = trimmedBody.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+              const severityRegexes = [
+                /^(?:[-*]\s*)?(critical|high|medium|low)\s*[:\-]\s+(.+)$/i,
+                /^\[(critical|high|medium|low)\]\s+(.+)$/i
+              ];
+
+              for (const line of lines) {
+                for (const regex of severityRegexes) {
+                  const match = line.match(regex);
+                  if (match) {
+                    const severity = match[1].toLowerCase();
+                    const detail = match[2].trim();
+                    findings.push({ severity, detail });
+                    break;
+                  }
+                }
+              }
+
+              if (findings.length > 0) {
+                return findings;
+              }
+
+              return [{
+                severity: "triage",
+                detail: trimmedBody
+              }];
+            };
+
+            const createdIssues = [];
+
+            for (const source of sources) {
+              const parts = buildFindingParts(source.body);
+              let idx = 0;
+
+              for (const part of parts) {
+                const marker = `<!-- codex-finding:${source.sourceType}:${source.id}:${idx} -->`;
+                idx += 1;
+
+                const alreadyExists = Array.from(existingBodies).some((body) => body.includes(marker));
+                if (alreadyExists) continue;
+
+                const severityTitle = part.severity.toUpperCase();
+                const titleDetail = part.detail.replace(/\s+/g, " ").trim().slice(0, 90);
+                const title = `[Codex][${severityTitle}] PR #${prNumber} - ${titleDetail || "finding"}`;
+
+                const labels = ["codex-review"];
+                if (part.severity === "critical" || part.severity === "high" || part.severity === "medium" || part.severity === "low") {
+                  labels.push(`severity/${part.severity}`);
+                } else {
+                  labels.push("triage-needed");
+                }
+
+                const issueBody = [
+                  "## Origem",
+                  `- PR: https://github.com/${owner}/${repo}/pull/${prNumber}`,
+                  `- Comentario/review do Codex: ${source.url}`,
+                  "",
+                  "## Finding",
+                  part.detail,
+                  "",
+                  "## Plano de Correcao",
+                  "- Reproduzir o problema em teste automatizado (unit/integration).",
+                  "- Aplicar correcao minima com impacto controlado.",
+                  "- Validar multi-tenant/contrato/observabilidade se aplicavel.",
+                  "- Abrir PR de fix com referencia desta issue (`Closes #<id>`).",
+                  "",
+                  "## Criterio de Aceite",
+                  "- Testes `unit` e `integration` cobrindo o finding.",
+                  "- `corepack pnpm --dir TNS verify` verde.",
+                  "",
+                  marker
+                ].join("\n");
+
+                const created = await github.rest.issues.create({
+                  owner,
+                  repo,
+                  title,
+                  body: issueBody,
+                  labels
+                });
+
+                createdIssues.push(created.data);
+                existingBodies.add(issueBody);
+              }
+            }
+
+            if (createdIssues.length === 0) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: "Catalogacao Codex -> Issues: nenhum finding novo para criar (dedupe aplicado ou review sem findings)."
+              });
+              return;
+            }
+
+            const lines = createdIssues.map((issue) => `- #${issue.number} ${issue.html_url}`);
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body: [
+                `Catalogacao Codex -> Issues concluida: ${createdIssues.length} issue(s) criada(s).`,
+                ...lines
+              ].join("\n")
+            });

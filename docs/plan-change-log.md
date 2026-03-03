@@ -68,3 +68,35 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Novo comentario no PR #2 retornou resposta positiva do bot com review concluido.
 - Impacto no backlog/sprint: Reativacao do reviewer automatico para PRs futuros; remover bloqueio operacional do checklist.
 - Referencias (arquivos/PR/issue): `PR #2`, comentario `chatgpt-codex-connector[bot]` em `2026-03-03T02:55:47Z`.
+
+## 2026-03-03 - Catalogacao de findings do Codex em issues automatizada
+- Contexto: Necessidade de transformar findings de review em backlog acionavel sem trabalho manual repetitivo.
+- Decisao anterior: Catalogar findings manualmente em issues.
+- Decisao nova: Automatizar catalogacao via workflow GitHub com comando no PR (`@codex create-issues`) e deduplicacao.
+- Motivo da mudanca: Padronizar triagem, garantir rastreabilidade e acelerar correcao de apontamentos.
+- Impacto no backlog/sprint: Findings do review passam a gerar issues com severidade e plano de correcao de forma consistente.
+- Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, `docs/codex-review-issues.md`, `AGENTS.md`.
+
+## 2026-03-03 - Entrega via PR obrigatoria por ruleset ativo
+- Contexto: Publicacao do workflow de catalogacao foi inicialmente tentada com push direto em `main`.
+- Decisao anterior: Enviar alteracao diretamente para `main`.
+- Decisao nova: Publicar via branch dedicada e PR, respeitando gates de branch protection.
+- Motivo da mudanca: Repositorio passou a exigir merge via PR + status check `CI / verify`.
+- Impacto no backlog/sprint: Leve aumento no ciclo de entrega (abertura de PR), com ganho de governanca e rastreabilidade.
+- Referencias (arquivos/PR/issue): erro `GH013` no push para `main`, rules de branch no GitHub.
+
+## 2026-03-03 - Ruleset ajustado para fluxo solo com CI obrigatorio
+- Contexto: PR de tooling ficou bloqueado por exigencia de aprovacao manual (`required_approving_review_count: 1`) sem segundo reviewer com write.
+- Decisao anterior: Exigir 1 aprovacao + code owner review para `main`.
+- Decisao nova: Manter PR obrigatorio + check `CI / verify`, removendo exigencia de aprovacao manual (`0`) e code owner review no ruleset.
+- Motivo da mudanca: Habilitar merge operacional em contexto solo sem perder gate tecnico de CI.
+- Impacto no backlog/sprint: PRs passam a ser mergeaveis pelo maintainer apos CI verde; reduz bloqueio administrativo.
+- Referencias (arquivos/PR/issue): `.github/rulesets/main-protection.json`, `scripts/github/apply-ruleset.ps1`, `PR #3`.
+
+## 2026-03-03 - CI passou a validar mudancas em workflows
+- Contexto: O check obrigatorio `CI / verify` nao era disparado em alteracoes fora de `TNS/**`.
+- Decisao anterior: CI com filtro de paths restrito a `TNS/**`.
+- Decisao nova: Incluir `.github/workflows/**` no gatilho de CI.
+- Motivo da mudanca: Evitar PR bloqueado por check esperado e nao executado quando houver mudanca de workflow.
+- Impacto no backlog/sprint: Todo ajuste de workflow passa a validar no mesmo pipeline obrigatorio.
+- Referencias (arquivos/PR/issue): `.github/workflows/ci.yml`, `PR #3`.

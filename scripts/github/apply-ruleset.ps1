@@ -55,31 +55,31 @@ function Invoke-Gh {
         [string[]]$Arguments
     )
 
-    $stdoutFile = [System.IO.Path]::GetTempFileName()
-    $stderrFile = [System.IO.Path]::GetTempFileName()
+    $nativePrefVar = Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue
+    $previous = if ($null -ne $nativePrefVar) { $nativePrefVar.Value } else { $null }
+    if ($null -ne $nativePrefVar) {
+        Set-Variable -Name PSNativeCommandUseErrorActionPreference -Value $false
+    }
 
     try {
-        $process = Start-Process `
-            -FilePath $GhPath `
-            -ArgumentList $Arguments `
-            -NoNewWindow `
-            -Wait `
-            -PassThru `
-            -RedirectStandardOutput $stdoutFile `
-            -RedirectStandardError $stderrFile
-
-        $stdout = if (Test-Path $stdoutFile) { Get-Content -Raw $stdoutFile } else { "" }
-        $stderr = if (Test-Path $stderrFile) { Get-Content -Raw $stderrFile } else { "" }
-        $combined = @($stdout.Trim(), $stderr.Trim()) | Where-Object { $_ -ne "" }
-
-        return [PSCustomObject]@{
-            ExitCode = $process.ExitCode
-            Output = ($combined -join [Environment]::NewLine)
-        }
+        $raw = & $GhPath @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
     }
     finally {
-        if (Test-Path $stdoutFile) { Remove-Item $stdoutFile -Force }
-        if (Test-Path $stderrFile) { Remove-Item $stderrFile -Force }
+        if ($null -ne $nativePrefVar) {
+            Set-Variable -Name PSNativeCommandUseErrorActionPreference -Value $previous
+        }
+    }
+
+    if ($null -eq $raw) {
+        $raw = @()
+    }
+
+    $combined = @($raw | ForEach-Object { $_.ToString().Trim() } | Where-Object { $_ -ne "" })
+
+    return [PSCustomObject]@{
+        ExitCode = $exitCode
+        Output = ($combined -join [Environment]::NewLine)
     }
 }
 
