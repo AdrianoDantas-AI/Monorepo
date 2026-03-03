@@ -21,8 +21,14 @@ Tambem e possivel disparar manualmente via Actions (`workflow_dispatch`) informa
 2. Ignora respostas sem finding (ex.: "Didn’t find any major issues").
 3. Cria issues com label `codex-review`.
 4. Aplica severidade (`severity/critical|high|medium|low`) quando detectada no texto.
-5. Usa dedupe por marcador interno para nao duplicar issues ja criadas do mesmo finding.
-6. Comenta no PR um resumo das issues criadas.
+5. Mapeia badges do Codex para severidade:
+   - `P0` -> `critical`
+   - `P1` -> `high`
+   - `P2` -> `medium`
+   - `P3` -> `low`
+6. Ignora comentarios-resumo genericos do bot para evitar issue de ruido.
+7. Usa dedupe por marcador interno para nao duplicar issues ja criadas do mesmo finding.
+8. Comenta no PR um resumo das issues criadas.
 
 Workflow:
 - `.github/workflows/codex-findings-to-issues.yml`

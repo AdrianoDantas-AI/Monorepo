@@ -116,3 +116,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Evitar falha operacional por restricao de permissao em contextos de PR fechado.
 - Impacto no backlog/sprint: Workflow fica robusto para dispatch manual de auditoria sem interromper catalogacao.
 - Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, run `22606907603`.
+
+## 2026-03-03 - Parser de findings ajustado para reduzir ruido e mapear P0-P3
+- Contexto: Loop de smoke gerou issue real e issue de ruido por metacomentario do bot.
+- Decisao anterior: Tratar qualquer corpo nao vazio sem regex de severidade como `triage`.
+- Decisao nova: Ignorar texto-resumo generico do Codex e mapear badge `P0..P3` diretamente para severidade.
+- Motivo da mudanca: Melhorar precisao da catalogacao e diminuir backlog falso-positivo.
+- Impacto no backlog/sprint: Issues criadas ficam mais acionaveis, com rotulo de severidade mais fiel.
+- Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, `docs/codex-review-issues.md`, issues `#7` e `#8`.
