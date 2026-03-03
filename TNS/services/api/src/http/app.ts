@@ -9,6 +9,10 @@ import {
   type TripRepository,
 } from "./trip.repository.js";
 import { optimizeStopsNearestNeighbor } from "./stop-optimizer.js";
+import {
+  NextStopUnavailableError,
+  buildNextStopDeepLinksForTrip,
+} from "./trip-next-stop-deep-links.js";
 
 const jsonContentType = { "content-type": "application/json" };
 
@@ -84,6 +88,16 @@ export const extractTripIdForStopOptimizationPath = (pathname: string): string |
 
 export const extractTripIdForStartPath = (pathname: string): string | null => {
   const match = /^\/api\/v1\/trips\/([^/]+)\/start$/.exec(pathname);
+  if (!match) {
+    return null;
+  }
+
+  const tripId = decodeURIComponent(match[1] ?? "").trim();
+  return tripId.length > 0 ? tripId : null;
+};
+
+export const extractTripIdForNextStopDeepLinksPath = (pathname: string): string | null => {
+  const match = /^\/api\/v1\/trips\/([^/]+)\/deep-links\/next-stop$/.exec(pathname);
   if (!match) {
     return null;
   }
@@ -283,6 +297,56 @@ const handleStartTrip = async (
   sendJson(res, 200, { data: updatedTrip });
 };
 
+const handleGetTripNextStopDeepLinks = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  tripRepository: TripRepository,
+  tripId: string,
+): Promise<void> => {
+  const tenantId = readTenantIdFromHeaders(req);
+  if (!tenantId) {
+    sendJson(res, 400, {
+      error: "Tenant ausente. Informe o header x-tenant-id.",
+    });
+    return;
+  }
+
+  const trip = await tripRepository.getById(tenantId, tripId);
+  if (!trip) {
+    sendJson(res, 404, {
+      error: "Trip nao encontrada para o tenant informado.",
+      trip_id: tripId,
+      tenant_id: tenantId,
+    });
+    return;
+  }
+
+  try {
+    const deepLinks = buildNextStopDeepLinksForTrip(trip);
+    sendJson(res, 200, { data: deepLinks });
+  } catch (error) {
+    if (error instanceof NextStopUnavailableError) {
+      sendJson(res, 409, {
+        error: "Nao existe proxima parada elegivel para gerar deep links.",
+        trip_id: tripId,
+        tenant_id: tenantId,
+      });
+      return;
+    }
+
+    if (error instanceof TypeError) {
+      sendJson(res, 400, {
+        error: error.message,
+        trip_id: tripId,
+        tenant_id: tenantId,
+      });
+      return;
+    }
+
+    throw error;
+  }
+};
+
 export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const domainModules = dependencies.domainModules ?? createDomainModules();
   const tripRepository = dependencies.tripRepository ?? new InMemoryTripRepository();
@@ -336,6 +400,12 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
       const startTripId = extractTripIdForStartPath(pathname);
       if (startTripId && req.method === "POST") {
         await handleStartTrip(req, res, tripRepository, startTripId);
+        return;
+      }
+
+      const nextStopDeepLinksTripId = extractTripIdForNextStopDeepLinksPath(pathname);
+      if (nextStopDeepLinksTripId && req.method === "GET") {
+        await handleGetTripNextStopDeepLinks(req, res, tripRepository, nextStopDeepLinksTripId);
         return;
       }
 

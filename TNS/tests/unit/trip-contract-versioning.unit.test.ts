@@ -4,6 +4,8 @@ import {
   contractVersionTripV1,
   legDTOSchemaV1,
   legSchema,
+  nextStopDeepLinksDTOSchemaV1,
+  nextStopDeepLinksSchema,
   routePlanDTOSchemaV1,
   routePlanSchema,
   routeTrackDTOSchemaV1,
@@ -23,6 +25,7 @@ test("contratos de trip expostos com versao v1", () => {
   assert.equal(legSchema, legDTOSchemaV1);
   assert.equal(routePlanSchema, routePlanDTOSchemaV1);
   assert.equal(routeTrackSchema, routeTrackDTOSchemaV1);
+  assert.equal(nextStopDeepLinksSchema, nextStopDeepLinksDTOSchemaV1);
   assert.equal(tripStatusSchema, tripStatusSchemaV1);
 });
 

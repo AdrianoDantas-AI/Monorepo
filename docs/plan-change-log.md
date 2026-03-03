@@ -228,3 +228,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Formalizar requisitos, design e tarefas do bloco de deep links antes da implementacao.
 - Impacto no backlog/sprint: `S2-015` passa a ter contrato OpenSpec especifico do TNS e lista de tarefas rastreavel.
 - Referencias (arquivos/PR/issue): `openspec/changes/tns-trip-deep-links-next-stop/`, `openspec/changes/tns-trip-deep-links-next-stop/specs/tns-trip-deep-links/spec.md`, `TNS/Codex-TNS.md`.
+
+## 2026-03-03 - Execucao do S2-015 com endpoint de deep links da proxima parada
+- Contexto: Sprint 2 precisava fechar o item de navegacao terceirizada (Google/Waze) para o fluxo de trip ativa.
+- Decisao anterior: Sem endpoint dedicado de deep links; cliente precisava inferir destino manualmente.
+- Decisao nova: Implementar `GET /api/v1/trips/:tripId/deep-links/next-stop` com resolucao deterministica da proxima parada e contrato `NextStopDeepLinksDTO`.
+- Motivo da mudanca: Entregar `S2-015` com scoping multi-tenant, erro de dominio explicito e payload pronto para consumo do app.
+- Impacto no backlog/sprint: `S2-015` concluido; Sprint 2 segue para `S2-016` (baseline ETA/distancia planejada por leg).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-next-stop-deep-links.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/trip-next-stop-deep-links.unit.test.ts`, `TNS/tests/integration/api-trip-next-stop-deep-links.integration.test.ts`, `TNS/packages/contracts/src/trip.ts`.

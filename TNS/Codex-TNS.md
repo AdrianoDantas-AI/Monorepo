@@ -462,8 +462,9 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 - [x] `S2-012` Implementar `MapboxMapProvider` mínimo (directions + geocoding) com `fetch` injetável.
 - [x] `S2-013` Aplicar fallback automático para `mock` quando `MAPBOX_ACCESS_TOKEN` estiver ausente.
 - [x] `S2-014` Implementar `POST /api/v1/trips/:tripId/start` com mudança de status para `active`.
-- [ ] `S2-015` em diante (pendente).
-- OpenSpec ativo para o próximo bloco (`S2-015`): `openspec/changes/tns-trip-deep-links-next-stop/`.
+- [x] `S2-015` Implementar deep links (Google/Waze) da próxima parada via `GET /api/v1/trips/:tripId/deep-links/next-stop`.
+- [ ] `S2-016` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-trip-deep-links-next-stop/`.
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 
@@ -471,12 +472,13 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 2. `POST /api/v1/trips/:tripId/stops/optimize`
 3. `GET /api/v1/trips/:tripId`
 4. `POST /api/v1/trips/:tripId/start`
-5. `GET /api/v1/trips/:tripId/progress` (solidificado com cálculo real)
-6. `GET /api/v1/alerts` (filtros por tenant/trip/severidade/status)
-7. `GET /ops/release-status` (finalizado para operação local)
-8. WebSocket channels `trip.progress.v1` e `alert.event.v1`
-9. Contratos `TripDTO`, `StopDTO`, `LegDTO`, `RoutePlanDTO`, `RouteTrackDTO`, `AlertEventV1`, `ReleaseStatusDTO`
-10. Interface `MapProvider` com modo `mock` e `mapbox` via feature flag (`MAP_PROVIDER_MODE`)
+5. `GET /api/v1/trips/:tripId/deep-links/next-stop`
+6. `GET /api/v1/trips/:tripId/progress` (solidificado com cálculo real)
+7. `GET /api/v1/alerts` (filtros por tenant/trip/severidade/status)
+8. `GET /ops/release-status` (finalizado para operação local)
+9. WebSocket channels `trip.progress.v1` e `alert.event.v1`
+10. Contratos `TripDTO`, `StopDTO`, `LegDTO`, `RoutePlanDTO`, `RouteTrackDTO`, `NextStopDeepLinksDTO`, `AlertEventV1`, `ReleaseStatusDTO`
+11. Interface `MapProvider` com modo `mock` e `mapbox` via feature flag (`MAP_PROVIDER_MODE`)
 
 ### Backlog granular (Sprint 2)
 

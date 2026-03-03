@@ -43,6 +43,17 @@ export const routeTrackDTOSchemaV1 = z
   })
   .strict();
 
+export const nextStopDeepLinksDTOSchemaV1 = z
+  .object({
+    trip_id: z.string().min(1),
+    stop_id: z.string().min(1),
+    stop_name: z.string().min(1),
+    stop_location: latLngSchema,
+    google_maps: z.string().url(),
+    waze: z.string().url(),
+  })
+  .strict();
+
 export const tripDTOSchemaV1 = z
   .object({
     id: z.string().min(1),
@@ -61,6 +72,7 @@ export const stopSchema = stopDTOSchemaV1;
 export const legSchema = legDTOSchemaV1;
 export const routePlanSchema = routePlanDTOSchemaV1;
 export const routeTrackSchema = routeTrackDTOSchemaV1;
+export const nextStopDeepLinksSchema = nextStopDeepLinksDTOSchemaV1;
 export const tripSchema = tripDTOSchemaV1;
 
 export type TripStatusV1 = z.infer<typeof tripStatusSchemaV1>;
@@ -68,6 +80,7 @@ export type StopDTOV1 = z.infer<typeof stopDTOSchemaV1>;
 export type LegDTOV1 = z.infer<typeof legDTOSchemaV1>;
 export type RoutePlanDTOV1 = z.infer<typeof routePlanDTOSchemaV1>;
 export type RouteTrackDTOV1 = z.infer<typeof routeTrackDTOSchemaV1>;
+export type NextStopDeepLinksDTOV1 = z.infer<typeof nextStopDeepLinksDTOSchemaV1>;
 export type TripDTOV1 = z.infer<typeof tripDTOSchemaV1>;
 
 export type TripDTO = TripDTOV1;
@@ -75,3 +88,4 @@ export type StopDTO = StopDTOV1;
 export type LegDTO = LegDTOV1;
 export type RoutePlanDTO = RoutePlanDTOV1;
 export type RouteTrackDTO = RouteTrackDTOV1;
+export type NextStopDeepLinksDTO = NextStopDeepLinksDTOV1;
