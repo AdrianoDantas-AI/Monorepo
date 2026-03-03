@@ -525,6 +525,12 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 
 Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dashboard).
 
+### Status de execução (atual)
+
+- [x] `S3-001` Consolidar tiers `Bronze/Silver/Gold` em configuração versionada (`v1`) no pacote de contratos.
+- [ ] `S3-002` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-tier-config-v1/`.
+
 ### Backlog granular (Sprint 3)
 
 | ID     | Tarefa                                                        | Estimativa | Dependência     | Critério de aceite              |

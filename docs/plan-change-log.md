@@ -260,3 +260,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Fechar sprint com rastreabilidade operacional e base de monitoramento para fase de tracking real-time.
 - Impacto no backlog/sprint: `S2-017`, `S2-018` e `S2-019` concluidos; backlog da Sprint 2 fica fechado.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/observability.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/http-observability.unit.test.ts`, `TNS/tests/integration/api-metrics.integration.test.ts`, `openspec/changes/tns-trip-observability-metrics/`.
+
+## 2026-03-03 - Execucao do S3-001 com tiers versionados
+- Contexto: Sprint 3 iniciou com necessidade de padronizar thresholds de detecção por tier.
+- Decisao anterior: Thresholds Bronze/Silver/Gold estavam apenas em documentação, sem contrato técnico versionado.
+- Decisao nova: Consolidar configuração versionada `v1` de tiers no pacote `@tns/contracts`.
+- Motivo da mudanca: Garantir fonte única para consumo por ingest/worker/regras de detecção nas próximas tasks.
+- Impacto no backlog/sprint: `S3-001` concluído; próxima execução segue para `S3-002` (máquina de estado de detecção).
+- Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/detection-tier-config.ts`, `TNS/tests/unit/detection-tier-config.unit.test.ts`, `TNS/tests/integration/contracts.integration.test.ts`, `openspec/changes/tns-tier-config-v1/`.

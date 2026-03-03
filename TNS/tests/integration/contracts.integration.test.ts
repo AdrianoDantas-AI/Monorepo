@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   alertEventSchema,
+  detectionTierConfigSchemaV1,
+  detectionTierConfigV1,
   pingIngestSchema,
   tripSchema,
 } from "../../packages/contracts/src/index.js";
@@ -60,4 +62,10 @@ test("pingIngestSchema + tripSchema + alertEventSchema validam payloads esperado
 
   assert.equal(ping.trip_id, trip.id);
   assert.equal(event.tenant_id, trip.tenant_id);
+
+  const tierConfig = detectionTierConfigSchemaV1.parse(detectionTierConfigV1);
+  assert.equal(tierConfig.version, "v1");
+  assert.equal(tierConfig.tiers.gold.ping_interval_s, 1);
+  assert.equal(tierConfig.tiers.silver.corridor_m, 30);
+  assert.equal(tierConfig.tiers.bronze.confirm_min_duration_s, 120);
 });
