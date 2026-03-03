@@ -530,8 +530,9 @@ Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dash
 - [x] `S3-001` Consolidar tiers `Bronze/Silver/Gold` em configuração versionada (`v1`) no pacote de contratos.
 - [x] `S3-002` Implementar máquina de estado `normal/suspected/confirmed` em módulo puro.
 - [x] `S3-003` Implementar filtro anti-ruído por `accuracy_m` com thresholds por tier.
-- [ ] `S3-004` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-off-route-accuracy-filter/`.
+- [x] `S3-004` Implementar cálculo real de progresso sobre polyline.
+- [ ] `S3-005` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-polyline-progress-calc/`.
 
 ### Backlog granular (Sprint 3)
 

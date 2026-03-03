@@ -284,3 +284,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Separar responsabilidades, facilitar testes e permitir reuso em ingest/worker.
 - Impacto no backlog/sprint: `S3-003` concluído; próxima entrega é `S3-004` (cálculo real de progresso sobre polyline).
 - Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-accuracy-filter.ts`, `TNS/packages/shared/src/off-route-state-machine.ts`, `TNS/tests/unit/off-route-accuracy-filter.unit.test.ts`, `TNS/tests/integration/off-route-accuracy-filter.integration.test.ts`, `openspec/changes/tns-off-route-accuracy-filter/`.
+
+## 2026-03-03 - Execucao do S3-004 com calculo de progresso sobre polyline
+- Contexto: Próximo bloco da Sprint 3 exigia progresso real na rota para alimentar ETA e métricas operacionais.
+- Decisao anterior: Não havia cálculo geométrico de progresso ao longo das pernas da rota.
+- Decisao nova: Criar utilitário de projeção em polyline para calcular `distance_done`, `distance_remaining` e `progress_pct`.
+- Motivo da mudanca: Entregar base técnica para `S3-005/S3-006/S3-007` sem depender de implementação acoplada ao serviço.
+- Impacto no backlog/sprint: `S3-004` concluído; próximo item é `S3-005` (km percorrido/restante por trip ativa).
+- Referencias (arquivos/PR/issue): `TNS/packages/shared/src/polyline-progress.ts`, `TNS/tests/unit/polyline-progress.unit.test.ts`, `TNS/tests/integration/polyline-progress.integration.test.ts`, `openspec/changes/tns-polyline-progress-calc/`.

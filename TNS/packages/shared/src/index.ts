@@ -21,3 +21,4 @@ export const haversineDistanceM = (
 
 export * from "./off-route-accuracy-filter.js";
 export * from "./off-route-state-machine.js";
+export * from "./polyline-progress.js";
