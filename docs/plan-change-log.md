@@ -188,3 +188,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterio de aceite do `S2-009` ("retorna ordem otimizada") e preparar base para `S2-010`.
 - Impacto no backlog/sprint: Trip passa a ser atualizada no repositorio com nova ordem dos stops e resposta explicita da estrategia aplicada.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/stop-optimizer.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/stop-optimizer.unit.test.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-010 com geracao de legs e metricas
+- Contexto: Ordem otimizada de stops ja estava pronta, faltando materializar pernas da rota para tracking.
+- Decisao anterior: Otimizacao retornava apenas nova ordem de stops, sem `route_plan`/`legs`.
+- Decisao nova: Gerar `legs` com `polyline` mock + `distance_m` + `duration_s` e persistir `route_plan` na trip durante o endpoint de otimizacao.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-010` ("legs persistidas") e preparar dados para `S2-014`/`S3-004`.
+- Impacto no backlog/sprint: Trips otimizadas passam a carregar baseline de rota estruturada (legs + totais) imediatamente apos otimização.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/route-plan-generator.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/route-plan-generator.unit.test.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.

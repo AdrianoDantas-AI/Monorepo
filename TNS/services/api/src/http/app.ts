@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { type DomainModules, createDomainModules } from "../modules/index.js";
 import type { TripDTO } from "../modules/domain.types.js";
+import { generateRoutePlanFromStops } from "./route-plan-generator.js";
 import {
   InMemoryTripRepository,
   TripConflictError,
@@ -197,9 +198,11 @@ const handleOptimizeTripStops = async (
   }
 
   const optimization = optimizeStopsNearestNeighbor(trip.stops);
+  const routePlan = generateRoutePlanFromStops(trip.id, optimization.stops);
   const updatedTrip = await tripRepository.update({
     ...trip,
     stops: optimization.stops,
+    route_plan: routePlan,
   });
 
   if (!updatedTrip) {

@@ -457,7 +457,8 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 - [x] `S2-007` Implementar `POST /api/v1/trips` com tenant scoping e teste de conflito.
 - [x] `S2-008` Implementar `GET /api/v1/trips/:tripId` com scoping de tenant.
 - [x] `S2-009` Implementar `POST /api/v1/trips/:tripId/stops/optimize` com estratégia `nearest-neighbor-v1`.
-- [ ] `S2-010` em diante (pendente).
+- [x] `S2-010` Gerar `Legs` com `polyline` e métricas persistidas no `route_plan` durante otimização.
+- [ ] `S2-011` em diante (pendente).
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 
