@@ -14,6 +14,8 @@
     "test:unit": "node scripts/testing/run-tests.mjs tests/unit",
     "test:integration": "node scripts/testing/run-tests.mjs tests/integration",
     "verify": "corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test",
+    "seed:demo:trips": "corepack pnpm --filter @tns/api prisma:seed:demo",
+    "seed:demo:trips:dry-run": "corepack pnpm --filter @tns/api prisma:seed:demo:dry-run",
     "infra:up": "docker compose -f infra/docker/compose.yml up -d --build",
     "infra:down": "docker compose -f infra/docker/compose.yml down",
     "infra:logs": "docker compose -f infra/docker/compose.yml logs -f --tail=200",
@@ -37,6 +39,7 @@
     "prettier": "^3.5.3",
     "tsx": "^4.19.4",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.0"
+    "typescript-eslint": "^8.26.0",
+    "ws": "^8.19.0"
   }
 }

@@ -14,6 +14,7 @@ O objetivo e compartilhar contexto, padroes e uma governanca minima comum entre 
 - Todo erro relevante encontrado durante execucao deve ser registrado com causa e correcao em `docs/error-log.md`.
 - Todo incremento deve incluir testes automatizados de `unit` e `integration` para o comportamento alterado.
 - PR sem cobertura de `unit` e `integration` para a mudanca deve ser reprovado.
+- Mudancas relevantes de produto/arquitetura/tooling devem seguir o fluxo OpenSpec (`openspec/`): `proposal -> design -> specs -> tasks -> archive`.
 
 ## 3. Regra Obrigatoria para Agentes
 Qualquer agente deve ler este `MONOREPO.md` antes de entrar em qualquer projeto interno.
@@ -94,3 +95,13 @@ Para manter historico tecnico reutilizavel:
 - O registro deve ser feito no mesmo ciclo de trabalho da mudanca/erro.
 - Entradas devem ser curtas e objetivas.
 - Priorizar fatos verificaveis (comando, arquivo, workflow ou etapa impactada).
+
+## 9. OpenSpec no Monorepo
+OpenSpec foi adotado como camada formal de especificacao de mudancas no repositorio.
+
+Diretrizes minimas:
+1. Para mudancas relevantes, criar change em `openspec/changes/<nome-kebab-case>/`.
+2. Preencher artefatos obrigatorios: `proposal.md`, `design.md`, `specs/**/spec.md`, `tasks.md`.
+3. Validar com `openspec validate --all` antes de fechar ciclo.
+4. Arquivar com `openspec archive <change-name> -y` para consolidar em `openspec/specs/`.
+5. Manter alinhamento com `docs/plan-change-log.md` e `docs/error-log.md` no mesmo ciclo.

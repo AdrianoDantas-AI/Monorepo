@@ -22,6 +22,8 @@ export type LegDTO = {
   polyline: string;
   distance_m: number;
   duration_s: number;
+  baseline_distance_m: number;
+  baseline_eta_s: number;
 };
 
 export type RoutePlanDTO = {

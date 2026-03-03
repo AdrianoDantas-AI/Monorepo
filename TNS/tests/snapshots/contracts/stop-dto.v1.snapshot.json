@@ -1,0 +1,10 @@
+{
+  "id": "stop_snapshot_001",
+  "order": 0,
+  "name": "Origem",
+  "address": "Rua A, 100 - Sao Paulo",
+  "location": {
+    "lat": -23.55,
+    "lng": -46.63
+  }
+}

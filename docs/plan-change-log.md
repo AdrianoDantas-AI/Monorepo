@@ -140,3 +140,227 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar criterio de aceite do `S2-002` ("migração gerada sem erro") e preparar base para `S2-003`/`S2-007`.
 - Impacto no backlog/sprint: Sprint 2 avanca com persistencia modelada e artefato de migration versionado no repo.
 - Referencias (arquivos/PR/issue): `TNS/services/api/prisma/schema.prisma`, `TNS/services/api/prisma/migrations/2026030301_s2_trip_domain_init/migration.sql`, `TNS/services/api/package.json`.
+
+## 2026-03-03 - Execucao do S2-003 com migration de geo-indexes
+- Contexto: `S2-002` entregue e proximo passo era otimizar consultas geoespaciais/rota.
+- Decisao anterior: Apenas indices default da migration inicial de tabelas.
+- Decisao nova: Adicionar migration dedicada para `postgis` + indice espacial `GIST` em `stops` + indices compostos de fluxo de rota.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-003` ("índices aplicados") e preparar performance para calculos/consultas de rota.
+- Impacto no backlog/sprint: Base de dados pronta para consultas de proximidade e travessia de pernas por viagem.
+- Referencias (arquivos/PR/issue): `TNS/services/api/prisma/migrations/2026030302_s2_geo_indexes/migration.sql`, `TNS/tests/unit/prisma-geo-migration.unit.test.ts`.
+
+## 2026-03-03 - Execucao do S2-004 com seed reproduzivel de trips/stops
+- Contexto: `S2-003` concluido; proxima dependencia da Sprint 2 era disponibilizar dados demo estaveis para desenvolvimento e testes.
+- Decisao anterior: Sem seed funcional; apenas placeholders em `scripts/seed`.
+- Decisao nova: Implementar seed idempotente com IDs fixos (`trip/stops/legs/route_plan/route_track`), modo `dry-run` e comandos oficiais no workspace.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-004` ("seed reproduzivel") e habilitar base consistente para `S2-005+`.
+- Impacto no backlog/sprint: Ambiente local pode ser populado de forma repetivel e validada por testes unit/integration.
+- Referencias (arquivos/PR/issue): `TNS/services/api/prisma/seed-demo.ts`, `TNS/tests/unit/trip-seed.unit.test.ts`, `TNS/tests/integration/trip-seed.integration.test.ts`, `TNS/package.json`.
+
+## 2026-03-03 - Execucao do S2-005/S2-006 com contratos versionados e snapshots
+- Contexto: A Sprint 2 precisava fechar contratos publicos de viagem antes dos endpoints de `trips`.
+- Decisao anterior: Contratos de `trip` sem nomeacao explicita de versao e sem snapshots dedicados por DTO.
+- Decisao nova: Versionar contratos em `v1` (`TripDTO/StopDTO/LegDTO`) mantendo aliases retrocompativeis e adicionar testes de snapshot estavel.
+- Motivo da mudanca: Cumprir criterios de aceite do `S2-005` e `S2-006`, reduzindo risco de regressao silenciosa em contratos.
+- Impacto no backlog/sprint: Base contratual pronta para implementar `POST/GET trips` com validacao automatica de compatibilidade.
+- Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/trip.ts`, `TNS/tests/integration/trip-contract-snapshots.integration.test.ts`, `TNS/tests/snapshots/contracts/*.json`.
+
+## 2026-03-03 - Execucao do S2-007 com endpoint de criacao de trips
+- Contexto: Com contratos e seed estabilizados, o proximo passo era liberar a primeira API de dominio de viagens.
+- Decisao anterior: API respondia apenas health/ops sem endpoint funcional de trips.
+- Decisao nova: Implementar `POST /api/v1/trips` com scoping por `x-tenant-id`, deteccao de conflito por tenant e resposta `201/403/409`.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-007` e destravar `S2-008` (`GET /trips/:tripId`).
+- Impacto no backlog/sprint: Base HTTP de `trips` operacional com repositorio em memoria e testes unit/integration cobrindo fluxo principal.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/trip.repository.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-008 com leitura de trip por ID
+- Contexto: Endpoint de criacao ja estava ativo, faltando leitura por ID para fechar fluxo minimo de consulta.
+- Decisao anterior: Apenas `POST /api/v1/trips` disponivel.
+- Decisao nova: Adicionar `GET /api/v1/trips/:tripId` com escopo por tenant e respostas `200/400/404`.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-008` e manter consistencia de contrato para proxima etapa de otimizacao de stops.
+- Impacto no backlog/sprint: API suporta criar e consultar trip de forma segura por tenant, com cobertura unit/integration dedicada.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `TNS/tests/unit/api-paths.unit.test.ts`.
+
+## 2026-03-03 - Execucao do S2-009 com otimizacao de ordem de stops
+- Contexto: Com criacao/consulta de trips prontas, faltava endpoint de otimizacao para destravar geracao de legs.
+- Decisao anterior: Ordem de stops permanecia exatamente como cadastrada, sem endpoint de otimização.
+- Decisao nova: Implementar `POST /api/v1/trips/:tripId/stops/optimize` com estrategia deterministica `nearest-neighbor-v1`.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-009` ("retorna ordem otimizada") e preparar base para `S2-010`.
+- Impacto no backlog/sprint: Trip passa a ser atualizada no repositorio com nova ordem dos stops e resposta explicita da estrategia aplicada.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/stop-optimizer.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/stop-optimizer.unit.test.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-010 com geracao de legs e metricas
+- Contexto: Ordem otimizada de stops ja estava pronta, faltando materializar pernas da rota para tracking.
+- Decisao anterior: Otimizacao retornava apenas nova ordem de stops, sem `route_plan`/`legs`.
+- Decisao nova: Gerar `legs` com `polyline` mock + `distance_m` + `duration_s` e persistir `route_plan` na trip durante o endpoint de otimizacao.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-010` ("legs persistidas") e preparar dados para `S2-014`/`S3-004`.
+- Impacto no backlog/sprint: Trips otimizadas passam a carregar baseline de rota estruturada (legs + totais) imediatamente apos otimização.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/route-plan-generator.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/route-plan-generator.unit.test.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-011/S2-012/S2-013 com MapProvider runtime
+- Contexto: A Sprint 2 exigia camada de abstracao de mapas com troca por env e fallback local.
+- Decisao anterior: Sem runtime selector; app sem visibilidade de provider ativo e sem implementacao mapbox integrada.
+- Decisao nova: Criar stack de mapas (`MockMapProvider`, `MapboxMapProvider`, selector por `MAP_PROVIDER_MODE`) com fallback para `mock` quando token ausente.
+- Motivo da mudanca: Cumprir criterios de aceite de `S2-011`/`S2-012`/`S2-013` e garantir que dev local nao bloqueie sem credenciais.
+- Impacto no backlog/sprint: Runtime de mapas ficou observavel via `/ops/map-provider`, com testes unit/integration cobrindo selecao, parse de respostas mapbox e fallback.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/maps/*`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/map-provider-selector.unit.test.ts`, `TNS/tests/unit/mapbox-map-provider.unit.test.ts`, `TNS/tests/integration/api-map-provider.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-014 com ativacao de trip
+- Contexto: A trip ja podia ser criada/otimizada, faltando transicao de estado operacional para "ativa".
+- Decisao anterior: Sem endpoint para mudar status da trip; status permanecia no estado inicial.
+- Decisao nova: Adicionar `POST /api/v1/trips/:tripId/start` com scoping por tenant e inicializacao de `route_track` baseline.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-014` e preparar fluxo para progresso em tempo real (`S3`).
+- Impacto no backlog/sprint: Trip pode ser iniciada explicitamente, com status `active` e baseline de acompanhamento persistidos.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `TNS/tests/unit/api-paths.unit.test.ts`.
+
+## 2026-03-03 - Adocao do OpenSpec como fluxo oficial de mudancas
+- Contexto: Foi solicitada implantacao do OpenSpec no monorepo com aplicacao completa do workflow.
+- Decisao anterior: Planejamento e especificacao eram conduzidos principalmente em Markdown livre (`Codex-TNS.md`, logs e docs centrais).
+- Decisao nova: Adotar OpenSpec na raiz com `openspec/`, skills locais para Codex e capability consolidada em `openspec/specs/`.
+- Motivo da mudanca: Padronizar proposta/design/requisitos/tasks com validacao formal e arquivamento versionado.
+- Impacto no backlog/sprint: Mudancas relevantes passam a seguir fluxo OpenSpec antes/durante implementacao; baseline consolidado em `openspec/specs/openspec-monorepo-governance/spec.md`.
+- Referencias (arquivos/PR/issue): `openspec/README.md`, `.codex/skills/openspec-*`, `openspec/specs/openspec-monorepo-governance/spec.md`, `MONOREPO.md`, `AGENTS.md`.
+
+## 2026-03-03 - OpenSpec aplicado ao TNS para S2-015
+- Contexto: Necessidade explicita de aplicar OpenSpec no projeto TNS, nao apenas na governanca global.
+- Decisao anterior: Havia somente spec de governanca geral do monorepo.
+- Decisao nova: Criar change ativa `tns-trip-deep-links-next-stop` com artefatos completos para o proximo item da Sprint 2 (`S2-015`).
+- Motivo da mudanca: Formalizar requisitos, design e tarefas do bloco de deep links antes da implementacao.
+- Impacto no backlog/sprint: `S2-015` passa a ter contrato OpenSpec especifico do TNS e lista de tarefas rastreavel.
+- Referencias (arquivos/PR/issue): `openspec/changes/tns-trip-deep-links-next-stop/`, `openspec/changes/tns-trip-deep-links-next-stop/specs/tns-trip-deep-links/spec.md`, `TNS/Codex-TNS.md`.
+
+## 2026-03-03 - Execucao do S2-015 com endpoint de deep links da proxima parada
+- Contexto: Sprint 2 precisava fechar o item de navegacao terceirizada (Google/Waze) para o fluxo de trip ativa.
+- Decisao anterior: Sem endpoint dedicado de deep links; cliente precisava inferir destino manualmente.
+- Decisao nova: Implementar `GET /api/v1/trips/:tripId/deep-links/next-stop` com resolucao deterministica da proxima parada e contrato `NextStopDeepLinksDTO`.
+- Motivo da mudanca: Entregar `S2-015` com scoping multi-tenant, erro de dominio explicito e payload pronto para consumo do app.
+- Impacto no backlog/sprint: `S2-015` concluido; Sprint 2 segue para `S2-016` (baseline ETA/distancia planejada por leg).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-next-stop-deep-links.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/trip-next-stop-deep-links.unit.test.ts`, `TNS/tests/integration/api-trip-next-stop-deep-links.integration.test.ts`, `TNS/packages/contracts/src/trip.ts`.
+
+## 2026-03-03 - Documentacao OpenAPI/Swagger adicionada na API
+- Contexto: Foi solicitada documentacao REST navegavel e contrato formal para os endpoints da API.
+- Decisao anterior: API sem endpoint de OpenAPI e sem Swagger UI publicado.
+- Decisao nova: Expor `GET /openapi.json` com OpenAPI 3.0.3 e `GET /docs` com Swagger UI.
+- Motivo da mudanca: Melhorar onboarding, integracao cliente e verificacao de contratos HTTP.
+- Impacto no backlog/sprint: `S2-020` considerado concluido com documentacao publica dos endpoints de trips/ops/health.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/openapi.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/openapi-docs.unit.test.ts`, `TNS/tests/integration/api-openapi-docs.integration.test.ts`, `openspec/changes/tns-api-swagger-openapi/`.
+
+## 2026-03-03 - Execucao do S2-016 com baseline por leg
+- Contexto: Proximo item da Sprint 2 exigia base explicita para calculos futuros de detour por tempo/distancia.
+- Decisao anterior: `LegDTO` continha apenas `distance_m` e `duration_s`.
+- Decisao nova: Tornar baseline explicito em `LegDTO` com `baseline_distance_m` e `baseline_eta_s`.
+- Motivo da mudanca: Evitar ambiguidade entre valores planejados e valores dinamicos na fase de tracking.
+- Impacto no backlog/sprint: `S2-016` concluido; Sprint 2 segue para `S2-017` (fluxo integrado criar trip -> otimizar -> gerar legs).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/route-plan-generator.ts`, `TNS/services/api/src/modules/leg/leg.module.ts`, `TNS/packages/contracts/src/trip.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `openspec/changes/tns-leg-baseline-metrics/`.
+
+## 2026-03-03 - Execucao do S2-017/S2-018/S2-019 com observabilidade de trips
+- Contexto: Restavam os itens finais da Sprint 2 ligados a fluxo integrado e operacao observavel.
+- Decisao anterior: API sem logs estruturados de viagem e sem exportacao de metricas de latencia por rota.
+- Decisao nova: Consolidar teste de fluxo create->optimize->legs e adicionar observabilidade (`trip_request` + `/ops/metrics`).
+- Motivo da mudanca: Fechar sprint com rastreabilidade operacional e base de monitoramento para fase de tracking real-time.
+- Impacto no backlog/sprint: `S2-017`, `S2-018` e `S2-019` concluidos; backlog da Sprint 2 fica fechado.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/observability.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/http-observability.unit.test.ts`, `TNS/tests/integration/api-metrics.integration.test.ts`, `openspec/changes/tns-trip-observability-metrics/`.
+
+## 2026-03-03 - Execucao do S3-001 com tiers versionados
+- Contexto: Sprint 3 iniciou com necessidade de padronizar thresholds de detecção por tier.
+- Decisao anterior: Thresholds Bronze/Silver/Gold estavam apenas em documentação, sem contrato técnico versionado.
+- Decisao nova: Consolidar configuração versionada `v1` de tiers no pacote `@tns/contracts`.
+- Motivo da mudanca: Garantir fonte única para consumo por ingest/worker/regras de detecção nas próximas tasks.
+- Impacto no backlog/sprint: `S3-001` concluído; próxima execução segue para `S3-002` (máquina de estado de detecção).
+- Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/detection-tier-config.ts`, `TNS/tests/unit/detection-tier-config.unit.test.ts`, `TNS/tests/integration/contracts.integration.test.ts`, `openspec/changes/tns-tier-config-v1/`.
+
+## 2026-03-03 - Execucao do S3-002 com maquina de estado off-route
+- Contexto: Com tiers versionados definidos, era necessário codificar a transição de estado de detecção.
+- Decisao anterior: Sem máquina explícita; regras de confirmação não estavam implementadas em código executável.
+- Decisao nova: Implementar state machine pura (`normal/suspected/confirmed`) com confirmação por pings/tempo e retorno à rota.
+- Motivo da mudanca: Transformar regra de negócio da detecção em módulo testável e reutilizável.
+- Impacto no backlog/sprint: `S3-002` concluído; próximo item é `S3-003` (filtro anti-ruído por `accuracy_m`).
+- Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-state-machine.ts`, `TNS/tests/unit/off-route-state-machine.unit.test.ts`, `TNS/tests/integration/off-route-state-machine.integration.test.ts`, `openspec/changes/tns-off-route-state-machine/`.
+
+## 2026-03-03 - Execucao do S3-003 com filtro anti-ruido por accuracy
+- Contexto: A máquina de estado já existia, mas o anti-ruído precisava de componente explícito e reutilizável.
+- Decisao anterior: Regra de `accuracy_m` estava embutida no fluxo da state machine.
+- Decisao nova: Extrair filtro dedicado de accuracy e integrar ao motor de detecção.
+- Motivo da mudanca: Separar responsabilidades, facilitar testes e permitir reuso em ingest/worker.
+- Impacto no backlog/sprint: `S3-003` concluído; próxima entrega é `S3-004` (cálculo real de progresso sobre polyline).
+- Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-accuracy-filter.ts`, `TNS/packages/shared/src/off-route-state-machine.ts`, `TNS/tests/unit/off-route-accuracy-filter.unit.test.ts`, `TNS/tests/integration/off-route-accuracy-filter.integration.test.ts`, `openspec/changes/tns-off-route-accuracy-filter/`.
+
+## 2026-03-03 - Execucao do S3-004 com calculo de progresso sobre polyline
+- Contexto: Próximo bloco da Sprint 3 exigia progresso real na rota para alimentar ETA e métricas operacionais.
+- Decisao anterior: Não havia cálculo geométrico de progresso ao longo das pernas da rota.
+- Decisao nova: Criar utilitário de projeção em polyline para calcular `distance_done`, `distance_remaining` e `progress_pct`.
+- Motivo da mudanca: Entregar base técnica para `S3-005/S3-006/S3-007` sem depender de implementação acoplada ao serviço.
+- Impacto no backlog/sprint: `S3-004` concluído; próximo item é `S3-005` (km percorrido/restante por trip ativa).
+- Referencias (arquivos/PR/issue): `TNS/packages/shared/src/polyline-progress.ts`, `TNS/tests/unit/polyline-progress.unit.test.ts`, `TNS/tests/integration/polyline-progress.integration.test.ts`, `openspec/changes/tns-polyline-progress-calc/`.
+
+## 2026-03-03 - Execucao do S3-005 com endpoint de progresso de trip ativa
+- Contexto: Era necessário materializar no endpoint o cálculo de km percorrido/restante usando posição atual da viagem.
+- Decisao anterior: Não existia `GET /api/v1/trips/:tripId/progress` e o `route_track` não era recalculado por posição.
+- Decisao nova: Implementar endpoint de progresso com query `lat`/`lng`, cálculo geométrico via polyline, persistência de `route_track` e documentação Swagger.
+- Motivo da mudanca: Entregar critério de aceite do `S3-005` e preparar base para `S3-006/S3-007`.
+- Impacto no backlog/sprint: `S3-005` concluído; próxima entrega passa para `S3-006` (ETA aproximado atualizado por ping).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-progress.ts`, `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/openapi.ts`, `TNS/tests/unit/trip-progress.unit.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-distance/`.
+
+## 2026-03-03 - Execucao do S3-006 com ETA dinamico no endpoint de progresso
+- Contexto: Após publicar distância percorrida/restante, o endpoint ainda retornava ETA estático da trip.
+- Decisao anterior: `eta_s` era herdado do track inicial sem atualização por posição.
+- Decisao nova: Recalcular `eta_s` por request com base em `distance_remaining_m` e velocidade média planejada, com fallback seguro.
+- Motivo da mudanca: Fechar `S3-006` e aumentar utilidade operacional da API para consumo em tempo real.
+- Impacto no backlog/sprint: `S3-006` concluído; próximo item da Sprint 3 é `S3-007` (solidificar resposta final do endpoint de progresso).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-progress.ts`, `TNS/tests/unit/trip-progress.unit.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-eta/`.
+
+## 2026-03-03 - Execucao do S3-007 com contrato final do endpoint de progresso
+- Contexto: O endpoint `/progress` já estava funcional, porém sem contrato versionado explícito no pacote de contratos.
+- Decisao anterior: Payload era validado apenas por tipos locais dos testes de integração.
+- Decisao nova: Introduzir `TripProgressDTO` v1 em `packages/contracts` e validar resposta real da API contra o schema.
+- Motivo da mudanca: Fechar `S3-007` com contrato público estável e proteção contra regressões.
+- Impacto no backlog/sprint: `S3-007` concluído; Sprint 3 segue para `S3-008` (eventos de desvio de rota).
+- Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/trip.ts`, `TNS/tests/unit/trip-contract-versioning.unit.test.ts`, `TNS/tests/integration/contracts.integration.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-endpoint-finalize/`.
+
+## 2026-03-03 - Execucao do S3-008/S3-009/S3-010 com emissao de eventos off-route v1
+- Contexto: A máquina de estado de desvio já detectava transições, mas não produzia eventos versionados.
+- Decisao anterior: Fluxo retornava apenas estado/razão interna (`suspected/confirmed/normal`) sem objeto de evento operacional.
+- Decisao nova: Implementar builder de transição para emitir `off_route.suspected.v1`, `off_route.confirmed.v1` e `back_on_route.v1`.
+- Motivo da mudanca: Fechar bloco de eventos da Sprint 3 e preparar consumo por `alerts`/`ws`.
+- Impacto no backlog/sprint: `S3-008`, `S3-009` e `S3-010` concluídos; próxima task é `S3-011` (`GET /api/v1/alerts`).
+- Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-events.ts`, `TNS/tests/unit/off-route-events.unit.test.ts`, `TNS/tests/integration/off-route-events.integration.test.ts`, `openspec/changes/tns-off-route-events-v1/`.
+
+## 2026-03-03 - Execucao do S3-011 com endpoint de listagem de alertas
+- Contexto: Após emissão de eventos de desvio, a API ainda não oferecia leitura operacional de alertas.
+- Decisao anterior: Não existia `GET /api/v1/alerts` nem repositório dedicado para consultas filtradas.
+- Decisao nova: Implementar endpoint de listagem com filtros `trip_id`, `severity`, `status`, escopo obrigatório por `x-tenant-id` e contrato versionado.
+- Motivo da mudanca: Entregar o critério de aceite da Sprint 3 para operação de alertas no backend.
+- Impacto no backlog/sprint: `S3-011` concluído; próxima task é `S3-012` (publicação de canais WS).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/alerts.ts`, `TNS/services/api/src/http/alert.repository.ts`, `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/openapi.ts`, `TNS/tests/integration/api-alerts-list.integration.test.ts`, `openspec/changes/tns-alerts-list-endpoint/`.
+
+## 2026-03-03 - Execucao do S3-012 com canais WebSocket versionados
+- Contexto: A Sprint 3 exigia stream realtime para progresso de viagem e eventos de alerta.
+- Decisao anterior: Servico `realtime` retornava apenas endpoints HTTP basicos sem canal WS funcional.
+- Decisao nova: Implementar runtime WebSocket com canais `trip.progress.v1` e `alert.event.v1`, scoping por `tenant_id` e endpoints operacionais `/ops/channels` + `/ops/publish`.
+- Motivo da mudanca: Cumprir criterio de aceite do `S3-012` e destravar o consumo em dashboard nas tasks seguintes.
+- Impacto no backlog/sprint: `S3-012` concluido; proxima task passa para `S3-013` (dashboard `trips` em tempo real).
+- Referencias (arquivos/PR/issue): `TNS/services/realtime/src/realtime-server.ts`, `TNS/services/realtime/src/main.ts`, `TNS/tests/unit/realtime-channels.unit.test.ts`, `TNS/tests/integration/realtime-ws-channels.integration.test.ts`, `openspec/changes/tns-realtime-ws-channels/`.
+
+## 2026-03-03 - Execucao do S3-013 com dashboard de trips em tempo real
+- Contexto: Com os canais WS versionados prontos, faltava a tela operacional para listar trips ao vivo.
+- Decisao anterior: `apps/web-dashboard` era placeholder sem servidor real e sem consumo de eventos.
+- Decisao nova: Implementar servidor HTTP do dashboard (`/`, `/health`, `/ops/config`) e tela com cliente WS para `trip.progress.v1` e `alert.event.v1`.
+- Motivo da mudanca: Entregar criterio de aceite do `S3-013` ("lista ao vivo") com base no contrato de realtime da Sprint 3.
+- Impacto no backlog/sprint: `S3-013` concluido; proxima task passa para `S3-014` (detalhe da viagem com progresso e ETA).
+- Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/dashboard-html.ts`, `TNS/apps/web-dashboard/src/dashboard-state.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `openspec/changes/tns-dashboard-trips-realtime/`.
+
+## 2026-03-03 - Execucao do S3-014 com detalhe da viagem em tempo real
+- Contexto: A lista de trips ao vivo estava pronta, mas faltava visao detalhada por viagem para operacao diaria.
+- Decisao anterior: Dashboard apresentava apenas lista agregada sem rota de detalhe por `tripId`.
+- Decisao nova: Implementar rota `/trips/:tripId`, endpoint interno de snapshot (`/api/trips/:tripId/snapshot`) e atualizacao realtime filtrada por `trip_id`.
+- Motivo da mudanca: Entregar criterio de aceite do `S3-014` (detalhe funcional com progresso e ETA) aproveitando contratos e canais ja concluídos.
+- Impacto no backlog/sprint: `S3-014` concluido; proxima task passa para `S3-015` (tela de alerts com filtros).
+- Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/trip-detail-html.ts`, `TNS/apps/web-dashboard/src/dashboard-state.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `openspec/changes/tns-dashboard-trip-detail-progress/`.
+
+## 2026-03-03 - Execucao do S3-015 com tela de alerts filtravel
+- Contexto: O endpoint de alertas estava pronto no backend, mas faltava visao web para operacao por filtros.
+- Decisao anterior: Dashboard sem rota de alerts; consultas dependiam de acesso direto ao endpoint da API.
+- Decisao nova: Implementar rota `/alerts`, proxy `/api/alerts` com tenant scoping e filtros `trip_id`/`severity`/`status`, mais navegacao entre telas.
+- Motivo da mudanca: Entregar criterio de aceite do `S3-015` e consolidar o fluxo operacional no dashboard web.
+- Impacto no backlog/sprint: `S3-015` concluido; proxima task passa para `S3-016` (mapa em tempo real no dashboard).
+- Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/alerts-html.ts`, `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/dashboard-html.ts`, `TNS/apps/web-dashboard/src/trip-detail-html.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `openspec/changes/tns-dashboard-alerts-filters/`.

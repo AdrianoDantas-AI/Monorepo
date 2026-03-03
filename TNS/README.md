@@ -31,6 +31,8 @@ corepack pnpm infra:down
 - `corepack pnpm typecheck`
 - `corepack pnpm test`
 - `corepack pnpm verify`
+- `corepack pnpm seed:demo:trips:dry-run`
+- `corepack pnpm seed:demo:trips`
 - `corepack pnpm infra:up`
 - `corepack pnpm infra:down`
 - `corepack pnpm infra:logs`

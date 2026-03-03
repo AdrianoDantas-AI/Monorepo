@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   alertEventSchema,
+  alertsListResponseDTOSchemaV1,
+  detectionTierConfigSchemaV1,
+  detectionTierConfigV1,
   pingIngestSchema,
+  tripProgressSchema,
   tripSchema,
 } from "../../packages/contracts/src/index.js";
 
@@ -60,4 +64,47 @@ test("pingIngestSchema + tripSchema + alertEventSchema validam payloads esperado
 
   assert.equal(ping.trip_id, trip.id);
   assert.equal(event.tenant_id, trip.tenant_id);
+
+  const tierConfig = detectionTierConfigSchemaV1.parse(detectionTierConfigV1);
+  assert.equal(tierConfig.version, "v1");
+  assert.equal(tierConfig.tiers.gold.ping_interval_s, 1);
+  assert.equal(tierConfig.tiers.silver.corridor_m, 30);
+  assert.equal(tierConfig.tiers.bronze.confirm_min_duration_s, 120);
+
+  const progress = tripProgressSchema.parse({
+    trip_id: trip.id,
+    status: "active",
+    route_track: {
+      progress_pct: 55,
+      distance_done_m: 5500,
+      distance_remaining_m: 4500,
+      eta_s: 410,
+    },
+    matched_leg_id: "trip_1_leg_2",
+    matched_leg_index: 1,
+    distance_to_route_m: 12.3,
+  });
+  assert.equal(progress.trip_id, trip.id);
+
+  const alertsList = alertsListResponseDTOSchemaV1.parse({
+    items: [
+      {
+        id: "alert_1",
+        tenant_id: trip.tenant_id,
+        trip_id: trip.id,
+        vehicle_id: trip.vehicle_id,
+        event: "off_route.suspected.v1",
+        severity: "high",
+        status: "open",
+        created_at: "2026-03-03T00:02:00.000Z",
+        updated_at: "2026-03-03T00:02:00.000Z",
+        data: {
+          distance_to_route_m: 120,
+          confidence: 0.7,
+        },
+      },
+    ],
+    total: 1,
+  });
+  assert.equal(alertsList.total, 1);
 });
