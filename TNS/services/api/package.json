@@ -12,7 +12,9 @@
     "prisma:format": "prisma format --schema prisma/schema.prisma",
     "prisma:validate": "prisma validate --schema prisma/schema.prisma",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
-    "prisma:migrate:diff": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script"
+    "prisma:migrate:diff": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
+    "prisma:seed:demo": "prisma generate --schema prisma/schema.prisma && tsx prisma/seed-demo.ts",
+    "prisma:seed:demo:dry-run": "tsx prisma/seed-demo.ts --dry-run"
   },
   "devDependencies": {
     "prisma": "^5.22.0"

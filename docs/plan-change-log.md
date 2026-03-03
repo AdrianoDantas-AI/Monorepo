@@ -148,3 +148,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterio de aceite do `S2-003` ("índices aplicados") e preparar performance para calculos/consultas de rota.
 - Impacto no backlog/sprint: Base de dados pronta para consultas de proximidade e travessia de pernas por viagem.
 - Referencias (arquivos/PR/issue): `TNS/services/api/prisma/migrations/2026030302_s2_geo_indexes/migration.sql`, `TNS/tests/unit/prisma-geo-migration.unit.test.ts`.
+
+## 2026-03-03 - Execucao do S2-004 com seed reproduzivel de trips/stops
+- Contexto: `S2-003` concluido; proxima dependencia da Sprint 2 era disponibilizar dados demo estaveis para desenvolvimento e testes.
+- Decisao anterior: Sem seed funcional; apenas placeholders em `scripts/seed`.
+- Decisao nova: Implementar seed idempotente com IDs fixos (`trip/stops/legs/route_plan/route_track`), modo `dry-run` e comandos oficiais no workspace.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-004` ("seed reproduzivel") e habilitar base consistente para `S2-005+`.
+- Impacto no backlog/sprint: Ambiente local pode ser populado de forma repetivel e validada por testes unit/integration.
+- Referencias (arquivos/PR/issue): `TNS/services/api/prisma/seed-demo.ts`, `TNS/tests/unit/trip-seed.unit.test.ts`, `TNS/tests/integration/trip-seed.integration.test.ts`, `TNS/package.json`.
