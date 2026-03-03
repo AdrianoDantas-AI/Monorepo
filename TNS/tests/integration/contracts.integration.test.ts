@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   alertEventSchema,
+  alertsListResponseDTOSchemaV1,
   detectionTierConfigSchemaV1,
   detectionTierConfigV1,
   pingIngestSchema,
@@ -84,4 +85,26 @@ test("pingIngestSchema + tripSchema + alertEventSchema validam payloads esperado
     distance_to_route_m: 12.3,
   });
   assert.equal(progress.trip_id, trip.id);
+
+  const alertsList = alertsListResponseDTOSchemaV1.parse({
+    items: [
+      {
+        id: "alert_1",
+        tenant_id: trip.tenant_id,
+        trip_id: trip.id,
+        vehicle_id: trip.vehicle_id,
+        event: "off_route.suspected.v1",
+        severity: "high",
+        status: "open",
+        created_at: "2026-03-03T00:02:00.000Z",
+        updated_at: "2026-03-03T00:02:00.000Z",
+        data: {
+          distance_to_route_m: 120,
+          confidence: 0.7,
+        },
+      },
+    ],
+    total: 1,
+  });
+  assert.equal(alertsList.total, 1);
 });

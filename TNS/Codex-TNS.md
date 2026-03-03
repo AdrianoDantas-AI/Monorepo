@@ -537,8 +537,9 @@ Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dash
 - [x] `S3-008` Emitir evento `off_route.suspected.v1`.
 - [x] `S3-009` Emitir evento `off_route.confirmed.v1`.
 - [x] `S3-010` Emitir evento `back_on_route.v1`.
-- [ ] `S3-011` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-off-route-events-v1/`.
+- [x] `S3-011` Criar `GET /api/v1/alerts` com filtros `trip_id`, `severity` e `status`.
+- [ ] `S3-012` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-alerts-list-endpoint/`.
 
 ### Backlog granular (Sprint 3)
 

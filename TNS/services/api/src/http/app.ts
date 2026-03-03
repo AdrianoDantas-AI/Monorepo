@@ -2,6 +2,8 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { createMapProviderFromEnv, type MapProviderRuntime } from "../maps/index.js";
 import { type DomainModules, createDomainModules } from "../modules/index.js";
 import type { TripDTO } from "../modules/domain.types.js";
+import { InMemoryAlertRepository, type AlertRepository } from "./alert.repository.js";
+import { parseAlertFiltersFromQuery } from "./alerts.js";
 import { generateRoutePlanFromStops } from "./route-plan-generator.js";
 import {
   InMemoryTripRepository,
@@ -31,6 +33,7 @@ const htmlContentType = { "content-type": "text/html; charset=utf-8" };
 export interface ApiAppDependencies {
   domainModules?: DomainModules;
   tripRepository?: TripRepository;
+  alertRepository?: AlertRepository;
   mapProviderRuntime?: MapProviderRuntime;
   metricsRegistry?: HttpMetricsRegistry;
 }
@@ -458,9 +461,46 @@ const handleGetTripProgress = async (
   }
 };
 
+const handleListAlerts = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  alertRepository: AlertRepository,
+): Promise<void> => {
+  const tenantId = readTenantIdFromHeaders(req);
+  if (!tenantId) {
+    sendJson(res, 400, {
+      error: "Tenant ausente. Informe o header x-tenant-id.",
+    });
+    return;
+  }
+
+  try {
+    const requestUrl = new URL(req.url ?? "/", "http://localhost");
+    const filters = parseAlertFiltersFromQuery(requestUrl.searchParams);
+    const alerts = await alertRepository.listByTenant(tenantId, filters);
+
+    sendJson(res, 200, {
+      data: {
+        items: alerts,
+        total: alerts.length,
+      },
+    });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      sendJson(res, 400, {
+        error: error.message,
+      });
+      return;
+    }
+
+    throw error;
+  }
+};
+
 export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const domainModules = dependencies.domainModules ?? createDomainModules();
   const tripRepository = dependencies.tripRepository ?? new InMemoryTripRepository();
+  const alertRepository = dependencies.alertRepository ?? new InMemoryAlertRepository();
   const mapProviderRuntime = dependencies.mapProviderRuntime ?? createMapProviderFromEnv();
   const metricsRegistry = dependencies.metricsRegistry ?? new HttpMetricsRegistry();
 
@@ -525,6 +565,12 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
       if (pathname === "/api/v1/trips" && req.method === "POST") {
         routeLabel = "/api/v1/trips";
         await handleCreateTrip(req, res, domainModules, tripRepository);
+        return;
+      }
+
+      if (pathname === "/api/v1/alerts" && req.method === "GET") {
+        routeLabel = "/api/v1/alerts";
+        await handleListAlerts(req, res, alertRepository);
         return;
       }
 

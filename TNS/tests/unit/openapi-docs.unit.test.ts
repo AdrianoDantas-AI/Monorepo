@@ -11,6 +11,7 @@ test("openApiSpec descreve endpoints principais da API", () => {
   assert.ok(openApiSpec.paths["/api/v1/trips/{tripId}/start"]);
   assert.ok(openApiSpec.paths["/api/v1/trips/{tripId}/deep-links/next-stop"]);
   assert.ok(openApiSpec.paths["/api/v1/trips/{tripId}/progress"]);
+  assert.ok(openApiSpec.paths["/api/v1/alerts"]);
   assert.ok(openApiSpec.paths["/ops/metrics"]);
 });
 

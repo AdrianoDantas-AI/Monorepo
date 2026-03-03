@@ -9,6 +9,7 @@ export const openApiSpec = {
   tags: [
     { name: "Health", description: "Healthchecks e endpoint de liveness." },
     { name: "Ops", description: "Endpoints operacionais e diagnostico de runtime." },
+    { name: "Alerts", description: "Consulta de alertas operacionais." },
     { name: "Trips", description: "CRUD parcial de trips e operacoes de rota." },
   ],
   components: {
@@ -40,6 +41,27 @@ export const openApiSpec = {
         required: true,
         description: "Longitude atual da posicao do veiculo.",
         schema: { type: "number", format: "double", minimum: -180, maximum: 180 },
+      },
+      AlertTripIdQuery: {
+        name: "trip_id",
+        in: "query",
+        required: false,
+        description: "Filtra alertas por trip.",
+        schema: { type: "string", minLength: 1 },
+      },
+      AlertSeverityQuery: {
+        name: "severity",
+        in: "query",
+        required: false,
+        description: "Filtra alertas por severidade.",
+        schema: { type: "string", enum: ["critical", "high", "medium", "low"] },
+      },
+      AlertStatusQuery: {
+        name: "status",
+        in: "query",
+        required: false,
+        description: "Filtra alertas por status.",
+        schema: { type: "string", enum: ["open", "acknowledged", "resolved"] },
       },
     },
     schemas: {
@@ -148,6 +170,53 @@ export const openApiSpec = {
           stop_location: { $ref: "#/components/schemas/LatLng" },
           google_maps: { type: "string", format: "uri" },
           waze: { type: "string", format: "uri" },
+        },
+      },
+      AlertDTO: {
+        type: "object",
+        required: [
+          "id",
+          "tenant_id",
+          "trip_id",
+          "vehicle_id",
+          "event",
+          "severity",
+          "status",
+          "created_at",
+          "updated_at",
+          "data",
+        ],
+        properties: {
+          id: { type: "string" },
+          tenant_id: { type: "string" },
+          trip_id: { type: "string" },
+          vehicle_id: { type: "string" },
+          event: {
+            type: "string",
+            enum: [
+              "off_route.suspected.v1",
+              "off_route.confirmed.v1",
+              "back_on_route.v1",
+              "detour.time.v1",
+              "detour.distance.v1",
+            ],
+          },
+          severity: { type: "string", enum: ["critical", "high", "medium", "low"] },
+          status: { type: "string", enum: ["open", "acknowledged", "resolved"] },
+          created_at: { type: "string", format: "date-time" },
+          updated_at: { type: "string", format: "date-time" },
+          data: { type: "object", additionalProperties: true },
+        },
+      },
+      AlertsListResponseData: {
+        type: "object",
+        required: ["items", "total"],
+        properties: {
+          items: {
+            type: "array",
+            items: { $ref: "#/components/schemas/AlertDTO" },
+          },
+          total: { type: "integer", minimum: 0 },
         },
       },
       TripProgressResponseData: {
@@ -307,6 +376,46 @@ export const openApiSpec = {
                   },
                 },
               },
+            },
+          },
+        },
+      },
+    },
+    "/api/v1/alerts": {
+      get: {
+        tags: ["Alerts"],
+        summary: "Lista alertas com filtros operacionais",
+        parameters: [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/AlertTripIdQuery" },
+          { $ref: "#/components/parameters/AlertSeverityQuery" },
+          { $ref: "#/components/parameters/AlertStatusQuery" },
+        ],
+        responses: {
+          200: {
+            description: "Lista de alertas",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["data"],
+                  properties: {
+                    data: { $ref: "#/components/schemas/AlertsListResponseData" },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Requisicao invalida",
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } },
+            },
+          },
+          500: {
+            description: "Erro interno",
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } },
             },
           },
         },

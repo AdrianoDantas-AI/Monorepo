@@ -9,6 +9,9 @@ export const alertEventNameSchema = z.enum([
   "detour.distance.v1",
 ]);
 
+export const alertSeveritySchema = z.enum(["critical", "high", "medium", "low"]);
+export const alertStatusSchema = z.enum(["open", "acknowledged", "resolved"]);
+
 export const alertEventSchema = z
   .object({
     event: alertEventNameSchema,
@@ -27,4 +30,30 @@ export const alertEventSchema = z
   })
   .strict();
 
+export const alertDTOSchemaV1 = z
+  .object({
+    id: z.string().min(1),
+    tenant_id: z.string().min(1),
+    trip_id: z.string().min(1),
+    vehicle_id: z.string().min(1),
+    event: alertEventNameSchema,
+    severity: alertSeveritySchema,
+    status: alertStatusSchema,
+    created_at: z.string().datetime(),
+    updated_at: z.string().datetime(),
+    data: z.object({}).passthrough(),
+  })
+  .strict();
+
+export const alertsListResponseDTOSchemaV1 = z
+  .object({
+    items: z.array(alertDTOSchemaV1),
+    total: z.number().int().min(0),
+  })
+  .strict();
+
 export type AlertEventV1 = z.infer<typeof alertEventSchema>;
+export type AlertSeverity = z.infer<typeof alertSeveritySchema>;
+export type AlertStatus = z.infer<typeof alertStatusSchema>;
+export type AlertDTO = z.infer<typeof alertDTOSchemaV1>;
+export type AlertsListResponseDTO = z.infer<typeof alertsListResponseDTOSchemaV1>;

@@ -324,3 +324,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Fechar bloco de eventos da Sprint 3 e preparar consumo por `alerts`/`ws`.
 - Impacto no backlog/sprint: `S3-008`, `S3-009` e `S3-010` concluídos; próxima task é `S3-011` (`GET /api/v1/alerts`).
 - Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-events.ts`, `TNS/tests/unit/off-route-events.unit.test.ts`, `TNS/tests/integration/off-route-events.integration.test.ts`, `openspec/changes/tns-off-route-events-v1/`.
+
+## 2026-03-03 - Execucao do S3-011 com endpoint de listagem de alertas
+- Contexto: Após emissão de eventos de desvio, a API ainda não oferecia leitura operacional de alertas.
+- Decisao anterior: Não existia `GET /api/v1/alerts` nem repositório dedicado para consultas filtradas.
+- Decisao nova: Implementar endpoint de listagem com filtros `trip_id`, `severity`, `status`, escopo obrigatório por `x-tenant-id` e contrato versionado.
+- Motivo da mudanca: Entregar o critério de aceite da Sprint 3 para operação de alertas no backend.
+- Impacto no backlog/sprint: `S3-011` concluído; próxima task é `S3-012` (publicação de canais WS).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/alerts.ts`, `TNS/services/api/src/http/alert.repository.ts`, `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/openapi.ts`, `TNS/tests/integration/api-alerts-list.integration.test.ts`, `openspec/changes/tns-alerts-list-endpoint/`.
