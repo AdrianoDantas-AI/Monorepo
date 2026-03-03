@@ -276,3 +276,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Transformar regra de negócio da detecção em módulo testável e reutilizável.
 - Impacto no backlog/sprint: `S3-002` concluído; próximo item é `S3-003` (filtro anti-ruído por `accuracy_m`).
 - Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-state-machine.ts`, `TNS/tests/unit/off-route-state-machine.unit.test.ts`, `TNS/tests/integration/off-route-state-machine.integration.test.ts`, `openspec/changes/tns-off-route-state-machine/`.
+
+## 2026-03-03 - Execucao do S3-003 com filtro anti-ruido por accuracy
+- Contexto: A máquina de estado já existia, mas o anti-ruído precisava de componente explícito e reutilizável.
+- Decisao anterior: Regra de `accuracy_m` estava embutida no fluxo da state machine.
+- Decisao nova: Extrair filtro dedicado de accuracy e integrar ao motor de detecção.
+- Motivo da mudanca: Separar responsabilidades, facilitar testes e permitir reuso em ingest/worker.
+- Impacto no backlog/sprint: `S3-003` concluído; próxima entrega é `S3-004` (cálculo real de progresso sobre polyline).
+- Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-accuracy-filter.ts`, `TNS/packages/shared/src/off-route-state-machine.ts`, `TNS/tests/unit/off-route-accuracy-filter.unit.test.ts`, `TNS/tests/integration/off-route-accuracy-filter.integration.test.ts`, `openspec/changes/tns-off-route-accuracy-filter/`.

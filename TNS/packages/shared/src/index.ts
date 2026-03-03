@@ -19,4 +19,5 @@ export const haversineDistanceM = (
   return EARTH_RADIUS_M * c;
 };
 
+export * from "./off-route-accuracy-filter.js";
 export * from "./off-route-state-machine.js";

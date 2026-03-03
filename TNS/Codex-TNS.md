@@ -529,8 +529,9 @@ Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dash
 
 - [x] `S3-001` Consolidar tiers `Bronze/Silver/Gold` em configuração versionada (`v1`) no pacote de contratos.
 - [x] `S3-002` Implementar máquina de estado `normal/suspected/confirmed` em módulo puro.
-- [ ] `S3-003` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-off-route-state-machine/`.
+- [x] `S3-003` Implementar filtro anti-ruído por `accuracy_m` com thresholds por tier.
+- [ ] `S3-004` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-off-route-accuracy-filter/`.
 
 ### Backlog granular (Sprint 3)
 

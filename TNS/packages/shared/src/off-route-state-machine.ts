@@ -1,3 +1,5 @@
+import { classifyAccuracyForDetection } from "./off-route-accuracy-filter.js";
+
 export type OffRouteState = "normal" | "suspected" | "confirmed";
 
 export type OffRouteTransitionReason =
@@ -42,11 +44,6 @@ export const initialOffRouteMachineSnapshot = (): OffRouteMachineSnapshot => ({
 
 const isPositiveFinite = (value: number): boolean => Number.isFinite(value) && value >= 0;
 
-const shouldIgnoreByAccuracy = (
-  sample: OffRouteSample,
-  thresholds: OffRouteTierThresholds,
-): boolean => sample.accuracy_m > thresholds.degraded_accuracy_m;
-
 export const isOutsideCorridor = (
   sample: OffRouteSample,
   thresholds: OffRouteTierThresholds,
@@ -74,7 +71,11 @@ export const stepOffRouteStateMachine = (
     throw new TypeError("Thresholds invalidos para maquina de estado off-route.");
   }
 
-  if (shouldIgnoreByAccuracy(sample, thresholds)) {
+  const accuracyFilter = classifyAccuracyForDetection(
+    sample.accuracy_m,
+    thresholds.degraded_accuracy_m,
+  );
+  if (accuracyFilter.should_ignore_transition) {
     return {
       next: { ...current },
       changed: false,
