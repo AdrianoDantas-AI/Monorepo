@@ -108,3 +108,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Corrigir leitura de input no contexto de `actions/github-script`.
 - Impacto no backlog/sprint: Permite disparo manual confiavel para smoke e operacao de catalogacao.
 - Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, run `22606740685`.
+
+## 2026-03-03 - Workflow de catalogacao resiliente para PR fechado
+- Contexto: Smoke manual em PR fechado falhou ao tentar comentar resumo no PR.
+- Decisao anterior: Sempre comentar resumo no PR ao final da catalogacao.
+- Decisao nova: Comentar apenas quando o PR estiver aberto; em 403 de comentario, registrar warning e nao quebrar o workflow.
+- Motivo da mudanca: Evitar falha operacional por restricao de permissao em contextos de PR fechado.
+- Impacto no backlog/sprint: Workflow fica robusto para dispatch manual de auditoria sem interromper catalogacao.
+- Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, run `22606907603`.

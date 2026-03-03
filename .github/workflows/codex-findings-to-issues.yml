@@ -42,6 +42,35 @@ jobs:
               return;
             }
 
+            const { data: pr } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: prNumber
+            });
+            const canCommentOnPr = pr.state === "open";
+
+            const commentOnPr = async (body) => {
+              if (!canCommentOnPr) {
+                core.info(`PR #${prNumber} fechado. Comentario de resumo sera omitido.`);
+                return;
+              }
+
+              try {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: prNumber,
+                  body
+                });
+              } catch (error) {
+                if (error.status === 403 && String(error.message || "").includes("Resource not accessible by integration")) {
+                  core.warning("Sem permissao para comentar no PR com o token atual. Continuando sem falhar.");
+                  return;
+                }
+                throw error;
+              }
+            };
+
             const isCodexBot = (login) => {
               if (!login) return false;
               return login.toLowerCase().startsWith("chatgpt-codex-connector");
@@ -122,12 +151,7 @@ jobs:
             }
 
             if (sources.length === 0) {
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: prNumber,
-                body: "Catalogacao Codex -> Issues: nenhum comentario/review do bot encontrado para este PR."
-              });
+              await commentOnPr("Catalogacao Codex -> Issues: nenhum comentario/review do bot encontrado para este PR.");
               return;
             }
 
@@ -241,22 +265,12 @@ jobs:
             }
 
             if (createdIssues.length === 0) {
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: prNumber,
-                body: "Catalogacao Codex -> Issues: nenhum finding novo para criar (dedupe aplicado ou review sem findings)."
-              });
+              await commentOnPr("Catalogacao Codex -> Issues: nenhum finding novo para criar (dedupe aplicado ou review sem findings).");
               return;
             }
 
             const lines = createdIssues.map((issue) => `- #${issue.number} ${issue.html_url}`);
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number: prNumber,
-              body: [
-                `Catalogacao Codex -> Issues concluida: ${createdIssues.length} issue(s) criada(s).`,
-                ...lines
-              ].join("\n")
-            });
+            await commentOnPr([
+              `Catalogacao Codex -> Issues concluida: ${createdIssues.length} issue(s) criada(s).`,
+              ...lines
+            ].join("\n"));
