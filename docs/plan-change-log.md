@@ -44,3 +44,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Garantir cobertura minima real em toda mudanca e evitar falso positivo de pipeline verde sem testes.
 - Impacto no backlog/sprint: CI/local passam a falhar quando nao houver arquivos de `unit` e `integration`; adicionados testes iniciais.
 - Referencias (arquivos/PR/issue): `MONOREPO.md`, `AGENTS.md`, `TNS/package.json`, `TNS/scripts/testing/require-test-files.mjs`.
+
+## 2026-03-03 - Ruleset do GitHub migrado para modelo "as code"
+- Contexto: Solicitacao para criar ruleset de protecao da branch `main`.
+- Decisao anterior: Aplicar ruleset diretamente no repositorio via GitHub API/CLI.
+- Decisao nova: Versionar payload do ruleset no repo e aplicar via script, mantendo tentativa automatica de publicacao.
+- Motivo da mudanca: GitHub bloqueou `rulesets` e `branch protection` em repo privado no plano atual (HTTP 403).
+- Impacto no backlog/sprint: Governanca do ruleset fica pronta no codigo, mas a ativacao remota depende de tornar o repo publico ou upgrade de plano.
+- Referencias (arquivos/PR/issue): `.github/rulesets/main-protection.json`, `scripts/github/apply-ruleset.ps1`, `scripts/github/README.md`, `docs/error-log.md`.

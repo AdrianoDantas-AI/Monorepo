@@ -46,3 +46,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Substituicao por runner dedicado (`scripts/testing/run-tests.mjs`) que resolve os arquivos `.test.ts` e chama `node --import tsx --test` com paths explicitos.
 - Prevencao/acao futura: Evitar padroes `**` dependentes de shell em comandos cross-platform.
 - Referencias (comando/arquivo): `TNS/package.json` (`test:unit`, `test:integration`), `TNS/scripts/testing/run-tests.mjs`.
+
+## 2026-03-03 - GitHub bloqueou criacao de ruleset/branch protection no repo privado
+- Sintoma: Chamadas para `repos/CaosHorseman/Monorepo/rulesets` e `branches/main/protection` retornaram HTTP 403 com mensagem de upgrade.
+- Causa raiz: O repositorio esta privado em plano sem suporte a Rulesets/Branch protection.
+- Correcao aplicada: Regras foram versionadas em `.github/rulesets/main-protection.json` e criado script `scripts/github/apply-ruleset.ps1` para aplicar assim que o requisito de plano/publico for atendido.
+- Prevencao/acao futura: Validar capacidade do plano GitHub antes de automatizar governanca remota e executar novamente o script apos liberar o recurso.
+- Referencias (comando/arquivo): `gh api repos/CaosHorseman/Monorepo/rulesets`, `gh api repos/CaosHorseman/Monorepo/branches/main/protection`, `scripts/github/apply-ruleset.ps1`.
