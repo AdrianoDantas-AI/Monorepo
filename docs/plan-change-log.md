@@ -196,3 +196,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterio de aceite do `S2-010` ("legs persistidas") e preparar dados para `S2-014`/`S3-004`.
 - Impacto no backlog/sprint: Trips otimizadas passam a carregar baseline de rota estruturada (legs + totais) imediatamente apos otimização.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/route-plan-generator.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/route-plan-generator.unit.test.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-011/S2-012/S2-013 com MapProvider runtime
+- Contexto: A Sprint 2 exigia camada de abstracao de mapas com troca por env e fallback local.
+- Decisao anterior: Sem runtime selector; app sem visibilidade de provider ativo e sem implementacao mapbox integrada.
+- Decisao nova: Criar stack de mapas (`MockMapProvider`, `MapboxMapProvider`, selector por `MAP_PROVIDER_MODE`) com fallback para `mock` quando token ausente.
+- Motivo da mudanca: Cumprir criterios de aceite de `S2-011`/`S2-012`/`S2-013` e garantir que dev local nao bloqueie sem credenciais.
+- Impacto no backlog/sprint: Runtime de mapas ficou observavel via `/ops/map-provider`, com testes unit/integration cobrindo selecao, parse de respostas mapbox e fallback.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/maps/*`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/map-provider-selector.unit.test.ts`, `TNS/tests/unit/mapbox-map-provider.unit.test.ts`, `TNS/tests/integration/api-map-provider.integration.test.ts`.

@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { createMapProviderFromEnv, type MapProviderRuntime } from "../maps/index.js";
 import { type DomainModules, createDomainModules } from "../modules/index.js";
 import type { TripDTO } from "../modules/domain.types.js";
 import { generateRoutePlanFromStops } from "./route-plan-generator.js";
@@ -14,6 +15,7 @@ const jsonContentType = { "content-type": "application/json" };
 export interface ApiAppDependencies {
   domainModules?: DomainModules;
   tripRepository?: TripRepository;
+  mapProviderRuntime?: MapProviderRuntime;
 }
 
 const sendJson = (res: ServerResponse, statusCode: number, payload: unknown): void => {
@@ -225,6 +227,7 @@ const handleOptimizeTripStops = async (
 export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const domainModules = dependencies.domainModules ?? createDomainModules();
   const tripRepository = dependencies.tripRepository ?? new InMemoryTripRepository();
+  const mapProviderRuntime = dependencies.mapProviderRuntime ?? createMapProviderFromEnv();
 
   return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
@@ -234,6 +237,17 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
         sendJson(res, 200, {
           status: "ok",
           modules: Object.keys(domainModules),
+          map_provider_mode: mapProviderRuntime.mode,
+        });
+        return;
+      }
+
+      if (pathname === "/ops/map-provider" && req.method === "GET") {
+        sendJson(res, 200, {
+          status: "ok",
+          mode: mapProviderRuntime.mode,
+          fallback_applied: mapProviderRuntime.fallbackApplied,
+          fallback_reason: mapProviderRuntime.fallbackReason ?? null,
         });
         return;
       }

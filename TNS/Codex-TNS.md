@@ -458,7 +458,10 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 - [x] `S2-008` Implementar `GET /api/v1/trips/:tripId` com scoping de tenant.
 - [x] `S2-009` Implementar `POST /api/v1/trips/:tripId/stops/optimize` com estratégia `nearest-neighbor-v1`.
 - [x] `S2-010` Gerar `Legs` com `polyline` e métricas persistidas no `route_plan` durante otimização.
-- [ ] `S2-011` em diante (pendente).
+- [x] `S2-011` Criar selector runtime de `MapProvider` (`mock`/`mapbox`) por env `MAP_PROVIDER_MODE`.
+- [x] `S2-012` Implementar `MapboxMapProvider` mínimo (directions + geocoding) com `fetch` injetável.
+- [x] `S2-013` Aplicar fallback automático para `mock` quando `MAPBOX_ACCESS_TOKEN` estiver ausente.
+- [ ] `S2-014` em diante (pendente).
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 
