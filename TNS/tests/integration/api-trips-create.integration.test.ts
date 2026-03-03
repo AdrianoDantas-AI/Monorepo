@@ -30,7 +30,7 @@ const startServer = async (): Promise<{ baseUrl: string; close: () => Promise<vo
   };
 };
 
-test("POST /api/v1/trips cria trip com tenant scoping e detecta conflito", async () => {
+test("POST/GET /api/v1/trips respeitam tenant scoping e detectam conflito", async () => {
   const app = await startServer();
   const createTripPayload = {
     id: "trip_api_001",
@@ -80,6 +80,30 @@ test("POST /api/v1/trips cria trip com tenant scoping e detecta conflito", async
       createdPayload.data.stops.map((stop) => stop.order),
       [0, 1],
     );
+
+    const getCreatedResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001`, {
+      method: "GET",
+      headers: {
+        "x-tenant-id": "tenant_api_001",
+      },
+    });
+    assert.equal(getCreatedResponse.status, 200);
+    const getCreatedPayload = (await getCreatedResponse.json()) as {
+      data: {
+        id: string;
+        tenant_id: string;
+      };
+    };
+    assert.equal(getCreatedPayload.data.id, "trip_api_001");
+    assert.equal(getCreatedPayload.data.tenant_id, "tenant_api_001");
+
+    const getWithOtherTenantResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001`, {
+      method: "GET",
+      headers: {
+        "x-tenant-id": "tenant_api_999",
+      },
+    });
+    assert.equal(getWithOtherTenantResponse.status, 404);
 
     const duplicatedResponse = await fetch(`${app.baseUrl}/api/v1/trips`, {
       method: "POST",
@@ -139,6 +163,19 @@ test("POST /api/v1/trips exige header de tenant", async () => {
           },
         ],
       }),
+    });
+
+    assert.equal(response.status, 400);
+  } finally {
+    await app.close();
+  }
+});
+
+test("GET /api/v1/trips/:tripId exige header de tenant", async () => {
+  const app = await startServer();
+  try {
+    const response = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001`, {
+      method: "GET",
     });
 
     assert.equal(response.status, 400);

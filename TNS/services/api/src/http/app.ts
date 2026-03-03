@@ -58,6 +58,16 @@ const readTenantIdFromHeaders = (req: IncomingMessage): string | null => {
   return tenantId?.trim() ? tenantId.trim() : null;
 };
 
+export const extractTripIdFromPathname = (pathname: string): string | null => {
+  const match = /^\/api\/v1\/trips\/([^/]+)$/.exec(pathname);
+  if (!match) {
+    return null;
+  }
+
+  const tripId = decodeURIComponent(match[1] ?? "").trim();
+  return tripId.length > 0 ? tripId : null;
+};
+
 const asTripDTO = (payload: unknown): TripDTO => {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw new TypeError("Payload de trip invalido: esperado objeto JSON.");
@@ -124,6 +134,33 @@ const handleCreateTrip = async (
   }
 };
 
+const handleGetTripById = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  tripRepository: TripRepository,
+  tripId: string,
+): Promise<void> => {
+  const tenantId = readTenantIdFromHeaders(req);
+  if (!tenantId) {
+    sendJson(res, 400, {
+      error: "Tenant ausente. Informe o header x-tenant-id.",
+    });
+    return;
+  }
+
+  const trip = await tripRepository.getById(tenantId, tripId);
+  if (!trip) {
+    sendJson(res, 404, {
+      error: "Trip nao encontrada para o tenant informado.",
+      trip_id: tripId,
+      tenant_id: tenantId,
+    });
+    return;
+  }
+
+  sendJson(res, 200, { data: trip });
+};
+
 export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const domainModules = dependencies.domainModules ?? createDomainModules();
   const tripRepository = dependencies.tripRepository ?? new InMemoryTripRepository();
@@ -147,6 +184,12 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
 
       if (pathname === "/api/v1/trips" && req.method === "POST") {
         await handleCreateTrip(req, res, domainModules, tripRepository);
+        return;
+      }
+
+      const tripId = extractTripIdFromPathname(pathname);
+      if (tripId && req.method === "GET") {
+        await handleGetTripById(req, res, tripRepository, tripId);
         return;
       }
 

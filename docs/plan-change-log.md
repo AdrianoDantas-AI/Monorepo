@@ -172,3 +172,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterio de aceite do `S2-007` e destravar `S2-008` (`GET /trips/:tripId`).
 - Impacto no backlog/sprint: Base HTTP de `trips` operacional com repositorio em memoria e testes unit/integration cobrindo fluxo principal.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/trip.repository.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-008 com leitura de trip por ID
+- Contexto: Endpoint de criacao ja estava ativo, faltando leitura por ID para fechar fluxo minimo de consulta.
+- Decisao anterior: Apenas `POST /api/v1/trips` disponivel.
+- Decisao nova: Adicionar `GET /api/v1/trips/:tripId` com escopo por tenant e respostas `200/400/404`.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-008` e manter consistencia de contrato para proxima etapa de otimizacao de stops.
+- Impacto no backlog/sprint: API suporta criar e consultar trip de forma segura por tenant, com cobertura unit/integration dedicada.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `TNS/tests/unit/api-paths.unit.test.ts`.
