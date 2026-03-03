@@ -340,3 +340,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterio de aceite do `S3-012` e destravar o consumo em dashboard nas tasks seguintes.
 - Impacto no backlog/sprint: `S3-012` concluido; proxima task passa para `S3-013` (dashboard `trips` em tempo real).
 - Referencias (arquivos/PR/issue): `TNS/services/realtime/src/realtime-server.ts`, `TNS/services/realtime/src/main.ts`, `TNS/tests/unit/realtime-channels.unit.test.ts`, `TNS/tests/integration/realtime-ws-channels.integration.test.ts`, `openspec/changes/tns-realtime-ws-channels/`.
+
+## 2026-03-03 - Execucao do S3-013 com dashboard de trips em tempo real
+- Contexto: Com os canais WS versionados prontos, faltava a tela operacional para listar trips ao vivo.
+- Decisao anterior: `apps/web-dashboard` era placeholder sem servidor real e sem consumo de eventos.
+- Decisao nova: Implementar servidor HTTP do dashboard (`/`, `/health`, `/ops/config`) e tela com cliente WS para `trip.progress.v1` e `alert.event.v1`.
+- Motivo da mudanca: Entregar criterio de aceite do `S3-013` ("lista ao vivo") com base no contrato de realtime da Sprint 3.
+- Impacto no backlog/sprint: `S3-013` concluido; proxima task passa para `S3-014` (detalhe da viagem com progresso e ETA).
+- Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/dashboard-html.ts`, `TNS/apps/web-dashboard/src/dashboard-state.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `openspec/changes/tns-dashboard-trips-realtime/`.

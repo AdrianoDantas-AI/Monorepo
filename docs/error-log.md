@@ -165,3 +165,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Nova tentativa de `git push` após a falha imediata.
 - Prevencao/acao futura: Em falha HTTP 5xx no push, repetir tentativa antes de iniciar troubleshooting local.
 - Referencias (comando/arquivo): `git push origin feat/s2-003-geo-indexes`.
+
+## 2026-03-03 - `openspec new change` sem suporte a `--json`
+- Sintoma: Execucao de `openspec new change tns-dashboard-trips-realtime --json` falhou com `unknown option '--json'`.
+- Causa raiz: A versao atual do OpenSpec CLI nao implementa flag `--json` para o comando `new change`.
+- Correcao aplicada: Reexecucao sem a flag (`openspec new change tns-dashboard-trips-realtime`) e continuidade do fluxo normalmente.
+- Prevencao/acao futura: Validar opcoes suportadas com `openspec --help` antes de usar flags em comandos de scaffold.
+- Referencias (comando/arquivo): `openspec new change tns-dashboard-trips-realtime --json`, `openspec new change tns-dashboard-trips-realtime`.
