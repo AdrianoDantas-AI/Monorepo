@@ -454,7 +454,8 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 - [x] `S2-004` Criar seed de dados para trips/stops demo (idempotente, com dry-run e testes).
 - [x] `S2-005` Definir `TripDTO/StopDTO/LegDTO` versionados (`v1`) em `packages/contracts`.
 - [x] `S2-006` Adicionar testes de contrato com snapshots estáveis para DTOs de viagem.
-- [ ] `S2-007` em diante (pendente).
+- [x] `S2-007` Implementar `POST /api/v1/trips` com tenant scoping e teste de conflito.
+- [ ] `S2-008` em diante (pendente).
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 

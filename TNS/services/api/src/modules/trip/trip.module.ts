@@ -15,6 +15,10 @@ export class TripModule {
       throw new TypeError("Trip invalida: campos de identificacao obrigatorios ausentes.");
     }
 
+    if (!Array.isArray(input.stops)) {
+      throw new TypeError("Trip invalida: stops deve ser um array.");
+    }
+
     if (!this.isTripStatus(input.status)) {
       throw new TypeError("Trip invalida: status fora do dominio esperado.");
     }

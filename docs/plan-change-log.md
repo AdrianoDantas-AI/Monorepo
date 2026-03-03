@@ -164,3 +164,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterios de aceite do `S2-005` e `S2-006`, reduzindo risco de regressao silenciosa em contratos.
 - Impacto no backlog/sprint: Base contratual pronta para implementar `POST/GET trips` com validacao automatica de compatibilidade.
 - Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/trip.ts`, `TNS/tests/integration/trip-contract-snapshots.integration.test.ts`, `TNS/tests/snapshots/contracts/*.json`.
+
+## 2026-03-03 - Execucao do S2-007 com endpoint de criacao de trips
+- Contexto: Com contratos e seed estabilizados, o proximo passo era liberar a primeira API de dominio de viagens.
+- Decisao anterior: API respondia apenas health/ops sem endpoint funcional de trips.
+- Decisao nova: Implementar `POST /api/v1/trips` com scoping por `x-tenant-id`, deteccao de conflito por tenant e resposta `201/403/409`.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-007` e destravar `S2-008` (`GET /trips/:tripId`).
+- Impacto no backlog/sprint: Base HTTP de `trips` operacional com repositorio em memoria e testes unit/integration cobrindo fluxo principal.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/trip.repository.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`.

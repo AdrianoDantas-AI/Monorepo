@@ -130,3 +130,17 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Regeração com `pnpm exec prisma migrate diff ... --script` para capturar apenas SQL.
 - Prevencao/acao futura: Para artefatos SQL versionados, preferir `pnpm exec` em vez de `pnpm run` quando houver redirecionamento de saída.
 - Referencias (comando/arquivo): `TNS/services/api/prisma/migrations/2026030301_s2_trip_domain_init/migration.sql`.
+
+## 2026-03-03 - TypeScript TS6059 no `@tns/api` ao importar contrato por caminho relativo
+- Sintoma: `corepack pnpm --dir TNS verify` falhou com `TS6059` informando arquivo fora do `rootDir` (`services/api/src`).
+- Causa raiz: Endpoint `POST /api/v1/trips` importava `packages/contracts/src/trip.ts` por caminho relativo direto.
+- Correcao aplicada: Remocao do import cruzado no `@tns/api`; validacao do payload passou para guard runtime local e validacao de dominio (`TripModule`/`StopModule`).
+- Prevencao/acao futura: Evitar import relativo entre workspaces no runtime de servico; usar pacote publicado (`@tns/contracts`) ou validação local desacoplada.
+- Referencias (comando/arquivo): `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/modules/trip/trip.module.ts`, `TNS/services/api/src/modules/stop/stop.module.ts`.
+
+## 2026-03-03 - Falha de teste por uso de assertiva de referencia em objeto clonado
+- Sintoma: Teste unitario do repositorio em memoria falhou com `Values have same structure but are not reference-equal`.
+- Causa raiz: Uso de `assert.equal` (comparacao por referencia) em objeto retornado por clone.
+- Correcao aplicada: Troca para `assert.deepEqual` no teste.
+- Prevencao/acao futura: Em testes de DTO/entidades retornadas por copia, usar comparacao estrutural por padrao.
+- Referencias (comando/arquivo): `TNS/tests/unit/trip-repository.unit.test.ts`, `corepack pnpm --dir TNS verify`.
