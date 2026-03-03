@@ -46,3 +46,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Substituicao por runner dedicado (`scripts/testing/run-tests.mjs`) que resolve os arquivos `.test.ts` e chama `node --import tsx --test` com paths explicitos.
 - Prevencao/acao futura: Evitar padroes `**` dependentes de shell em comandos cross-platform.
 - Referencias (comando/arquivo): `TNS/package.json` (`test:unit`, `test:integration`), `TNS/scripts/testing/run-tests.mjs`.
+
+## 2026-03-03 - `@codex review` sem resposta no PR de smoke test
+- Sintoma: PR criado e comentario `@codex review` publicado, mas sem comentario de retorno do Codex apos polling.
+- Causa raiz: Integracao OAuth do Codex possivelmente nao habilitada/instalada para este repositorio ou aguardando propagacao de configuracao.
+- Correcao aplicada: Validado que o comentario foi publicado com sucesso e mantido PR #1 aberto para nova tentativa apos ajuste de configuracao no Codex/GitHub.
+- Prevencao/acao futura: Confirmar no painel do Codex que `Code review` esta ativo para `CaosHorseman/Monorepo` e que o app tem permissao no repositorio.
+- Referencias (comando/arquivo): PR `#1`, comentario `@codex review`, `gh pr view --comments`.
