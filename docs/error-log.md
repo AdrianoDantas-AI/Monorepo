@@ -53,3 +53,4 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Validado que o comentario foi publicado com sucesso e mantido PR #1 aberto para nova tentativa apos ajuste de configuracao no Codex/GitHub.
 - Prevencao/acao futura: Confirmar no painel do Codex que `Code review` esta ativo para `CaosHorseman/Monorepo` e que o app tem permissao no repositorio.
 - Referencias (comando/arquivo): PR `#1`, comentario `@codex review`, `gh pr view --comments`.
+- Atualizacao (reteste): PR #1 foi fechado e reaberto; novo comentario `@codex review` publicado em `2026-03-03T02:23:15Z`; sem `reviews` e sem resposta do bot ate o momento.
