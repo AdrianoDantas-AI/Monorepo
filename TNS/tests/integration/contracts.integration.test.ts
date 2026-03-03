@@ -5,6 +5,7 @@ import {
   detectionTierConfigSchemaV1,
   detectionTierConfigV1,
   pingIngestSchema,
+  tripProgressSchema,
   tripSchema,
 } from "../../packages/contracts/src/index.js";
 
@@ -68,4 +69,19 @@ test("pingIngestSchema + tripSchema + alertEventSchema validam payloads esperado
   assert.equal(tierConfig.tiers.gold.ping_interval_s, 1);
   assert.equal(tierConfig.tiers.silver.corridor_m, 30);
   assert.equal(tierConfig.tiers.bronze.confirm_min_duration_s, 120);
+
+  const progress = tripProgressSchema.parse({
+    trip_id: trip.id,
+    status: "active",
+    route_track: {
+      progress_pct: 55,
+      distance_done_m: 5500,
+      distance_remaining_m: 4500,
+      eta_s: 410,
+    },
+    matched_leg_id: "trip_1_leg_2",
+    matched_leg_index: 1,
+    distance_to_route_m: 12.3,
+  });
+  assert.equal(progress.trip_id, trip.id);
 });

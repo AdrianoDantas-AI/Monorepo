@@ -3,6 +3,7 @@ import { createServer, type Server } from "node:http";
 import { once } from "node:events";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
+import { tripProgressSchema } from "../../packages/contracts/src/index.js";
 import { createApiHandler } from "../../services/api/src/http/app.js";
 
 const startServer = async (): Promise<{ baseUrl: string; close: () => Promise<void> }> => {
@@ -167,6 +168,9 @@ test("GET /api/v1/trips/:tripId/progress calcula distancias e atualiza ETA dinam
       (progressNearEndPayload.data.route_track.eta_s ?? Number.POSITIVE_INFINITY) <
         (progressNearStartPayload.data.route_track.eta_s ?? Number.POSITIVE_INFINITY),
     );
+
+    const parsedProgress = tripProgressSchema.parse(progressNearEndPayload.data);
+    assert.equal(parsedProgress.trip_id, "trip_api_progress_001");
 
     const getTripResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_progress_001`, {
       method: "GET",

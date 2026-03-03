@@ -308,3 +308,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Fechar `S3-006` e aumentar utilidade operacional da API para consumo em tempo real.
 - Impacto no backlog/sprint: `S3-006` concluído; próximo item da Sprint 3 é `S3-007` (solidificar resposta final do endpoint de progresso).
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-progress.ts`, `TNS/tests/unit/trip-progress.unit.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-eta/`.
+
+## 2026-03-03 - Execucao do S3-007 com contrato final do endpoint de progresso
+- Contexto: O endpoint `/progress` já estava funcional, porém sem contrato versionado explícito no pacote de contratos.
+- Decisao anterior: Payload era validado apenas por tipos locais dos testes de integração.
+- Decisao nova: Introduzir `TripProgressDTO` v1 em `packages/contracts` e validar resposta real da API contra o schema.
+- Motivo da mudanca: Fechar `S3-007` com contrato público estável e proteção contra regressões.
+- Impacto no backlog/sprint: `S3-007` concluído; Sprint 3 segue para `S3-008` (eventos de desvio de rota).
+- Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/trip.ts`, `TNS/tests/unit/trip-contract-versioning.unit.test.ts`, `TNS/tests/integration/contracts.integration.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-endpoint-finalize/`.

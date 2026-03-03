@@ -8,6 +8,8 @@ import {
   nextStopDeepLinksSchema,
   routePlanDTOSchemaV1,
   routePlanSchema,
+  tripProgressDTOSchemaV1,
+  tripProgressSchema,
   routeTrackDTOSchemaV1,
   routeTrackSchema,
   stopDTOSchemaV1,
@@ -26,6 +28,7 @@ test("contratos de trip expostos com versao v1", () => {
   assert.equal(routePlanSchema, routePlanDTOSchemaV1);
   assert.equal(routeTrackSchema, routeTrackDTOSchemaV1);
   assert.equal(nextStopDeepLinksSchema, nextStopDeepLinksDTOSchemaV1);
+  assert.equal(tripProgressSchema, tripProgressDTOSchemaV1);
   assert.equal(tripStatusSchema, tripStatusSchemaV1);
 });
 
