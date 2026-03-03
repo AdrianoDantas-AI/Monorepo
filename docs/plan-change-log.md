@@ -140,3 +140,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar criterio de aceite do `S2-002` ("migração gerada sem erro") e preparar base para `S2-003`/`S2-007`.
 - Impacto no backlog/sprint: Sprint 2 avanca com persistencia modelada e artefato de migration versionado no repo.
 - Referencias (arquivos/PR/issue): `TNS/services/api/prisma/schema.prisma`, `TNS/services/api/prisma/migrations/2026030301_s2_trip_domain_init/migration.sql`, `TNS/services/api/package.json`.
+
+## 2026-03-03 - Execucao do S2-003 com migration de geo-indexes
+- Contexto: `S2-002` entregue e proximo passo era otimizar consultas geoespaciais/rota.
+- Decisao anterior: Apenas indices default da migration inicial de tabelas.
+- Decisao nova: Adicionar migration dedicada para `postgis` + indice espacial `GIST` em `stops` + indices compostos de fluxo de rota.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-003` ("índices aplicados") e preparar performance para calculos/consultas de rota.
+- Impacto no backlog/sprint: Base de dados pronta para consultas de proximidade e travessia de pernas por viagem.
+- Referencias (arquivos/PR/issue): `TNS/services/api/prisma/migrations/2026030302_s2_geo_indexes/migration.sql`, `TNS/tests/unit/prisma-geo-migration.unit.test.ts`.

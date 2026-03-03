@@ -450,7 +450,8 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 
 - [x] `S2-001` Criar módulos `Trip`, `Stop`, `Leg`, `RoutePlan`, `RouteTrack` no `services/api`.
 - [x] `S2-002` Expandir schema Prisma com entidades de viagem + migration SQL inicial.
-- [ ] `S2-003` em diante (pendente).
+- [x] `S2-003` Criar migration SQL para índices geoespaciais essenciais.
+- [ ] `S2-004` em diante (pendente).
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 
