@@ -220,3 +220,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Padronizar proposta/design/requisitos/tasks com validacao formal e arquivamento versionado.
 - Impacto no backlog/sprint: Mudancas relevantes passam a seguir fluxo OpenSpec antes/durante implementacao; baseline consolidado em `openspec/specs/openspec-monorepo-governance/spec.md`.
 - Referencias (arquivos/PR/issue): `openspec/README.md`, `.codex/skills/openspec-*`, `openspec/specs/openspec-monorepo-governance/spec.md`, `MONOREPO.md`, `AGENTS.md`.
+
+## 2026-03-03 - OpenSpec aplicado ao TNS para S2-015
+- Contexto: Necessidade explicita de aplicar OpenSpec no projeto TNS, nao apenas na governanca global.
+- Decisao anterior: Havia somente spec de governanca geral do monorepo.
+- Decisao nova: Criar change ativa `tns-trip-deep-links-next-stop` com artefatos completos para o proximo item da Sprint 2 (`S2-015`).
+- Motivo da mudanca: Formalizar requisitos, design e tarefas do bloco de deep links antes da implementacao.
+- Impacto no backlog/sprint: `S2-015` passa a ter contrato OpenSpec especifico do TNS e lista de tarefas rastreavel.
+- Referencias (arquivos/PR/issue): `openspec/changes/tns-trip-deep-links-next-stop/`, `openspec/changes/tns-trip-deep-links-next-stop/specs/tns-trip-deep-links/spec.md`, `TNS/Codex-TNS.md`.
