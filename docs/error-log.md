@@ -151,3 +151,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Instalacao mantida e validada funcionalmente (`openspec --version`, `openspec validate --all`); fluxo aplicado no repo.
 - Prevencao/acao futura: Atualizar Node para `>=20.19.0` (idealmente LTS atual) para eliminar risco de incompatibilidade futura.
 - Referencias (comando/arquivo): `npm install -g @fission-ai/openspec@latest`, `openspec --version`, `openspec validate --all`.
+
+## 2026-03-03 - Scaffold parcial ao criar change OpenSpec para S3-005
+- Sintoma: `openspec new change tns-trip-progress-distance` criou apenas `.openspec.yaml`, sem `proposal.md/design.md/spec.md/tasks.md`.
+- Causa raiz: Comportamento do CLI nessa execução gerou somente o esqueleto mínimo do change.
+- Correcao aplicada: Artefatos Markdown foram criados manualmente no diretório do change antes da implementação.
+- Prevencao/acao futura: Após `openspec new change`, validar imediatamente o conteúdo da pasta e complementar artefatos ausentes no início do ciclo.
+- Referencias (comando/arquivo): `openspec/changes/tns-trip-progress-distance/`, `openspec new change tns-trip-progress-distance`.

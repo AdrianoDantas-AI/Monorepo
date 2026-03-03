@@ -13,6 +13,11 @@ import {
   NextStopUnavailableError,
   buildNextStopDeepLinksForTrip,
 } from "./trip-next-stop-deep-links.js";
+import {
+  TripProgressUnavailableError,
+  buildTripProgressSnapshot,
+  parseTripProgressPositionFromQuery,
+} from "./trip-progress.js";
 import { createSwaggerUiHtml, openApiSpec } from "./openapi.js";
 import {
   HttpMetricsRegistry,
@@ -111,6 +116,16 @@ export const extractTripIdForStartPath = (pathname: string): string | null => {
 
 export const extractTripIdForNextStopDeepLinksPath = (pathname: string): string | null => {
   const match = /^\/api\/v1\/trips\/([^/]+)\/deep-links\/next-stop$/.exec(pathname);
+  if (!match) {
+    return null;
+  }
+
+  const tripId = decodeURIComponent(match[1] ?? "").trim();
+  return tripId.length > 0 ? tripId : null;
+};
+
+export const extractTripIdForProgressPath = (pathname: string): string | null => {
+  const match = /^\/api\/v1\/trips\/([^/]+)\/progress$/.exec(pathname);
   if (!match) {
     return null;
   }
@@ -360,6 +375,89 @@ const handleGetTripNextStopDeepLinks = async (
   }
 };
 
+const handleGetTripProgress = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  domainModules: DomainModules,
+  tripRepository: TripRepository,
+  tripId: string,
+): Promise<void> => {
+  const tenantId = readTenantIdFromHeaders(req);
+  if (!tenantId) {
+    sendJson(res, 400, {
+      error: "Tenant ausente. Informe o header x-tenant-id.",
+    });
+    return;
+  }
+
+  const trip = await tripRepository.getById(tenantId, tripId);
+  if (!trip) {
+    sendJson(res, 404, {
+      error: "Trip nao encontrada para o tenant informado.",
+      trip_id: tripId,
+      tenant_id: tenantId,
+    });
+    return;
+  }
+
+  try {
+    const requestUrl = new URL(req.url ?? "/", "http://localhost");
+    const position = parseTripProgressPositionFromQuery(requestUrl.searchParams);
+    const progressSnapshot = buildTripProgressSnapshot(trip, position);
+    const routeTrack = domainModules.routeTrack.create({
+      progress_pct: progressSnapshot.progress_pct,
+      distance_done_m: progressSnapshot.distance_done_m,
+      distance_remaining_m: progressSnapshot.distance_remaining_m,
+      eta_s: progressSnapshot.eta_s,
+    });
+
+    const updatedTrip = await tripRepository.update({
+      ...trip,
+      route_track: routeTrack,
+    });
+
+    if (!updatedTrip) {
+      sendJson(res, 404, {
+        error: "Trip nao encontrada para atualizar.",
+        trip_id: tripId,
+        tenant_id: tenantId,
+      });
+      return;
+    }
+
+    sendJson(res, 200, {
+      data: {
+        trip_id: updatedTrip.id,
+        status: updatedTrip.status,
+        route_track: updatedTrip.route_track,
+        matched_leg_id: progressSnapshot.matched_leg_id,
+        matched_leg_index: progressSnapshot.matched_leg_index,
+        distance_to_route_m: progressSnapshot.distance_to_route_m,
+      },
+    });
+  } catch (error) {
+    if (error instanceof TripProgressUnavailableError) {
+      sendJson(res, 409, {
+        error: error.message,
+        trip_id: tripId,
+        tenant_id: tenantId,
+      });
+      return;
+    }
+
+    if (error instanceof TypeError) {
+      sendJson(res, 400, {
+        error: error.message,
+        trip_id: tripId,
+        tenant_id: tenantId,
+      });
+      return;
+    }
+
+    throw error;
+  }
+};
+
 export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const domainModules = dependencies.domainModules ?? createDomainModules();
   const tripRepository = dependencies.tripRepository ?? new InMemoryTripRepository();
@@ -367,7 +465,8 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const metricsRegistry = dependencies.metricsRegistry ?? new HttpMetricsRegistry();
 
   return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
-    const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
+    const requestUrl = new URL(req.url ?? "/", "http://localhost");
+    const pathname = requestUrl.pathname;
     const requestMethod = req.method ?? "UNKNOWN";
     const tenantIdForObservability = readTenantIdFromHeaders(req);
     let routeLabel = pathname;
@@ -458,6 +557,14 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
         routeLabel = "/api/v1/trips/{tripId}/deep-links/next-stop";
         tripIdForObservability = nextStopDeepLinksTripId;
         await handleGetTripNextStopDeepLinks(req, res, tripRepository, nextStopDeepLinksTripId);
+        return;
+      }
+
+      const progressTripId = extractTripIdForProgressPath(pathname);
+      if (progressTripId && req.method === "GET") {
+        routeLabel = "/api/v1/trips/{tripId}/progress";
+        tripIdForObservability = progressTripId;
+        await handleGetTripProgress(req, res, domainModules, tripRepository, progressTripId);
         return;
       }
 

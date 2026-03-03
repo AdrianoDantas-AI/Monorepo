@@ -292,3 +292,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar base técnica para `S3-005/S3-006/S3-007` sem depender de implementação acoplada ao serviço.
 - Impacto no backlog/sprint: `S3-004` concluído; próximo item é `S3-005` (km percorrido/restante por trip ativa).
 - Referencias (arquivos/PR/issue): `TNS/packages/shared/src/polyline-progress.ts`, `TNS/tests/unit/polyline-progress.unit.test.ts`, `TNS/tests/integration/polyline-progress.integration.test.ts`, `openspec/changes/tns-polyline-progress-calc/`.
+
+## 2026-03-03 - Execucao do S3-005 com endpoint de progresso de trip ativa
+- Contexto: Era necessário materializar no endpoint o cálculo de km percorrido/restante usando posição atual da viagem.
+- Decisao anterior: Não existia `GET /api/v1/trips/:tripId/progress` e o `route_track` não era recalculado por posição.
+- Decisao nova: Implementar endpoint de progresso com query `lat`/`lng`, cálculo geométrico via polyline, persistência de `route_track` e documentação Swagger.
+- Motivo da mudanca: Entregar critério de aceite do `S3-005` e preparar base para `S3-006/S3-007`.
+- Impacto no backlog/sprint: `S3-005` concluído; próxima entrega passa para `S3-006` (ETA aproximado atualizado por ping).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-progress.ts`, `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/openapi.ts`, `TNS/tests/unit/trip-progress.unit.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-distance/`.

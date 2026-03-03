@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  extractTripIdForProgressPath,
   extractTripIdForNextStopDeepLinksPath,
   extractTripIdForStartPath,
   extractTripIdForStopOptimizationPath,
@@ -37,4 +38,9 @@ test("extractTripIdForNextStopDeepLinksPath reconhece rota de deep links", () =>
     "trip_123",
   );
   assert.equal(extractTripIdForNextStopDeepLinksPath("/api/v1/trips/trip_123/start"), null);
+});
+
+test("extractTripIdForProgressPath reconhece rota de progresso", () => {
+  assert.equal(extractTripIdForProgressPath("/api/v1/trips/trip_123/progress"), "trip_123");
+  assert.equal(extractTripIdForProgressPath("/api/v1/trips/trip_123/deep-links/next-stop"), null);
 });

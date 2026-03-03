@@ -27,6 +27,20 @@ export const openApiSpec = {
         description: "Identificador da trip.",
         schema: { type: "string", minLength: 1 },
       },
+      ProgressLatQuery: {
+        name: "lat",
+        in: "query",
+        required: true,
+        description: "Latitude atual da posicao do veiculo.",
+        schema: { type: "number", format: "double", minimum: -90, maximum: 90 },
+      },
+      ProgressLngQuery: {
+        name: "lng",
+        in: "query",
+        required: true,
+        description: "Longitude atual da posicao do veiculo.",
+        schema: { type: "number", format: "double", minimum: -180, maximum: 180 },
+      },
     },
     schemas: {
       ErrorResponse: {
@@ -134,6 +148,28 @@ export const openApiSpec = {
           stop_location: { $ref: "#/components/schemas/LatLng" },
           google_maps: { type: "string", format: "uri" },
           waze: { type: "string", format: "uri" },
+        },
+      },
+      TripProgressResponseData: {
+        type: "object",
+        required: [
+          "trip_id",
+          "status",
+          "route_track",
+          "matched_leg_id",
+          "matched_leg_index",
+          "distance_to_route_m",
+        ],
+        properties: {
+          trip_id: { type: "string" },
+          status: {
+            type: "string",
+            enum: ["draft", "planned", "active", "completed", "canceled"],
+          },
+          route_track: { $ref: "#/components/schemas/RouteTrackDTO" },
+          matched_leg_id: { type: "string" },
+          matched_leg_index: { type: "integer", minimum: 0 },
+          distance_to_route_m: { type: "number", minimum: 0 },
         },
       },
       TripsOptimizeResponseData: {
@@ -500,6 +536,58 @@ export const openApiSpec = {
           },
           409: {
             description: "Trip sem proxima parada elegivel",
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } },
+            },
+          },
+          500: {
+            description: "Erro interno",
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } },
+            },
+          },
+        },
+      },
+    },
+    "/api/v1/trips/{tripId}/progress": {
+      get: {
+        tags: ["Trips"],
+        summary: "Calcula e retorna progresso de rota para trip ativa",
+        parameters: [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/TripIdPath" },
+          { $ref: "#/components/parameters/ProgressLatQuery" },
+          { $ref: "#/components/parameters/ProgressLngQuery" },
+        ],
+        responses: {
+          200: {
+            description: "Progresso calculado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["data"],
+                  properties: {
+                    data: { $ref: "#/components/schemas/TripProgressResponseData" },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Requisicao invalida",
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } },
+            },
+          },
+          404: {
+            description: "Trip nao encontrada para o tenant",
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } },
+            },
+          },
+          409: {
+            description: "Trip nao elegivel para calculo de progresso",
             content: {
               "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } },
             },

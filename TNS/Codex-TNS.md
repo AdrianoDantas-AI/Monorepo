@@ -531,8 +531,9 @@ Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dash
 - [x] `S3-002` Implementar máquina de estado `normal/suspected/confirmed` em módulo puro.
 - [x] `S3-003` Implementar filtro anti-ruído por `accuracy_m` com thresholds por tier.
 - [x] `S3-004` Implementar cálculo real de progresso sobre polyline.
-- [ ] `S3-005` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-polyline-progress-calc/`.
+- [x] `S3-005` Expor cálculo de km percorrido/restante por trip ativa em `GET /api/v1/trips/:tripId/progress`.
+- [ ] `S3-006` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-trip-progress-distance/`.
 
 ### Backlog granular (Sprint 3)
 
