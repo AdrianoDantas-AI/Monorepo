@@ -132,3 +132,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Avancar entrega funcional da Sprint 2 apos consolidacao de tooling.
 - Impacto no backlog/sprint: Base de dominio pronta para endpoints de `trips` (S2-007 em diante), com testes unit/integration cobrindo fluxo de modulo.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/modules/**`, `TNS/tests/unit/trip-module.unit.test.ts`, `TNS/tests/integration/api-domain-modules.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-002 com Prisma baseline no `services/api`
+- Contexto: `S2-001` concluido em `main`, proxima dependencia do backlog era schema persistente de viagens.
+- Decisao anterior: Modelos de dominio apenas em memoria, sem schema de banco e sem migration da Sprint 2.
+- Decisao nova: Adotar Prisma no `@tns/api` com `schema.prisma` de `Trip/Stop/Leg/RoutePlan/RouteTrack` e gerar migration SQL inicial (`from-empty`).
+- Motivo da mudanca: Entregar criterio de aceite do `S2-002` ("migração gerada sem erro") e preparar base para `S2-003`/`S2-007`.
+- Impacto no backlog/sprint: Sprint 2 avanca com persistencia modelada e artefato de migration versionado no repo.
+- Referencias (arquivos/PR/issue): `TNS/services/api/prisma/schema.prisma`, `TNS/services/api/prisma/migrations/2026030301_s2_trip_domain_init/migration.sql`, `TNS/services/api/package.json`.
