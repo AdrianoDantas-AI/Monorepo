@@ -116,3 +116,17 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Ajuste dos imports para `../../../../../packages/contracts/src/trip.js`.
 - Prevencao/acao futura: Validar caminho relativo com `tsc --noEmit` imediatamente após criar estrutura de pastas profundas.
 - Referencias (comando/arquivo): `TNS/services/api/src/modules/*/*.ts`, `corepack pnpm --dir TNS verify`.
+
+## 2026-03-03 - Prisma v7 falhou no ambiente atual com `ERR_REQUIRE_ESM`
+- Sintoma: `prisma format` e `prisma validate` falharam com `Error [ERR_REQUIRE_ESM]` carregando `zeptomatch` via `@prisma/dev`.
+- Causa raiz: Incompatibilidade entre toolchain do Prisma 7 e runtime Node disponível na sessão.
+- Correcao aplicada: Downgrade para `prisma@5.22.0` e `@prisma/client@5.22.0` no `@tns/api`.
+- Prevencao/acao futura: Fixar major version estável de Prisma no monorepo e validar CLI após upgrades de major.
+- Referencias (comando/arquivo): `TNS/services/api/package.json`, `corepack pnpm --dir TNS --filter @tns/api prisma:validate`.
+
+## 2026-03-03 - Migration SQL gerada com ruído do runner de script
+- Sintoma: Arquivo `migration.sql` inicial incluiu header do `pnpm run` junto com SQL.
+- Causa raiz: Geração via script `pnpm run prisma:migrate:diff` com redirecionamento direto de stdout.
+- Correcao aplicada: Regeração com `pnpm exec prisma migrate diff ... --script` para capturar apenas SQL.
+- Prevencao/acao futura: Para artefatos SQL versionados, preferir `pnpm exec` em vez de `pnpm run` quando houver redirecionamento de saída.
+- Referencias (comando/arquivo): `TNS/services/api/prisma/migrations/2026030301_s2_trip_domain_init/migration.sql`.
