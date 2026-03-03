@@ -158,3 +158,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Artefatos Markdown foram criados manualmente no diretório do change antes da implementação.
 - Prevencao/acao futura: Após `openspec new change`, validar imediatamente o conteúdo da pasta e complementar artefatos ausentes no início do ciclo.
 - Referencias (comando/arquivo): `openspec/changes/tns-trip-progress-distance/`, `openspec new change tns-trip-progress-distance`.
+
+## 2026-03-03 - Push para GitHub falhou com erro remoto HTTP 500
+- Sintoma: `git push origin feat/s2-003-geo-indexes` retornou `The requested URL returned error: 500`.
+- Causa raiz: Instabilidade transitória no endpoint remoto do GitHub.
+- Correcao aplicada: Nova tentativa de `git push` após a falha imediata.
+- Prevencao/acao futura: Em falha HTTP 5xx no push, repetir tentativa antes de iniciar troubleshooting local.
+- Referencias (comando/arquivo): `git push origin feat/s2-003-geo-indexes`.
