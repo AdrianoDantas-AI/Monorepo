@@ -32,3 +32,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Ajuste do `prepare` para mensagem informativa e configuracao de hooks no repositorio raiz (`.husky`).
 - Prevencao/acao futura: Manter hooks centralizados no root do monorepo.
 - Referencias (comando/arquivo): `TNS/package.json`, `.husky/pre-commit`.
+
+## 2026-03-03 - Docker daemon indisponivel no `infra:up`
+- Sintoma: `corepack pnpm --dir TNS infra:up` falhou com erro do pipe `dockerDesktopLinuxEngine`.
+- Causa raiz: Docker Desktop Engine nao estava ativo/acessivel na sessao.
+- Correcao aplicada: Validacao de `compose` feita via `docker compose config`; tentativa de start do servico `com.docker.service` sem permissao para subida nesta sessao.
+- Prevencao/acao futura: Garantir Docker Desktop iniciado antes de executar `infra:up` e validar com `docker compose version`.
+- Referencias (comando/arquivo): `TNS/package.json` script `infra:up`, `TNS/infra/docker/compose.yml`.

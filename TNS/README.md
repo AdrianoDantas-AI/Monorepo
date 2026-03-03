@@ -15,6 +15,14 @@ corepack pnpm install
 corepack pnpm verify
 ```
 
+## Infra local (Docker)
+
+```bash
+corepack pnpm infra:up
+corepack pnpm infra:logs
+corepack pnpm infra:down
+```
+
 ## Scripts raiz
 
 - `corepack pnpm dev`
@@ -23,6 +31,9 @@ corepack pnpm verify
 - `corepack pnpm typecheck`
 - `corepack pnpm test`
 - `corepack pnpm verify`
+- `corepack pnpm infra:up`
+- `corepack pnpm infra:down`
+- `corepack pnpm infra:logs`
 
 ## Estrutura inicial
 

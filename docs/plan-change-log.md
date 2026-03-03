@@ -28,3 +28,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Necessidade de visao de entrega de medio prazo e sequenciamento fechado ate release candidate local.
 - Impacto no backlog/sprint: Sprint 1 mantida; roadmap e criterios de Go/No-Go definidos para proximas sprints.
 - Referencias (arquivos/PR/issue): `TNS/Codex-TNS.md` (secoes 13 a 17).
+
+## 2026-03-03 - Validacao de Docker alterada por indisponibilidade de daemon
+- Contexto: Execucao do bloco de Sprint 1 para `infra:up` e smoke de containers.
+- Decisao anterior: Validar runtime com `corepack pnpm --dir TNS infra:up` e `infra:down`.
+- Decisao nova: Validar estruturalmente com `docker compose config` e manter `infra:up` pendente para quando o daemon estiver ativo.
+- Motivo da mudanca: Docker Desktop Engine indisponivel na sessao de execucao.
+- Impacto no backlog/sprint: Implementacao de compose/Dockerfiles concluida; validacao de subida real fica como passo operacional imediato.
+- Referencias (arquivos/PR/issue): `TNS/infra/docker/compose.yml`, `docs/error-log.md`.

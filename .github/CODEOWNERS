@@ -1,0 +1,6 @@
+* @CaosHorseman
+
+/TNS/services/api/** @CaosHorseman
+/TNS/services/ingest/** @CaosHorseman
+/TNS/infra/** @CaosHorseman
+/TNS/packages/contracts/** @CaosHorseman
