@@ -163,6 +163,29 @@ test("POST/GET /api/v1/trips respeitam tenant scoping e detectam conflito", asyn
       ["stop_api_001", "stop_api_003", "stop_api_002"],
     );
 
+    const startResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001/start`, {
+      method: "POST",
+      headers: {
+        "x-tenant-id": "tenant_api_001",
+      },
+    });
+    assert.equal(startResponse.status, 200);
+    const startPayload = (await startResponse.json()) as {
+      data: {
+        status: string;
+        route_track?: {
+          progress_pct: number;
+          distance_done_m: number;
+          distance_remaining_m: number;
+          eta_s: number | null;
+        };
+      };
+    };
+    assert.equal(startPayload.data.status, "active");
+    assert.equal(startPayload.data.route_track?.progress_pct, 0);
+    assert.equal(startPayload.data.route_track?.distance_done_m, 0);
+    assert.ok((startPayload.data.route_track?.distance_remaining_m ?? 0) > 0);
+
     const getWithOtherTenantResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001`, {
       method: "GET",
       headers: {
@@ -254,6 +277,19 @@ test("POST /api/v1/trips/:tripId/stops/optimize exige header de tenant", async (
   const app = await startServer();
   try {
     const response = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001/stops/optimize`, {
+      method: "POST",
+    });
+
+    assert.equal(response.status, 400);
+  } finally {
+    await app.close();
+  }
+});
+
+test("POST /api/v1/trips/:tripId/start exige header de tenant", async () => {
+  const app = await startServer();
+  try {
+    const response = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_001/start`, {
       method: "POST",
     });
 

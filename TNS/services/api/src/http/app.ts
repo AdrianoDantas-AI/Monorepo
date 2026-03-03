@@ -82,6 +82,16 @@ export const extractTripIdForStopOptimizationPath = (pathname: string): string |
   return tripId.length > 0 ? tripId : null;
 };
 
+export const extractTripIdForStartPath = (pathname: string): string | null => {
+  const match = /^\/api\/v1\/trips\/([^/]+)\/start$/.exec(pathname);
+  if (!match) {
+    return null;
+  }
+
+  const tripId = decodeURIComponent(match[1] ?? "").trim();
+  return tripId.length > 0 ? tripId : null;
+};
+
 const asTripDTO = (payload: unknown): TripDTO => {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw new TypeError("Payload de trip invalido: esperado objeto JSON.");
@@ -224,6 +234,55 @@ const handleOptimizeTripStops = async (
   });
 };
 
+const handleStartTrip = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  tripRepository: TripRepository,
+  tripId: string,
+): Promise<void> => {
+  const tenantId = readTenantIdFromHeaders(req);
+  if (!tenantId) {
+    sendJson(res, 400, {
+      error: "Tenant ausente. Informe o header x-tenant-id.",
+    });
+    return;
+  }
+
+  const trip = await tripRepository.getById(tenantId, tripId);
+  if (!trip) {
+    sendJson(res, 404, {
+      error: "Trip nao encontrada para o tenant informado.",
+      trip_id: tripId,
+      tenant_id: tenantId,
+    });
+    return;
+  }
+
+  const plannedDistance = trip.route_plan?.total_distance_m ?? 0;
+  const plannedDuration = trip.route_plan?.total_duration_s ?? null;
+  const updatedTrip = await tripRepository.update({
+    ...trip,
+    status: "active",
+    route_track: trip.route_track ?? {
+      progress_pct: 0,
+      distance_done_m: 0,
+      distance_remaining_m: plannedDistance,
+      eta_s: plannedDuration,
+    },
+  });
+
+  if (!updatedTrip) {
+    sendJson(res, 404, {
+      error: "Trip nao encontrada para atualizar.",
+      trip_id: tripId,
+      tenant_id: tenantId,
+    });
+    return;
+  }
+
+  sendJson(res, 200, { data: updatedTrip });
+};
+
 export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const domainModules = dependencies.domainModules ?? createDomainModules();
   const tripRepository = dependencies.tripRepository ?? new InMemoryTripRepository();
@@ -271,6 +330,12 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
       const optimizeTripId = extractTripIdForStopOptimizationPath(pathname);
       if (optimizeTripId && req.method === "POST") {
         await handleOptimizeTripStops(req, res, tripRepository, optimizeTripId);
+        return;
+      }
+
+      const startTripId = extractTripIdForStartPath(pathname);
+      if (startTripId && req.method === "POST") {
+        await handleStartTrip(req, res, tripRepository, startTripId);
         return;
       }
 

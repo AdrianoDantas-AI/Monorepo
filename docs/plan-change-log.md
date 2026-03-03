@@ -204,3 +204,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Cumprir criterios de aceite de `S2-011`/`S2-012`/`S2-013` e garantir que dev local nao bloqueie sem credenciais.
 - Impacto no backlog/sprint: Runtime de mapas ficou observavel via `/ops/map-provider`, com testes unit/integration cobrindo selecao, parse de respostas mapbox e fallback.
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/maps/*`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/map-provider-selector.unit.test.ts`, `TNS/tests/unit/mapbox-map-provider.unit.test.ts`, `TNS/tests/integration/api-map-provider.integration.test.ts`.
+
+## 2026-03-03 - Execucao do S2-014 com ativacao de trip
+- Contexto: A trip ja podia ser criada/otimizada, faltando transicao de estado operacional para "ativa".
+- Decisao anterior: Sem endpoint para mudar status da trip; status permanecia no estado inicial.
+- Decisao nova: Adicionar `POST /api/v1/trips/:tripId/start` com scoping por tenant e inicializacao de `route_track` baseline.
+- Motivo da mudanca: Cumprir criterio de aceite do `S2-014` e preparar fluxo para progresso em tempo real (`S3`).
+- Impacto no backlog/sprint: Trip pode ser iniciada explicitamente, com status `active` e baseline de acompanhamento persistidos.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/app.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `TNS/tests/unit/api-paths.unit.test.ts`.
