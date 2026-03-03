@@ -14,6 +14,11 @@ import {
   buildNextStopDeepLinksForTrip,
 } from "./trip-next-stop-deep-links.js";
 import { createSwaggerUiHtml, openApiSpec } from "./openapi.js";
+import {
+  HttpMetricsRegistry,
+  logStructuredTripRequest,
+  type StructuredTripLog,
+} from "./observability.js";
 
 const jsonContentType = { "content-type": "application/json" };
 const htmlContentType = { "content-type": "text/html; charset=utf-8" };
@@ -22,6 +27,7 @@ export interface ApiAppDependencies {
   domainModules?: DomainModules;
   tripRepository?: TripRepository;
   mapProviderRuntime?: MapProviderRuntime;
+  metricsRegistry?: HttpMetricsRegistry;
 }
 
 const sendJson = (res: ServerResponse, statusCode: number, payload: unknown): void => {
@@ -358,12 +364,19 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
   const domainModules = dependencies.domainModules ?? createDomainModules();
   const tripRepository = dependencies.tripRepository ?? new InMemoryTripRepository();
   const mapProviderRuntime = dependencies.mapProviderRuntime ?? createMapProviderFromEnv();
+  const metricsRegistry = dependencies.metricsRegistry ?? new HttpMetricsRegistry();
 
   return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
+    const requestMethod = req.method ?? "UNKNOWN";
+    const tenantIdForObservability = readTenantIdFromHeaders(req);
+    let routeLabel = pathname;
+    let tripIdForObservability: string | null = null;
+    const startedAtMs = Date.now();
 
     try {
       if (pathname === "/ops/domain-modules" && req.method === "GET") {
+        routeLabel = "/ops/domain-modules";
         sendJson(res, 200, {
           status: "ok",
           modules: Object.keys(domainModules),
@@ -373,6 +386,7 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
       }
 
       if (pathname === "/ops/map-provider" && req.method === "GET") {
+        routeLabel = "/ops/map-provider";
         sendJson(res, 200, {
           status: "ok",
           mode: mapProviderRuntime.mode,
@@ -382,46 +396,67 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
         return;
       }
 
+      if (pathname === "/ops/metrics" && req.method === "GET") {
+        routeLabel = "/ops/metrics";
+        sendJson(res, 200, {
+          status: "ok",
+          metrics: metricsRegistry.snapshot(),
+        });
+        return;
+      }
+
       if (pathname === "/health" && req.method === "GET") {
+        routeLabel = "/health";
         sendJson(res, 200, { status: "ok", service: "api" });
         return;
       }
 
       if (pathname === "/openapi.json" && req.method === "GET") {
+        routeLabel = "/openapi.json";
         sendJson(res, 200, openApiSpec);
         return;
       }
 
       if ((pathname === "/docs" || pathname === "/docs/") && req.method === "GET") {
+        routeLabel = "/docs";
         sendHtml(res, 200, createSwaggerUiHtml("/openapi.json"));
         return;
       }
 
       if (pathname === "/api/v1/trips" && req.method === "POST") {
+        routeLabel = "/api/v1/trips";
         await handleCreateTrip(req, res, domainModules, tripRepository);
         return;
       }
 
       const tripId = extractTripIdFromPathname(pathname);
       if (tripId && req.method === "GET") {
+        routeLabel = "/api/v1/trips/{tripId}";
+        tripIdForObservability = tripId;
         await handleGetTripById(req, res, tripRepository, tripId);
         return;
       }
 
       const optimizeTripId = extractTripIdForStopOptimizationPath(pathname);
       if (optimizeTripId && req.method === "POST") {
+        routeLabel = "/api/v1/trips/{tripId}/stops/optimize";
+        tripIdForObservability = optimizeTripId;
         await handleOptimizeTripStops(req, res, tripRepository, optimizeTripId);
         return;
       }
 
       const startTripId = extractTripIdForStartPath(pathname);
       if (startTripId && req.method === "POST") {
+        routeLabel = "/api/v1/trips/{tripId}/start";
+        tripIdForObservability = startTripId;
         await handleStartTrip(req, res, tripRepository, startTripId);
         return;
       }
 
       const nextStopDeepLinksTripId = extractTripIdForNextStopDeepLinksPath(pathname);
       if (nextStopDeepLinksTripId && req.method === "GET") {
+        routeLabel = "/api/v1/trips/{tripId}/deep-links/next-stop";
+        tripIdForObservability = nextStopDeepLinksTripId;
         await handleGetTripNextStopDeepLinks(req, res, tripRepository, nextStopDeepLinksTripId);
         return;
       }
@@ -433,6 +468,22 @@ export const createApiHandler = (dependencies: ApiAppDependencies = {}) => {
         error: "Erro interno no processamento da requisicao.",
         details: message,
       });
+    } finally {
+      const latencyMs = Math.max(0, Date.now() - startedAtMs);
+      metricsRegistry.record(requestMethod, routeLabel, res.statusCode, latencyMs);
+
+      if (routeLabel.startsWith("/api/v1/trips")) {
+        const tripLog: StructuredTripLog = {
+          event: "trip_request",
+          method: requestMethod,
+          route: routeLabel,
+          status_code: res.statusCode,
+          latency_ms: latencyMs,
+          tenant_id: tenantIdForObservability,
+          trip_id: tripIdForObservability,
+        };
+        logStructuredTripRequest(tripLog);
+      }
     }
   };
 };

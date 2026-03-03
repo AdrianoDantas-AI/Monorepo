@@ -252,3 +252,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Evitar ambiguidade entre valores planejados e valores dinamicos na fase de tracking.
 - Impacto no backlog/sprint: `S2-016` concluido; Sprint 2 segue para `S2-017` (fluxo integrado criar trip -> otimizar -> gerar legs).
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/route-plan-generator.ts`, `TNS/services/api/src/modules/leg/leg.module.ts`, `TNS/packages/contracts/src/trip.ts`, `TNS/tests/integration/api-trips-create.integration.test.ts`, `openspec/changes/tns-leg-baseline-metrics/`.
+
+## 2026-03-03 - Execucao do S2-017/S2-018/S2-019 com observabilidade de trips
+- Contexto: Restavam os itens finais da Sprint 2 ligados a fluxo integrado e operacao observavel.
+- Decisao anterior: API sem logs estruturados de viagem e sem exportacao de metricas de latencia por rota.
+- Decisao nova: Consolidar teste de fluxo create->optimize->legs e adicionar observabilidade (`trip_request` + `/ops/metrics`).
+- Motivo da mudanca: Fechar sprint com rastreabilidade operacional e base de monitoramento para fase de tracking real-time.
+- Impacto no backlog/sprint: `S2-017`, `S2-018` e `S2-019` concluidos; backlog da Sprint 2 fica fechado.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/observability.ts`, `TNS/services/api/src/http/app.ts`, `TNS/tests/unit/http-observability.unit.test.ts`, `TNS/tests/integration/api-metrics.integration.test.ts`, `openspec/changes/tns-trip-observability-metrics/`.

@@ -10,6 +10,7 @@ test("openApiSpec descreve endpoints principais da API", () => {
   assert.ok(openApiSpec.paths["/api/v1/trips/{tripId}/stops/optimize"]);
   assert.ok(openApiSpec.paths["/api/v1/trips/{tripId}/start"]);
   assert.ok(openApiSpec.paths["/api/v1/trips/{tripId}/deep-links/next-stop"]);
+  assert.ok(openApiSpec.paths["/ops/metrics"]);
 });
 
 test("createSwaggerUiHtml referencia bundle e openapi path", () => {

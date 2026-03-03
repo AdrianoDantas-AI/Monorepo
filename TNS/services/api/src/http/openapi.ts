@@ -219,6 +219,63 @@ export const openApiSpec = {
         },
       },
     },
+    "/ops/metrics": {
+      get: {
+        tags: ["Ops"],
+        summary: "Exporta metricas HTTP agregadas por endpoint",
+        responses: {
+          200: {
+            description: "Metricas de latencia e volume",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["status", "metrics"],
+                  properties: {
+                    status: { type: "string", example: "ok" },
+                    metrics: {
+                      type: "object",
+                      required: ["generated_at", "routes"],
+                      properties: {
+                        generated_at: {
+                          type: "string",
+                          format: "date-time",
+                        },
+                        routes: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            required: [
+                              "method",
+                              "route",
+                              "request_count",
+                              "error_count",
+                              "avg_latency_ms",
+                              "max_latency_ms",
+                            ],
+                            properties: {
+                              method: { type: "string", example: "POST" },
+                              route: {
+                                type: "string",
+                                example: "/api/v1/trips/{tripId}/stops/optimize",
+                              },
+                              request_count: { type: "integer", minimum: 0 },
+                              error_count: { type: "integer", minimum: 0 },
+                              avg_latency_ms: { type: "number", minimum: 0 },
+                              max_latency_ms: { type: "number", minimum: 0 },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/v1/trips": {
       post: {
         tags: ["Trips"],

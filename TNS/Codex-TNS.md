@@ -464,9 +464,11 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 - [x] `S2-014` Implementar `POST /api/v1/trips/:tripId/start` com mudança de status para `active`.
 - [x] `S2-015` Implementar deep links (Google/Waze) da próxima parada via `GET /api/v1/trips/:tripId/deep-links/next-stop`.
 - [x] `S2-016` Persistir baseline de ETA/distância por leg (`baseline_eta_s` e `baseline_distance_m`).
+- [x] `S2-017` Consolidar teste de integração do fluxo criar trip -> otimizar -> gerar legs.
+- [x] `S2-018` Adicionar logs estruturados de viagem com `tenant_id`/`trip_id`.
+- [x] `S2-019` Expor métricas de latência por endpoint em `GET /ops/metrics`.
 - [x] `S2-020` Documentar API de trips via OpenAPI (`/openapi.json`) e Swagger (`/docs`).
-- [ ] `S2-017` a `S2-019` (pendentes).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-leg-baseline-metrics/`.
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-trip-observability-metrics/`.
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 
@@ -478,9 +480,10 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 6. `GET /api/v1/trips/:tripId/progress` (solidificado com cálculo real)
 7. `GET /api/v1/alerts` (filtros por tenant/trip/severidade/status)
 8. `GET /ops/release-status` (finalizado para operação local)
-9. WebSocket channels `trip.progress.v1` e `alert.event.v1`
-10. Contratos `TripDTO`, `StopDTO`, `LegDTO`, `RoutePlanDTO`, `RouteTrackDTO`, `NextStopDeepLinksDTO`, `AlertEventV1`, `ReleaseStatusDTO`
-11. Interface `MapProvider` com modo `mock` e `mapbox` via feature flag (`MAP_PROVIDER_MODE`)
+9. `GET /ops/metrics` (latência agregada por endpoint)
+10. WebSocket channels `trip.progress.v1` e `alert.event.v1`
+11. Contratos `TripDTO`, `StopDTO`, `LegDTO`, `RoutePlanDTO`, `RouteTrackDTO`, `NextStopDeepLinksDTO`, `AlertEventV1`, `ReleaseStatusDTO`
+12. Interface `MapProvider` com modo `mock` e `mapbox` via feature flag (`MAP_PROVIDER_MODE`)
 
 ### Backlog granular (Sprint 2)
 
