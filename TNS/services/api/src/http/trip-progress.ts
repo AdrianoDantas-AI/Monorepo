@@ -22,6 +22,8 @@ export class TripProgressUnavailableError extends Error {
   }
 }
 
+const DEFAULT_SPEED_MPS = 11;
+
 const parseCoordinate = (
   value: string | null,
   label: "lat" | "lng",
@@ -71,7 +73,21 @@ export const buildTripProgressSnapshot = (
   }
 
   const progress = calculateRouteProgressFromPosition(trip.route_plan, position);
-  const etaS = trip.route_track?.eta_s ?? trip.route_plan.total_duration_s;
+  const totalDistanceM = trip.route_plan.total_distance_m;
+  const totalDurationS = trip.route_plan.total_duration_s;
+  const averageSpeedMps =
+    Number.isFinite(totalDistanceM) &&
+    totalDistanceM > 0 &&
+    Number.isFinite(totalDurationS) &&
+    totalDurationS > 0
+      ? totalDistanceM / totalDurationS
+      : DEFAULT_SPEED_MPS;
+  const safeAverageSpeedMps =
+    Number.isFinite(averageSpeedMps) && averageSpeedMps > 0 ? averageSpeedMps : DEFAULT_SPEED_MPS;
+  const etaS =
+    progress.distance_remaining_m <= 0
+      ? 0
+      : Math.max(0, Math.round(progress.distance_remaining_m / safeAverageSpeedMps));
 
   return {
     matched_leg_id: progress.matched_leg_id,

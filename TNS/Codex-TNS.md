@@ -532,8 +532,9 @@ Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dash
 - [x] `S3-003` Implementar filtro anti-ruído por `accuracy_m` com thresholds por tier.
 - [x] `S3-004` Implementar cálculo real de progresso sobre polyline.
 - [x] `S3-005` Expor cálculo de km percorrido/restante por trip ativa em `GET /api/v1/trips/:tripId/progress`.
-- [ ] `S3-006` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-trip-progress-distance/`.
+- [x] `S3-006` Atualizar `eta_s` de forma dinâmica no endpoint de progresso com base na distância restante.
+- [ ] `S3-007` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-trip-progress-eta/`.
 
 ### Backlog granular (Sprint 3)
 

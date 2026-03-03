@@ -300,3 +300,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar critério de aceite do `S3-005` e preparar base para `S3-006/S3-007`.
 - Impacto no backlog/sprint: `S3-005` concluído; próxima entrega passa para `S3-006` (ETA aproximado atualizado por ping).
 - Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-progress.ts`, `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/http/openapi.ts`, `TNS/tests/unit/trip-progress.unit.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-distance/`.
+
+## 2026-03-03 - Execucao do S3-006 com ETA dinamico no endpoint de progresso
+- Contexto: Após publicar distância percorrida/restante, o endpoint ainda retornava ETA estático da trip.
+- Decisao anterior: `eta_s` era herdado do track inicial sem atualização por posição.
+- Decisao nova: Recalcular `eta_s` por request com base em `distance_remaining_m` e velocidade média planejada, com fallback seguro.
+- Motivo da mudanca: Fechar `S3-006` e aumentar utilidade operacional da API para consumo em tempo real.
+- Impacto no backlog/sprint: `S3-006` concluído; próximo item da Sprint 3 é `S3-007` (solidificar resposta final do endpoint de progresso).
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/http/trip-progress.ts`, `TNS/tests/unit/trip-progress.unit.test.ts`, `TNS/tests/integration/api-trip-progress.integration.test.ts`, `openspec/changes/tns-trip-progress-eta/`.

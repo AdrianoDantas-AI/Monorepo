@@ -61,7 +61,7 @@ const createTripPayload = {
   ],
 };
 
-test("GET /api/v1/trips/:tripId/progress calcula km percorrido/restante para trip ativa", async () => {
+test("GET /api/v1/trips/:tripId/progress calcula distancias e atualiza ETA dinamico para trip ativa", async () => {
   const app = await startServer();
 
   try {
@@ -94,8 +94,8 @@ test("GET /api/v1/trips/:tripId/progress calcula km percorrido/restante para tri
     });
     assert.equal(startResponse.status, 200);
 
-    const progressResponse = await fetch(
-      `${app.baseUrl}/api/v1/trips/trip_api_progress_001/progress?lat=-23.556&lng=-46.624`,
+    const progressNearStartResponse = await fetch(
+      `${app.baseUrl}/api/v1/trips/trip_api_progress_001/progress?lat=-23.551&lng=-46.629`,
       {
         method: "GET",
         headers: {
@@ -103,9 +103,9 @@ test("GET /api/v1/trips/:tripId/progress calcula km percorrido/restante para tri
         },
       },
     );
-    assert.equal(progressResponse.status, 200);
+    assert.equal(progressNearStartResponse.status, 200);
 
-    const progressPayload = (await progressResponse.json()) as {
+    const progressNearStartPayload = (await progressNearStartResponse.json()) as {
       data: {
         trip_id: string;
         status: string;
@@ -121,15 +121,52 @@ test("GET /api/v1/trips/:tripId/progress calcula km percorrido/restante para tri
       };
     };
 
-    assert.equal(progressPayload.data.trip_id, "trip_api_progress_001");
-    assert.equal(progressPayload.data.status, "active");
-    assert.ok(progressPayload.data.route_track.progress_pct > 0);
-    assert.ok(progressPayload.data.route_track.distance_done_m > 0);
-    assert.ok(progressPayload.data.route_track.distance_remaining_m > 0);
-    assert.ok(progressPayload.data.route_track.distance_remaining_m > 0);
-    assert.ok(progressPayload.data.matched_leg_id.length > 0);
-    assert.ok(progressPayload.data.matched_leg_index >= 0);
-    assert.ok(progressPayload.data.distance_to_route_m >= 0);
+    assert.equal(progressNearStartPayload.data.trip_id, "trip_api_progress_001");
+    assert.equal(progressNearStartPayload.data.status, "active");
+    assert.ok(progressNearStartPayload.data.route_track.progress_pct > 0);
+    assert.ok(progressNearStartPayload.data.route_track.distance_done_m > 0);
+    assert.ok(progressNearStartPayload.data.route_track.distance_remaining_m > 0);
+    assert.ok(progressNearStartPayload.data.matched_leg_id.length > 0);
+    assert.ok(progressNearStartPayload.data.matched_leg_index >= 0);
+    assert.ok(progressNearStartPayload.data.distance_to_route_m >= 0);
+
+    const progressNearEndResponse = await fetch(
+      `${app.baseUrl}/api/v1/trips/trip_api_progress_001/progress?lat=-23.569&lng=-46.611`,
+      {
+        method: "GET",
+        headers: {
+          "x-tenant-id": "tenant_api_progress_001",
+        },
+      },
+    );
+    assert.equal(progressNearEndResponse.status, 200);
+
+    const progressNearEndPayload = (await progressNearEndResponse.json()) as {
+      data: {
+        route_track: {
+          progress_pct: number;
+          distance_done_m: number;
+          distance_remaining_m: number;
+          eta_s: number | null;
+        };
+      };
+    };
+    assert.ok(
+      progressNearEndPayload.data.route_track.progress_pct >
+        progressNearStartPayload.data.route_track.progress_pct,
+    );
+    assert.ok(
+      progressNearEndPayload.data.route_track.distance_done_m >
+        progressNearStartPayload.data.route_track.distance_done_m,
+    );
+    assert.ok(
+      progressNearEndPayload.data.route_track.distance_remaining_m <
+        progressNearStartPayload.data.route_track.distance_remaining_m,
+    );
+    assert.ok(
+      (progressNearEndPayload.data.route_track.eta_s ?? Number.POSITIVE_INFINITY) <
+        (progressNearStartPayload.data.route_track.eta_s ?? Number.POSITIVE_INFINITY),
+    );
 
     const getTripResponse = await fetch(`${app.baseUrl}/api/v1/trips/trip_api_progress_001`, {
       method: "GET",
@@ -149,11 +186,11 @@ test("GET /api/v1/trips/:tripId/progress calcula km percorrido/restante para tri
     };
     assert.equal(
       tripPayload.data.route_track?.distance_done_m,
-      progressPayload.data.route_track.distance_done_m,
+      progressNearEndPayload.data.route_track.distance_done_m,
     );
     assert.equal(
       tripPayload.data.route_track?.distance_remaining_m,
-      progressPayload.data.route_track.distance_remaining_m,
+      progressNearEndPayload.data.route_track.distance_remaining_m,
     );
   } finally {
     await app.close();
