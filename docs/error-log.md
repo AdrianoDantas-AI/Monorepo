@@ -46,3 +46,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Substituicao por runner dedicado (`scripts/testing/run-tests.mjs`) que resolve os arquivos `.test.ts` e chama `node --import tsx --test` com paths explicitos.
 - Prevencao/acao futura: Evitar padroes `**` dependentes de shell em comandos cross-platform.
 - Referencias (comando/arquivo): `TNS/package.json` (`test:unit`, `test:integration`), `TNS/scripts/testing/run-tests.mjs`.
+
+## 2026-03-03 - `@codex review` sem resposta no PR novo de smoke test
+- Sintoma: PR #2 criado em branch nova, comentario `@codex review` publicado, sem retorno do bot apos polling.
+- Causa raiz: Integracao OAuth do Codex ainda nao efetiva para este repositorio (permissao/sincronizacao pendente).
+- Correcao aplicada: Refeito teste com PR novo (`chore/smoke-codex-review-v2`) para descartar efeito de reabertura do PR antigo.
+- Prevencao/acao futura: Confirmar no painel do Codex se `Code review` esta ativo no repo correto e aguardar propagacao antes de novo teste.
+- Referencias (comando/arquivo): PR `#2`, comentario `@codex review`, `gh pr view --comments`.
