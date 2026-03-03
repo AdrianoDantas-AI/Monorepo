@@ -528,8 +528,9 @@ Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dash
 ### Status de execução (atual)
 
 - [x] `S3-001` Consolidar tiers `Bronze/Silver/Gold` em configuração versionada (`v1`) no pacote de contratos.
-- [ ] `S3-002` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-tier-config-v1/`.
+- [x] `S3-002` Implementar máquina de estado `normal/suspected/confirmed` em módulo puro.
+- [ ] `S3-003` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-off-route-state-machine/`.
 
 ### Backlog granular (Sprint 3)
 

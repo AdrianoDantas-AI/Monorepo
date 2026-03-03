@@ -268,3 +268,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Garantir fonte única para consumo por ingest/worker/regras de detecção nas próximas tasks.
 - Impacto no backlog/sprint: `S3-001` concluído; próxima execução segue para `S3-002` (máquina de estado de detecção).
 - Referencias (arquivos/PR/issue): `TNS/packages/contracts/src/detection-tier-config.ts`, `TNS/tests/unit/detection-tier-config.unit.test.ts`, `TNS/tests/integration/contracts.integration.test.ts`, `openspec/changes/tns-tier-config-v1/`.
+
+## 2026-03-03 - Execucao do S3-002 com maquina de estado off-route
+- Contexto: Com tiers versionados definidos, era necessário codificar a transição de estado de detecção.
+- Decisao anterior: Sem máquina explícita; regras de confirmação não estavam implementadas em código executável.
+- Decisao nova: Implementar state machine pura (`normal/suspected/confirmed`) com confirmação por pings/tempo e retorno à rota.
+- Motivo da mudanca: Transformar regra de negócio da detecção em módulo testável e reutilizável.
+- Impacto no backlog/sprint: `S3-002` concluído; próximo item é `S3-003` (filtro anti-ruído por `accuracy_m`).
+- Referencias (arquivos/PR/issue): `TNS/packages/shared/src/off-route-state-machine.ts`, `TNS/tests/unit/off-route-state-machine.unit.test.ts`, `TNS/tests/integration/off-route-state-machine.integration.test.ts`, `openspec/changes/tns-off-route-state-machine/`.
