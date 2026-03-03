@@ -356,3 +356,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar criterio de aceite do `S3-014` (detalhe funcional com progresso e ETA) aproveitando contratos e canais ja concluídos.
 - Impacto no backlog/sprint: `S3-014` concluido; proxima task passa para `S3-015` (tela de alerts com filtros).
 - Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/trip-detail-html.ts`, `TNS/apps/web-dashboard/src/dashboard-state.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `openspec/changes/tns-dashboard-trip-detail-progress/`.
+
+## 2026-03-03 - Execucao do S3-015 com tela de alerts filtravel
+- Contexto: O endpoint de alertas estava pronto no backend, mas faltava visao web para operacao por filtros.
+- Decisao anterior: Dashboard sem rota de alerts; consultas dependiam de acesso direto ao endpoint da API.
+- Decisao nova: Implementar rota `/alerts`, proxy `/api/alerts` com tenant scoping e filtros `trip_id`/`severity`/`status`, mais navegacao entre telas.
+- Motivo da mudanca: Entregar criterio de aceite do `S3-015` e consolidar o fluxo operacional no dashboard web.
+- Impacto no backlog/sprint: `S3-015` concluido; proxima task passa para `S3-016` (mapa em tempo real no dashboard).
+- Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/alerts-html.ts`, `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/dashboard-html.ts`, `TNS/apps/web-dashboard/src/trip-detail-html.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `openspec/changes/tns-dashboard-alerts-filters/`.

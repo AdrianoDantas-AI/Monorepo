@@ -129,6 +129,7 @@ export const renderDashboardHtml = (config: DashboardHtmlConfig): string => {
           <div>
             <h1>TNS Dashboard - Trips em Tempo Real</h1>
             <div class="muted">Tenant: <strong>${escapeHtml(config.tenantId)}</strong></div>
+            <div><a href="/alerts">Ir para alerts</a></div>
           </div>
           <div id="connection-status" class="status-chip" data-state="connecting">connecting</div>
         </div>

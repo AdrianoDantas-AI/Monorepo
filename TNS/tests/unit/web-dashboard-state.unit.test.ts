@@ -8,6 +8,7 @@ import {
 } from "../../apps/web-dashboard/src/dashboard-state.js";
 import {
   buildRealtimeSubscriptionUrl,
+  parseAlertsFilterQuery,
   resolveWebDashboardRuntimeConfig,
 } from "../../apps/web-dashboard/src/server.js";
 
@@ -145,5 +146,22 @@ test("buildTripLiveStatusFromApiTrip normaliza snapshot da API para o dashboard"
     eta_s: 360,
     alert_event: null,
     last_update_ts: "2026-03-03T20:10:00.000Z",
+  });
+});
+
+test("parseAlertsFilterQuery normaliza filtros basicos", () => {
+  const filters = parseAlertsFilterQuery(
+    new URLSearchParams({
+      trip_id: "  trip_filter_001  ",
+      severity: " high ",
+      status: " open ",
+      ignored: "nope",
+    }),
+  );
+
+  assert.deepEqual(filters, {
+    trip_id: "trip_filter_001",
+    severity: "high",
+    status: "open",
   });
 });

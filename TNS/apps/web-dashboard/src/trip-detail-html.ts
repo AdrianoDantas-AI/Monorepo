@@ -130,6 +130,7 @@ export const renderTripDetailHtml = (config: TripDetailHtmlConfig): string => {
   <body>
     <main>
       <a class="back-link" href="/">&larr; Voltar para lista de trips</a>
+      <a class="back-link" href="/alerts">Ir para alerts</a>
       <section class="panel">
         <div class="header">
           <div>

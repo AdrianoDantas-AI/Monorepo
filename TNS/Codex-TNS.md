@@ -541,8 +541,9 @@ Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dash
 - [x] `S3-012` Publicar canais WS `trip.progress.v1` e `alert.event.v1` com scoping por `tenant_id` e endpoints operacionais `/ops/channels` + `/ops/publish`.
 - [x] `S3-013` Entregar dashboard `trips` com status em tempo real consumindo `trip.progress.v1` e `alert.event.v1`.
 - [x] `S3-014` Entregar tela de detalhe por viagem (`/trips/:tripId`) com snapshot inicial + atualizacao realtime de progresso/ETA.
-- [ ] `S3-015` em diante (pendente).
-- OpenSpec ativo no bloco atual: `openspec/changes/tns-dashboard-trip-detail-progress/`.
+- [x] `S3-015` Entregar tela `alerts` com filtros basicos (`trip_id`, `severity`, `status`) via proxy interno no dashboard.
+- [ ] `S3-016` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-dashboard-alerts-filters/`.
 
 ### Backlog granular (Sprint 3)
 

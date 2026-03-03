@@ -54,6 +54,7 @@ test("web-dashboard expõe /health, /ops/config e tela com realtime WS", async (
     assert.match(html, /alert\.event\.v1/);
     assert.match(html, /tenant_web_001/);
     assert.match(html, /new WebSocket\(config\.realtimeSubscriptionUrl\)/);
+    assert.match(html, /Ir para alerts/);
   } finally {
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }
@@ -132,6 +133,85 @@ test("web-dashboard expõe detalhe /trips/:tripId e snapshot proxy", async () =>
     assert.equal(snapshotJson.data.progress_pct, 44.5);
     assert.equal(snapshotJson.data.distance_remaining_m, 12500);
     assert.equal(snapshotJson.data.eta_s, 980);
+  } finally {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});
+
+test("web-dashboard expõe /alerts e proxy /api/alerts com filtros", async () => {
+  const mockedFetch = async (input: URL | RequestInfo, init?: RequestInit): Promise<Response> => {
+    const urlText =
+      typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+    const parsedUrl = new URL(urlText);
+    assert.equal(parsedUrl.origin + parsedUrl.pathname, "http://127.0.0.1:3000/api/v1/alerts");
+    assert.equal(parsedUrl.searchParams.get("trip_id"), "trip_alert_001");
+    assert.equal(parsedUrl.searchParams.get("severity"), "high");
+    assert.equal(parsedUrl.searchParams.get("status"), "open");
+    assert.equal(init?.method, "GET");
+
+    const headers = new Headers(init?.headers);
+    assert.equal(headers.get("x-tenant-id"), "tenant_web_001");
+
+    return new Response(
+      JSON.stringify({
+        data: {
+          items: [
+            {
+              id: "alert_001",
+              trip_id: "trip_alert_001",
+              event: "off_route.confirmed.v1",
+              severity: "high",
+              status: "open",
+              created_at: "2026-03-03T20:20:00.000Z",
+            },
+          ],
+          total: 1,
+        },
+      }),
+      {
+        status: 200,
+        headers: {
+          "content-type": "application/json",
+        },
+      },
+    );
+  };
+
+  const server = createWebDashboardServer(
+    {
+      port: 0,
+      tenantId: "tenant_web_001",
+      realtimeWsUrl: "ws://127.0.0.1:3002/ws",
+      apiBaseUrl: "http://127.0.0.1:3000",
+    },
+    {
+      fetchImpl: mockedFetch,
+    },
+  );
+
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  const address = server.address() as AddressInfo;
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+
+  try {
+    const alertsPageResponse = await fetch(`${baseUrl}/alerts?severity=high`);
+    assert.equal(alertsPageResponse.status, 200);
+    const alertsPageHtml = await alertsPageResponse.text();
+    assert.match(alertsPageHtml, /TNS Dashboard - Alerts/);
+    assert.match(alertsPageHtml, /\/api\/alerts/);
+
+    const alertsApiResponse = await fetch(
+      `${baseUrl}/api/alerts?trip_id=trip_alert_001&severity=high&status=open`,
+    );
+    assert.equal(alertsApiResponse.status, 200);
+    const alertsApiJson = (await alertsApiResponse.json()) as {
+      data: { items: Array<{ id: string; trip_id: string }>; total: number };
+    };
+    assert.equal(alertsApiJson.data.total, 1);
+    assert.equal(alertsApiJson.data.items[0]?.id, "alert_001");
+    assert.equal(alertsApiJson.data.items[0]?.trip_id, "trip_alert_001");
   } finally {
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }

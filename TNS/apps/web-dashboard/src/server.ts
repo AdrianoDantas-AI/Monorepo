@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { buildTripLiveStatusFromApiTrip, realtimeDashboardChannels } from "./dashboard-state.js";
+import { renderAlertsHtml } from "./alerts-html.js";
 import { renderDashboardHtml } from "./dashboard-html.js";
 import { renderTripDetailHtml } from "./trip-detail-html.js";
 
@@ -129,6 +130,24 @@ const extractTripIdFromSnapshotPath = (pathname: string): string | null => {
   return tripId.length > 0 ? tripId : null;
 };
 
+export type AlertsFilterQuery = {
+  trip_id?: string;
+  severity?: string;
+  status?: string;
+};
+
+export const parseAlertsFilterQuery = (searchParams: URLSearchParams): AlertsFilterQuery => {
+  const tripIdRaw = searchParams.get("trip_id")?.trim();
+  const severityRaw = searchParams.get("severity")?.trim();
+  const statusRaw = searchParams.get("status")?.trim();
+
+  return {
+    trip_id: tripIdRaw ? tripIdRaw : undefined,
+    severity: severityRaw ? severityRaw : undefined,
+    status: statusRaw ? statusRaw : undefined,
+  };
+};
+
 export const resolveWebDashboardRuntimeConfig = (
   env: NodeJS.ProcessEnv = process.env,
 ): WebDashboardRuntimeConfig => {
@@ -216,6 +235,67 @@ const handleTripSnapshot = async (
   sendJson(res, 200, { data: snapshot });
 };
 
+const handleAlertsPage = (res: ServerResponse, config: WebDashboardRuntimeConfig): void => {
+  const html = renderAlertsHtml({
+    tenantId: config.tenantId,
+  });
+  sendHtml(res, 200, html);
+};
+
+const handleAlertsProxy = async (
+  res: ServerResponse,
+  config: WebDashboardRuntimeConfig,
+  dependencies: WebDashboardDependencies,
+  searchParams: URLSearchParams,
+): Promise<void> => {
+  const fetchImpl = dependencies.fetchImpl ?? fetch;
+  const filters = parseAlertsFilterQuery(searchParams);
+  const upstreamUrl = new URL(`${config.apiBaseUrl}/api/v1/alerts`);
+
+  if (filters.trip_id) {
+    upstreamUrl.searchParams.set("trip_id", filters.trip_id);
+  }
+  if (filters.severity) {
+    upstreamUrl.searchParams.set("severity", filters.severity);
+  }
+  if (filters.status) {
+    upstreamUrl.searchParams.set("status", filters.status);
+  }
+
+  const upstreamResponse = await fetchImpl(upstreamUrl.toString(), {
+    method: "GET",
+    headers: {
+      "x-tenant-id": config.tenantId,
+    },
+  });
+
+  if (!upstreamResponse.ok) {
+    if (upstreamResponse.status >= 400 && upstreamResponse.status < 500) {
+      const payload = (await upstreamResponse.json()) as unknown;
+      const errorMessage =
+        isRecord(payload) && typeof payload.error === "string"
+          ? payload.error
+          : "Falha na consulta de alertas.";
+      sendJson(res, upstreamResponse.status, { error: errorMessage });
+      return;
+    }
+
+    sendJson(res, 502, {
+      error: "Falha ao obter alertas da API principal.",
+      upstream_status: upstreamResponse.status,
+    });
+    return;
+  }
+
+  const payload = (await upstreamResponse.json()) as unknown;
+  if (!isRecord(payload)) {
+    sendJson(res, 502, { error: "Payload invalido recebido da API de alertas." });
+    return;
+  }
+
+  sendJson(res, 200, payload);
+};
+
 const route = async (
   req: IncomingMessage,
   res: ServerResponse,
@@ -250,6 +330,16 @@ const route = async (
 
   if (req.method === "GET" && requestUrl.pathname === "/") {
     handleRoot(res, config);
+    return;
+  }
+
+  if (req.method === "GET" && requestUrl.pathname === "/alerts") {
+    handleAlertsPage(res, config);
+    return;
+  }
+
+  if (req.method === "GET" && requestUrl.pathname === "/api/alerts") {
+    await handleAlertsProxy(res, config, dependencies, requestUrl.searchParams);
     return;
   }
 
