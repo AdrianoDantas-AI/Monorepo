@@ -5,6 +5,7 @@
 2. Confirmar que o projeto-alvo esta cadastrado no registro central de `MONOREPO.md`.
 3. Se o projeto nao estiver cadastrado, registrar primeiro no `MONOREPO.md` e so depois atuar no projeto.
 4. Ao criar um projeto novo, atualizar o `MONOREPO.md` no mesmo ciclo de trabalho.
+5. Toda mudanca de codigo deve incluir testes de `unit` e `integration` relacionados.
 
 Documento central obrigatorio:
 - [MONOREPO.md](C:/Users/Adriano%20Dantas/Monorepo/MONOREPO.md)
@@ -36,3 +37,5 @@ Checklist de fechamento do agente:
 - Plano mudou? Registrar em `docs/plan-change-log.md`.
 - Ocorreu erro relevante? Registrar em `docs/error-log.md`.
 - Houve mitigacao/prevecao? Registrar junto na mesma entrada.
+- `unit` e `integration` foram adicionados/atualizados para a mudanca?
+- `corepack pnpm --dir TNS verify` passou com os testes?

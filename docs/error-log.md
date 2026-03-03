@@ -39,3 +39,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Validacao de `compose` feita via `docker compose config`; tentativa de start do servico `com.docker.service` sem permissao para subida nesta sessao.
 - Prevencao/acao futura: Garantir Docker Desktop iniciado antes de executar `infra:up` e validar com `docker compose version`.
 - Referencias (comando/arquivo): `TNS/package.json` script `infra:up`, `TNS/infra/docker/compose.yml`.
+
+## 2026-03-03 - Glob de testes falhou no Windows
+- Sintoma: `test:unit` falhou com "Could not find ... tests\\unit\\**\\*.test.ts".
+- Causa raiz: O padrao glob usado no comando `node --test` nao foi resolvido corretamente no ambiente Windows.
+- Correcao aplicada: Substituicao por runner dedicado (`scripts/testing/run-tests.mjs`) que resolve os arquivos `.test.ts` e chama `node --import tsx --test` com paths explicitos.
+- Prevencao/acao futura: Evitar padroes `**` dependentes de shell em comandos cross-platform.
+- Referencias (comando/arquivo): `TNS/package.json` (`test:unit`, `test:integration`), `TNS/scripts/testing/run-tests.mjs`.

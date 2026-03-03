@@ -36,3 +36,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Docker Desktop Engine indisponivel na sessao de execucao.
 - Impacto no backlog/sprint: Implementacao de compose/Dockerfiles concluida; validacao de subida real fica como passo operacional imediato.
 - Referencias (arquivos/PR/issue): `TNS/infra/docker/compose.yml`, `docs/error-log.md`.
+
+## 2026-03-03 - Unit e integration como regra mandatória com enforcement
+- Contexto: Necessidade explicita de impedir entregas sem testes reais.
+- Decisao anterior: `verify` executava lint/typecheck/test, mas podia passar com zero testes.
+- Decisao nova: Tornar `unit` e `integration` obrigatorios por regra e por script (`test:guard`) no `TNS`.
+- Motivo da mudanca: Garantir cobertura minima real em toda mudanca e evitar falso positivo de pipeline verde sem testes.
+- Impacto no backlog/sprint: CI/local passam a falhar quando nao houver arquivos de `unit` e `integration`; adicionados testes iniciais.
+- Referencias (arquivos/PR/issue): `MONOREPO.md`, `AGENTS.md`, `TNS/package.json`, `TNS/scripts/testing/require-test-files.mjs`.

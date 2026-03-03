@@ -12,6 +12,8 @@ O objetivo e compartilhar contexto, padroes e uma governanca minima comum entre 
 - Alteracoes que afetem multiplos projetos devem indicar impacto cruzado no PR/commit.
 - Toda mudanca de plano (escopo, prioridade, abordagem, ferramenta) deve ser registrada com motivo em `docs/plan-change-log.md`.
 - Todo erro relevante encontrado durante execucao deve ser registrado com causa e correcao em `docs/error-log.md`.
+- Todo incremento deve incluir testes automatizados de `unit` e `integration` para o comportamento alterado.
+- PR sem cobertura de `unit` e `integration` para a mudanca deve ser reprovado.
 
 ## 3. Regra Obrigatoria para Agentes
 Qualquer agente deve ler este `MONOREPO.md` antes de entrar em qualquer projeto interno.
