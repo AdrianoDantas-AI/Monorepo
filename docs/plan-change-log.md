@@ -52,3 +52,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: GitHub bloqueou `rulesets` e `branch protection` em repo privado no plano atual (HTTP 403).
 - Impacto no backlog/sprint: Governanca do ruleset fica pronta no codigo, mas a ativacao remota depende de tornar o repo publico ou upgrade de plano.
 - Referencias (arquivos/PR/issue): `.github/rulesets/main-protection.json`, `scripts/github/apply-ruleset.ps1`, `scripts/github/README.md`, `docs/error-log.md`.
+
+## 2026-03-03 - Diagnostico do Codex review ajustado para conector GitHub
+- Contexto: Novas tentativas de `@codex review` em PR de smoke continuaram sem review tecnico.
+- Decisao anterior: Tratar o problema como possivel falha geral do bot no repositorio.
+- Decisao nova: Tratar como bloqueio de onboarding do conector (conta Codex + GitHub ainda nao efetivamente conectados para o usuario/repo).
+- Motivo da mudanca: O bot respondeu explicitamente com instrucao para conectar conta no link de settings do Codex.
+- Impacto no backlog/sprint: Review automatico segue bloqueado ate concluir conexao do conector; smoke deve ser repetido apos habilitacao.
+- Referencias (arquivos/PR/issue): `PR #2`, comentarios `chatgpt-codex-connector[bot]`.

@@ -53,3 +53,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Regras foram versionadas em `.github/rulesets/main-protection.json` e criado script `scripts/github/apply-ruleset.ps1` para aplicar assim que o requisito de plano/publico for atendido.
 - Prevencao/acao futura: Validar capacidade do plano GitHub antes de automatizar governanca remota e executar novamente o script apos liberar o recurso.
 - Referencias (comando/arquivo): `gh api repos/CaosHorseman/Monorepo/rulesets`, `gh api repos/CaosHorseman/Monorepo/branches/main/protection`, `scripts/github/apply-ruleset.ps1`.
+
+## 2026-03-03 - Codex reviewer retornou bloqueio de conector/conta
+- Sintoma: Ao comentar `@codex review` no PR #2, o bot nao executou review e respondeu com mensagem para conectar conta.
+- Causa raiz: Integracao Codex <> GitHub ainda nao concluida para este usuario/repositorio (onboarding do conector pendente).
+- Correcao aplicada: Retry executado no PR #2 e evidencias capturadas com resposta do `chatgpt-codex-connector[bot]`.
+- Prevencao/acao futura: Finalizar conexao em `https://chatgpt.com/codex/settings/connectors` e repetir smoke com novo `@codex review`.
+- Referencias (comando/arquivo): `gh pr comment 2 --body \"@codex review\"`, `gh api repos/CaosHorseman/Monorepo/issues/2/comments`.
