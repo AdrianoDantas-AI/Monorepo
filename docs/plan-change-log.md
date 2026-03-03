@@ -124,3 +124,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Melhorar precisao da catalogacao e diminuir backlog falso-positivo.
 - Impacto no backlog/sprint: Issues criadas ficam mais acionaveis, com rotulo de severidade mais fiel.
 - Referencias (arquivos/PR/issue): `.github/workflows/codex-findings-to-issues.yml`, `docs/codex-review-issues.md`, issues `#7` e `#8`.
+
+## 2026-03-03 - Inicio de execucao da Sprint 2 pelo item S2-001
+- Contexto: Loop de operacao/review do repositorio estabilizado em `main`.
+- Decisao anterior: Prioridade em governanca de PR/review/catalogacao.
+- Decisao nova: Retomar backlog de produto com implementacao de `S2-001` (modulos de dominio Trip/Stop/Leg/RoutePlan/RouteTrack no `services/api`).
+- Motivo da mudanca: Avancar entrega funcional da Sprint 2 apos consolidacao de tooling.
+- Impacto no backlog/sprint: Base de dominio pronta para endpoints de `trips` (S2-007 em diante), com testes unit/integration cobrindo fluxo de modulo.
+- Referencias (arquivos/PR/issue): `TNS/services/api/src/modules/**`, `TNS/tests/unit/trip-module.unit.test.ts`, `TNS/tests/integration/api-domain-modules.integration.test.ts`.

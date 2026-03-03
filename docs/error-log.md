@@ -109,3 +109,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Adicionado filtro de comentario generico e mapeamento de badge `P0..P3` para severidade real.
 - Prevencao/acao futura: Manter smoke com finding real e revisar parser sempre que formato do comentario do bot mudar.
 - Referencias (comando/arquivo): issue `#8`, `.github/workflows/codex-findings-to-issues.yml`, `docs/codex-review-issues.md`.
+
+## 2026-03-03 - Typecheck falhou no S2-001 por caminho relativo incorreto
+- Sintoma: `corepack pnpm --dir TNS verify` falhou em `services/api` com `TS2307 Cannot find module .../packages/contracts/src/trip.js`.
+- Causa raiz: Imports nos novos módulos de domínio subiram 4 níveis em vez de 5 a partir de `services/api/src/modules/**`.
+- Correcao aplicada: Ajuste dos imports para `../../../../../packages/contracts/src/trip.js`.
+- Prevencao/acao futura: Validar caminho relativo com `tsc --noEmit` imediatamente após criar estrutura de pastas profundas.
+- Referencias (comando/arquivo): `TNS/services/api/src/modules/*/*.ts`, `corepack pnpm --dir TNS verify`.
