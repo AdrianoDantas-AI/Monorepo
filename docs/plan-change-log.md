@@ -84,3 +84,19 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Repositorio passou a exigir merge via PR + status check `CI / verify`.
 - Impacto no backlog/sprint: Leve aumento no ciclo de entrega (abertura de PR), com ganho de governanca e rastreabilidade.
 - Referencias (arquivos/PR/issue): erro `GH013` no push para `main`, rules de branch no GitHub.
+
+## 2026-03-03 - Ruleset ajustado para fluxo solo com CI obrigatorio
+- Contexto: PR de tooling ficou bloqueado por exigencia de aprovacao manual (`required_approving_review_count: 1`) sem segundo reviewer com write.
+- Decisao anterior: Exigir 1 aprovacao + code owner review para `main`.
+- Decisao nova: Manter PR obrigatorio + check `CI / verify`, removendo exigencia de aprovacao manual (`0`) e code owner review no ruleset.
+- Motivo da mudanca: Habilitar merge operacional em contexto solo sem perder gate tecnico de CI.
+- Impacto no backlog/sprint: PRs passam a ser mergeaveis pelo maintainer apos CI verde; reduz bloqueio administrativo.
+- Referencias (arquivos/PR/issue): `.github/rulesets/main-protection.json`, `scripts/github/apply-ruleset.ps1`, `PR #3`.
+
+## 2026-03-03 - CI passou a validar mudancas em workflows
+- Contexto: O check obrigatorio `CI / verify` nao era disparado em alteracoes fora de `TNS/**`.
+- Decisao anterior: CI com filtro de paths restrito a `TNS/**`.
+- Decisao nova: Incluir `.github/workflows/**` no gatilho de CI.
+- Motivo da mudanca: Evitar PR bloqueado por check esperado e nao executado quando houver mudanca de workflow.
+- Impacto no backlog/sprint: Todo ajuste de workflow passa a validar no mesmo pipeline obrigatorio.
+- Referencias (arquivos/PR/issue): `.github/workflows/ci.yml`, `PR #3`.
