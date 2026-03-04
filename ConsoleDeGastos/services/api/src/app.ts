@@ -74,6 +74,18 @@ const parseString = (value: unknown): string | null => (typeof value === "string
 const parseNumber = (value: unknown): number | null => (typeof value === "number" && Number.isFinite(value) ? value : null);
 const asRecord = (value: unknown): Record<string, unknown> =>
   value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+const parsePositiveInt = (value: string | null, fallback: number): number => {
+  if (!value) {
+    return fallback;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return fallback;
+  }
+
+  return parsed;
+};
 
 const buildDashboard = (store: RuntimeStore) => {
   const expenses = store.transactions.filter((item) => item.type === "expense").reduce((sum, item) => sum + item.amount_brl, 0);
@@ -330,6 +342,19 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
 
   if (pathname === "/api/v1/openfinance/webhooks" && method === "POST") {
     const body = await readBody(req);
+    const eventId = parseString(body.event_id);
+    if (!eventId) {
+      sendJson(res, 400, { error: "missing_event_id" });
+      return;
+    }
+
+    if (store.processed_openfinance_webhook_event_ids.includes(eventId)) {
+      sendJson(res, 200, {
+        data: { received: true, duplicate: true, event: "openfinance.sync.progress.v1", event_id: eventId },
+      });
+      return;
+    }
+
     const connectionId = parseString(body.connection_id);
     const status = parseString(body.status);
 
@@ -342,8 +367,10 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       }
     }
 
-    sendJson(res, 202, {
-      data: { received: true, event: "openfinance.sync.progress.v1" },
+    store.processed_openfinance_webhook_event_ids.push(eventId);
+
+    sendJson(res, 200, {
+      data: { received: true, duplicate: false, event: "openfinance.sync.progress.v1", event_id: eventId },
     });
     return;
   }
@@ -356,6 +383,10 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
   if (pathname === "/api/v1/transactions" && method === "GET") {
     const categoryFilter = url.searchParams.get("category");
     const typeFilter = url.searchParams.get("type");
+    const searchQuery = (url.searchParams.get("q") ?? "").trim().toLowerCase();
+    const sort = url.searchParams.get("sort") ?? "date_desc";
+    const page = parsePositiveInt(url.searchParams.get("page"), 1);
+    const pageSize = Math.min(parsePositiveInt(url.searchParams.get("page_size"), 15), 100);
 
     let rows = [...store.transactions];
     if (categoryFilter) {
@@ -364,8 +395,39 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     if (typeFilter === "income" || typeFilter === "expense") {
       rows = rows.filter((item) => item.type === typeFilter);
     }
+    if (searchQuery) {
+      rows = rows.filter((item) => item.description.toLowerCase().includes(searchQuery));
+    }
 
-    sendJson(res, 200, { data: rows, total: rows.length });
+    rows.sort((left, right) => {
+      if (sort === "amount_asc") {
+        return left.amount_brl - right.amount_brl;
+      }
+      if (sort === "amount_desc") {
+        return right.amount_brl - left.amount_brl;
+      }
+      if (sort === "date_asc") {
+        return left.date.localeCompare(right.date);
+      }
+      return right.date.localeCompare(left.date);
+    });
+
+    const total = rows.length;
+    const totalPages = total === 0 ? 1 : Math.ceil(total / pageSize);
+    const normalizedPage = Math.min(page, totalPages);
+    const start = (normalizedPage - 1) * pageSize;
+    const end = start + pageSize;
+    const pagedRows = rows.slice(start, end);
+
+    sendJson(res, 200, {
+      data: pagedRows,
+      total,
+      page: normalizedPage,
+      page_size: pageSize,
+      total_pages: totalPages,
+      sort,
+      q: searchQuery,
+    });
     return;
   }
 

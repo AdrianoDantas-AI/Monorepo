@@ -66,6 +66,36 @@ test("open finance connect callback and sync progression", async () => {
 
     assert.equal(statusPayload.data.status, "active");
     assert.equal(statusPayload.data.progress_pct, 100);
+
+    const webhookFirst = await fetch(`${runtime.baseUrl}/api/v1/openfinance/webhooks`, {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        event_id: "evt_001",
+        connection_id: createPayload.data.id,
+        status: "active",
+      }),
+    });
+    assert.equal(webhookFirst.status, 200);
+    const webhookFirstPayload = (await webhookFirst.json()) as {
+      data: { duplicate: boolean };
+    };
+    assert.equal(webhookFirstPayload.data.duplicate, false);
+
+    const webhookSecond = await fetch(`${runtime.baseUrl}/api/v1/openfinance/webhooks`, {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        event_id: "evt_001",
+        connection_id: createPayload.data.id,
+        status: "active",
+      }),
+    });
+    assert.equal(webhookSecond.status, 200);
+    const webhookSecondPayload = (await webhookSecond.json()) as {
+      data: { duplicate: boolean };
+    };
+    assert.equal(webhookSecondPayload.data.duplicate, true);
   } finally {
     await runtime.close();
   }
@@ -109,6 +139,59 @@ test("ai action preview requires confirm before execution", async () => {
     };
 
     assert.ok(txPayload.total >= 1);
+  } finally {
+    await runtime.close();
+  }
+});
+
+test("transactions endpoint supports search, sorting and pagination", async () => {
+  const runtime = await startApiServer();
+
+  try {
+    await fetch(`${runtime.baseUrl}/api/v1/transactions/manual`, {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        description: "Uber Black",
+        amount_brl: 40,
+        type: "expense",
+        category: "taxi_apps",
+        account_id: "acc_bank_1",
+        date: "2026-03-04T12:00:00.000Z",
+      }),
+    });
+
+    await fetch(`${runtime.baseUrl}/api/v1/transactions/manual`, {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        description: "Salario",
+        amount_brl: 5200,
+        type: "income",
+        category: "transferencias",
+        account_id: "acc_bank_1",
+        date: "2026-03-04T08:00:00.000Z",
+      }),
+    });
+
+    const searchResponse = await fetch(
+      `${runtime.baseUrl}/api/v1/transactions?q=uber&sort=amount_desc&page=1&page_size=1`,
+    );
+    assert.equal(searchResponse.status, 200);
+
+    const searchPayload = (await searchResponse.json()) as {
+      total: number;
+      page: number;
+      page_size: number;
+      total_pages: number;
+      data: Array<{ description: string; amount_brl: number }>;
+    };
+
+    assert.ok(searchPayload.total >= 2);
+    assert.equal(searchPayload.page, 1);
+    assert.equal(searchPayload.page_size, 1);
+    assert.ok(searchPayload.total_pages >= 2);
+    assert.ok(searchPayload.data[0].description.toLowerCase().includes("uber"));
   } finally {
     await runtime.close();
   }

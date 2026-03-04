@@ -31,6 +31,7 @@ export interface RuntimeStore {
   ai_action_executions: AiActionExecutionDTOv1[];
   feedbacks: Array<{ id: string; score: number; comment: string; created_at: string }>;
   alerts: Array<{ id: string; kind: string; message: string; created_at: string }>;
+  processed_openfinance_webhook_event_ids: string[];
 }
 
 const nowIso = () => new Date().toISOString();
@@ -127,4 +128,5 @@ export const createRuntimeStore = (): RuntimeStore => ({
       created_at: nowIso(),
     },
   ],
+  processed_openfinance_webhook_event_ids: [],
 });
