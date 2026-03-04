@@ -380,3 +380,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Atender prioridade do produto para persistencia real em PostgreSQL antes de continuar os proximos modulos.
 - Impacto no backlog/sprint: Sprint 0 passa a incluir base de persistencia e testes associados; proximas sprints podem evoluir sobre estado duravel.
 - Referencias (arquivos/PR/issue): `ConsoleDeGastos/services/api/src/persistence.ts`, `ConsoleDeGastos/services/api/src/app.ts`, `ConsoleDeGastos/services/api/src/main.ts`, `ConsoleDeGastos/tests/**`.
+
+## 2026-03-04 - Infra local adicionada ao ConsoleDeGastos (Postgres + Redis)
+- Contexto: Com persistencia PostgreSQL ativa no backend, faltava infraestrutura local padronizada para desenvolvimento do projeto.
+- Decisao anterior: Rodar API sem stack de infra versionada no workspace do produto.
+- Decisao nova: Versionar `docker compose` dedicado do ConsoleDeGastos e scripts `infra:up/down/logs/ps` no pacote raiz.
+- Motivo da mudanca: Garantir ambiente reproducivel para evolucao das proximas sprints (sync OpenFinance, jobs e IA).
+- Impacto no backlog/sprint: Sprint 0 cobre baseline de infraestrutura local e reduz setup manual em novas maquinas.
+- Referencias (arquivos/PR/issue): `ConsoleDeGastos/infra/docker/compose.yml`, `ConsoleDeGastos/package.json`, `ConsoleDeGastos/README.md`, `ConsoleDeGastos/Codex-ConsoleDeGastos.md`.

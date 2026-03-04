@@ -200,3 +200,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: N/A.
 - Prevencao/acao futura: Manter validacao obrigatoria com `corepack pnpm --dir ConsoleDeGastos verify` e `openspec validate --all` a cada incremento.
 - Referencias (comando/arquivo): `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.
+
+## 2026-03-04 - Ciclo de infraestrutura local sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante na criacao do compose local de `postgres` + `redis` para o `ConsoleDeGastos`.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Validar sintaxe com `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config` antes de subir containers.
+- Referencias (comando/arquivo): `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config`, `ConsoleDeGastos/infra/docker/compose.yml`.

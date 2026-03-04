@@ -22,3 +22,8 @@ Entregar monitor de gastos e previsoes com IA e Open Finance (Pluggy).
 
 - Unit e integration obrigatorios em toda mudanca.
 - Fluxo OpenSpec obrigatorio para mudancas relevantes.
+
+## Infra local
+
+- PostgreSQL + Redis via `infra/docker/compose.yml`.
+- Persistencia da API controlada por `PERSISTENCE_MODE` e `DATABASE_URL`.
