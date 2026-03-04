@@ -1,0 +1,15 @@
+export const mobileParityModules = [
+  "auth",
+  "open_finance_connect",
+  "dashboard",
+  "transactions",
+  "recurrents",
+  "cashflow",
+  "accounts",
+  "invoices",
+  "categories",
+  "forecast",
+  "patrimony",
+  "reports",
+  "ai_assistant",
+] as const;

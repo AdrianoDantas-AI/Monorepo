@@ -1,0 +1,15 @@
+{
+  "name": "@consoledegastos/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@consoledegastos/contracts": "workspace:*",
+    "@consoledegastos/domain": "workspace:*"
+  },
+  "scripts": {
+    "dev": "tsx src/main.ts",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@consoledegastos/root",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "corepack pnpm -r --parallel --if-present dev",
+    "build": "corepack pnpm -r --if-present build",
+    "lint": "corepack pnpm -r --if-present lint",
+    "typecheck": "corepack pnpm -r --if-present typecheck",
+    "test": "corepack pnpm test:guard && corepack pnpm test:unit && corepack pnpm test:integration",
+    "test:guard": "node scripts/testing/require-test-files.mjs",
+    "test:unit": "node scripts/testing/run-tests.mjs tests/unit",
+    "test:integration": "node scripts/testing/run-tests.mjs tests/integration",
+    "verify": "corepack pnpm lint && corepack pnpm typecheck && corepack pnpm test",
+    "prepare": "node -e \"console.log('ConsoleDeGastos workspace ready')\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "@types/node": "^22.13.10",
+    "eslint": "^9.22.0",
+    "globals": "^16.0.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.0"
+  }
+}
