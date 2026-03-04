@@ -214,3 +214,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: N/A.
 - Prevencao/acao futura: Manter `verify` + `openspec validate --all` em cada incremento de persistencia.
 - Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/persistence.ts`, `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.
+
+## 2026-03-04 - Archive/OpenSpec ciclo seguinte sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante ao arquivar `consoledegastos-postgres-domain-persistence` e abrir o novo change de persistencia financeira.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Continuar validando `openspec status` e `openspec validate --all` antes de cada commit de governanca OpenSpec.
+- Referencias (comando/arquivo): `openspec archive consoledegastos-postgres-domain-persistence -y`, `openspec new change consoledegastos-postgres-finance-domain-tables`.

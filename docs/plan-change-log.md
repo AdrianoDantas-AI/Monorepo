@@ -396,3 +396,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Melhorar evolucao incremental do schema e reduzir acoplamento a blob unico.
 - Impacto no backlog/sprint: Base pronta para futuras migracoes de contas/categorias/faturas sem quebrar contratos atuais.
 - Referencias (arquivos/PR/issue): `ConsoleDeGastos/services/api/src/persistence.ts`, `openspec/changes/consoledegastos-postgres-domain-persistence/**`.
+
+## 2026-03-04 - Archive da persistencia inicial e abertura do proximo ciclo
+- Contexto: Change `consoledegastos-postgres-domain-persistence` foi concluido e validado.
+- Decisao anterior: Manter change ativo mesmo apos 100% das tasks concluidas.
+- Decisao nova: Arquivar o change concluido e abrir `consoledegastos-postgres-finance-domain-tables` para migrar `accounts/categories/invoices/recurrents`.
+- Motivo da mudanca: Manter backlog OpenSpec segmentado por incrementos pequenos e mergeavel por etapa.
+- Impacto no backlog/sprint: Novo ciclo de persistencia tabular iniciado com artifacts completos e tasks pendentes prontas para execucao.
+- Referencias (arquivos/PR/issue): `openspec/changes/archive/2026-03-04-consoledegastos-postgres-domain-persistence/`, `openspec/specs/consoledegastos-postgres-domain-persistence/spec.md`, `openspec/changes/consoledegastos-postgres-finance-domain-tables/**`.
