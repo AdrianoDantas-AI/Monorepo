@@ -221,3 +221,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: N/A.
 - Prevencao/acao futura: Continuar validando `openspec status` e `openspec validate --all` antes de cada commit de governanca OpenSpec.
 - Referencias (comando/arquivo): `openspec archive consoledegastos-postgres-domain-persistence -y`, `openspec new change consoledegastos-postgres-finance-domain-tables`.
+
+## 2026-03-04 - Push falhou por erro transitorio de rede no GitHub
+- Sintoma: `git push origin feat/consoledegastos-mvp-foundation` falhou com `Failure when receiving data from the peer`.
+- Causa raiz: instabilidade transitória de conexão no canal HTTPS com o remoto.
+- Correcao aplicada: nova tentativa imediata de `git push`, concluída com sucesso.
+- Prevencao/acao futura: em erro de rede/transporte no push, repetir tentativa antes de iniciar troubleshooting local.
+- Referencias (comando/arquivo): `git push origin feat/consoledegastos-mvp-foundation`.
