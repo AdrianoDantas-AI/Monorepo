@@ -4,6 +4,23 @@ import { startApiServer } from "../../services/api/src/app.js";
 
 const jsonHeaders = { "content-type": "application/json" };
 
+test("ops endpoint exposes active persistence mode", async () => {
+  const runtime = await startApiServer();
+
+  try {
+    const response = await fetch(`${runtime.baseUrl}/ops/persistence`);
+    assert.equal(response.status, 200);
+
+    const payload = (await response.json()) as {
+      data: { mode: string };
+    };
+
+    assert.equal(payload.data.mode, "memory");
+  } finally {
+    await runtime.close();
+  }
+});
+
 test("auth flow supports google callback and session lookup", async () => {
   const runtime = await startApiServer();
 

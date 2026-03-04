@@ -193,3 +193,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Criacao manual de `proposal.md`, `design.md`, `tasks.md` e `specs/**/spec.md` no diretorio da change.
 - Prevencao/acao futura: Sempre validar conteudo da pasta apos `openspec new change` antes de seguir implementacao.
 - Referencias (comando/arquivo): `openspec/changes/consoledegastos-mvp-full-screens-ai/`.
+
+## 2026-03-04 - Ciclo de persistencia PostgreSQL sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante durante implementacao da camada de persistencia no `ConsoleDeGastos`.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Manter validacao obrigatoria com `corepack pnpm --dir ConsoleDeGastos verify` e `openspec validate --all` a cada incremento.
+- Referencias (comando/arquivo): `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.

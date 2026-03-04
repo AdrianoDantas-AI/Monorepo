@@ -372,3 +372,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Garantir segregacao de produto, backlog e ciclo tecnico independentes.
 - Impacto no backlog/sprint: Sprint 0 (fundacao) iniciada e validada com OpenSpec + scaffold tecnico + testes obrigatorios.
 - Referencias (arquivos/PR/issue): `MONOREPO.md`, `ConsoleDeGastos/**`, `openspec/changes/consoledegastos-mvp-full-screens-ai/**`.
+
+## 2026-03-04 - Persistencia PostgreSQL priorizada no ConsoleDeGastos
+- Contexto: Definicao de evolucao apos roadmap inicial da Sprint 0 no projeto `ConsoleDeGastos`.
+- Decisao anterior: Manter API apenas com store em memoria para bootstrap funcional.
+- Decisao nova: Introduzir camada de persistencia (`memory`/`postgres`) com adapter, modo por env e endpoint operacional de diagnostico.
+- Motivo da mudanca: Atender prioridade do produto para persistencia real em PostgreSQL antes de continuar os proximos modulos.
+- Impacto no backlog/sprint: Sprint 0 passa a incluir base de persistencia e testes associados; proximas sprints podem evoluir sobre estado duravel.
+- Referencias (arquivos/PR/issue): `ConsoleDeGastos/services/api/src/persistence.ts`, `ConsoleDeGastos/services/api/src/app.ts`, `ConsoleDeGastos/services/api/src/main.ts`, `ConsoleDeGastos/tests/**`.

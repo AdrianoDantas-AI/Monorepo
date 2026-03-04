@@ -11,11 +11,21 @@ import type {
 } from "@consoledegastos/contracts";
 import { buildScreenInsights, createActionExecution, createActionProposal } from "@consoledegastos/domain";
 import { createRuntimeStore, type RuntimeStore } from "./store.js";
+import {
+  createMemoryPersistenceAdapter,
+  type PersistenceAdapter,
+  type PersistenceMode,
+} from "./persistence.js";
 
 export interface ApiServerRuntime {
   baseUrl: string;
   store: RuntimeStore;
+  persistence_mode: PersistenceMode;
   close: () => Promise<void>;
+}
+
+export interface StartApiServerOptions {
+  persistence?: PersistenceAdapter;
 }
 
 const screenSet: Set<ScreenName> = new Set([
@@ -201,13 +211,20 @@ const applyAiAction = (store: RuntimeStore, proposal: AiActionProposalDTOv1): Re
   return { applied: true, alert_id: alert.id };
 };
 
-const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
+const createRequestHandler =
+  (store: RuntimeStore, persist: () => Promise<void>, persistenceMode: PersistenceMode) =>
+  async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
   const method = req.method ?? "GET";
   const url = new URL(req.url ?? "/", "http://127.0.0.1");
   const pathname = url.pathname;
 
   if (pathname === "/health" && method === "GET") {
     sendJson(res, 200, { status: "ok", service: "consoledegastos-api" });
+    return;
+  }
+
+  if (pathname === "/ops/persistence" && method === "GET") {
+    sendJson(res, 200, { data: { mode: persistenceMode } });
     return;
   }
 
@@ -229,6 +246,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       created_at: nowIso(),
     };
     store.sessions.push(session);
+    await persist();
     sendJson(res, 200, { data: session, code: url.searchParams.get("code") ?? null });
     return;
   }
@@ -253,12 +271,14 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       created_at: nowIso(),
     };
     store.sessions.push(session);
+    await persist();
     sendJson(res, 200, { data: session });
     return;
   }
 
   if (pathname === "/api/v1/auth/logout" && method === "POST") {
     store.sessions.length = 0;
+    await persist();
     sendJson(res, 200, { data: { logged_out: true } });
     return;
   }
@@ -291,6 +311,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       updated_at: nowIso(),
     };
     store.open_finance_connections.push(connection);
+    await persist();
     sendJson(res, 201, { data: connection });
     return;
   }
@@ -312,6 +333,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     target.progress_pct = 100;
     target.status = "active";
     target.updated_at = nowIso();
+    await persist();
 
     sendJson(res, 200, {
       data: target,
@@ -336,6 +358,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
   if (openFinanceDeleteMatch && method === "DELETE") {
     const before = store.open_finance_connections.length;
     store.open_finance_connections = store.open_finance_connections.filter((item) => item.id !== openFinanceDeleteMatch[1]);
+    await persist();
     sendJson(res, 200, { data: { removed: before !== store.open_finance_connections.length } });
     return;
   }
@@ -368,6 +391,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     }
 
     store.processed_openfinance_webhook_event_ids.push(eventId);
+    await persist();
 
     sendJson(res, 200, {
       data: { received: true, duplicate: false, event: "openfinance.sync.progress.v1", event_id: eventId },
@@ -444,6 +468,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       date: parseString(body.date) ?? nowIso(),
     };
     store.transactions.push(transaction);
+    await persist();
     sendJson(res, 201, { data: transaction });
     return;
   }
@@ -464,6 +489,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     }
 
     target.category = category;
+    await persist();
     sendJson(res, 200, { data: target });
     return;
   }
@@ -489,6 +515,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       target.confirmed = confirmedValue;
     }
 
+    await persist();
     sendJson(res, 200, { data: target });
     return;
   }
@@ -529,6 +556,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       target.name = name;
     }
 
+    await persist();
     sendJson(res, 200, { data: target });
     return;
   }
@@ -562,6 +590,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     };
 
     store.categories.push(category);
+    await persist();
     sendJson(res, 201, { data: category });
     return;
   }
@@ -584,6 +613,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       target.monthly_limit_brl = limit;
     }
 
+    await persist();
     sendJson(res, 200, { data: target });
     return;
   }
@@ -611,6 +641,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     };
 
     store.report_jobs.push(job);
+    await persist();
     sendJson(res, 202, { data: job });
     return;
   }
@@ -642,6 +673,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     };
 
     store.ai_sessions.push(aiSession);
+    await persist();
     sendJson(res, 201, { data: aiSession });
     return;
   }
@@ -664,6 +696,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     const answer = insights.at(0)?.message ?? "Nenhum insight encontrado.";
 
     aiSession.messages.push({ role: "assistant", text: answer, created_at: nowIso() });
+    await persist();
 
     sendJson(res, 200, {
       data: {
@@ -704,6 +737,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
       asRecord(body.payload),
     );
     store.ai_action_proposals.push(proposal);
+    await persist();
 
     sendJson(res, 201, {
       data: proposal,
@@ -730,6 +764,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
 
     const execution = createActionExecution(`aie_${randomUUID()}`, proposal.id, result);
     store.ai_action_executions.push(execution);
+    await persist();
 
     sendJson(res, 200, {
       data: execution,
@@ -757,6 +792,7 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
     const comment = parseString(body.comment) ?? "";
 
     store.feedbacks.push({ id: `fb_${randomUUID()}`, score, comment, created_at: nowIso() });
+    await persist();
 
     sendJson(res, 202, { data: { accepted: true } });
     return;
@@ -765,9 +801,10 @@ const createRequestHandler = (store: RuntimeStore) => async (req: IncomingMessag
   sendJson(res, 404, { error: "not_found", path: pathname, method });
 };
 
-export const startApiServer = async (port = 0): Promise<ApiServerRuntime> => {
-  const store = createRuntimeStore();
-  const server = createServer(createRequestHandler(store));
+export const startApiServer = async (port = 0, options: StartApiServerOptions = {}): Promise<ApiServerRuntime> => {
+  const persistence = options.persistence ?? createMemoryPersistenceAdapter(createRuntimeStore());
+  const store = await persistence.load();
+  const server = createServer(createRequestHandler(store, () => persistence.save(store), persistence.mode));
 
   server.listen(port, "127.0.0.1");
   await once(server, "listening");
@@ -780,6 +817,7 @@ export const startApiServer = async (port = 0): Promise<ApiServerRuntime> => {
   return {
     baseUrl: `http://127.0.0.1:${address.port}`,
     store,
+    persistence_mode: persistence.mode,
     close: async () => {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => {
@@ -790,6 +828,7 @@ export const startApiServer = async (port = 0): Promise<ApiServerRuntime> => {
           resolve();
         });
       });
+      await persistence.close();
     },
   };
 };
