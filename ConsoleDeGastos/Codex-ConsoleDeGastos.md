@@ -25,5 +25,5 @@ Entregar monitor de gastos e previsoes com IA e Open Finance (Pluggy).
 
 ## Infra local
 
-- PostgreSQL + Redis via `infra/docker/compose.yml`.
+- Stack completa (`postgres`, `redis`, `api`, `web`, `mobile-preview`) via `infra/docker/compose.yml`.
 - Persistencia da API controlada por `PERSISTENCE_MODE` e `DATABASE_URL`.

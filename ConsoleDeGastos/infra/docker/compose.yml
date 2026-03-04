@@ -18,6 +18,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+      start_period: 5s
 
   redis:
     image: redis:7-alpine
@@ -33,6 +34,89 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+      start_period: 3s
+
+  api:
+    build:
+      context: ../..
+      dockerfile: docker/node-workspace.Dockerfile
+    container_name: consoledegastos-api
+    restart: unless-stopped
+    command: ["sh", "-lc", "pnpm --filter @consoledegastos/api dev"]
+    environment:
+      PORT: "4010"
+      PERSISTENCE_MODE: postgres
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/consoledegastos
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "4010:4010"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:4010/health').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 8s
+
+  web:
+    build:
+      context: ../..
+      dockerfile: docker/node-workspace.Dockerfile
+    container_name: consoledegastos-web
+    restart: unless-stopped
+    command: ["sh", "-lc", "pnpm --filter @consoledegastos/web dev"]
+    environment:
+      PORT: "4020"
+      API_BASE_URL: http://api:4010
+    ports:
+      - "4020:4020"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:4020/health').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 8s
+
+  mobile-preview:
+    build:
+      context: ../..
+      dockerfile: docker/node-workspace.Dockerfile
+    container_name: consoledegastos-mobile-preview
+    restart: unless-stopped
+    command: ["sh", "-lc", "pnpm --filter @consoledegastos/mobile dev"]
+    environment:
+      PORT: "4030"
+      API_BASE_URL: http://api:4010
+    ports:
+      - "4030:4030"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:4030/health').then((res)=>process.exit(res.ok?0:1)).catch(()=>process.exit(1))\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 8s
 
 volumes:
   consoledegastos_postgres_data:

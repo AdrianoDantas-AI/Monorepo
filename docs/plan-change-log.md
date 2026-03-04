@@ -412,3 +412,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Consolidar consistencia de dados financeiros entre reinicios e reduzir dependencia de blob JSON.
 - Impacto no backlog/sprint: Change `consoledegastos-postgres-finance-domain-tables` ficou com tasks tecnicas concluídas e base pronta para proximo ciclo de migração (agregados de IA/auditoria).
 - Referencias (arquivos/PR/issue): `ConsoleDeGastos/services/api/src/persistence.ts`, `ConsoleDeGastos/tests/integration/api-consoledegastos.integration.test.ts`, `openspec/changes/consoledegastos-postgres-finance-domain-tables/tasks.md`.
+
+## 2026-03-04 - Dockerizacao full-stack com comando unico no ConsoleDeGastos
+- Contexto: Apenas banco e cache estavam em Docker; API/Web/Mobile exigiam execucao manual fora do compose.
+- Decisao anterior: `infra:up` subia somente `postgres` e `redis`.
+- Decisao nova: Expandir compose para `postgres`, `redis`, `api`, `web` e `mobile-preview`, com healthchecks e scripts orientados a `1 comando`.
+- Motivo da mudanca: Permitir inspeção da stack completa com bootstrap simplificado.
+- Impacto no backlog/sprint: Ambiente local padronizado para subida integral via `corepack pnpm --dir ConsoleDeGastos infra:up`.
+- Referencias (arquivos/PR/issue): `ConsoleDeGastos/infra/docker/compose.yml`, `ConsoleDeGastos/docker/node-workspace.Dockerfile`, `ConsoleDeGastos/apps/web/src/server.ts`, `ConsoleDeGastos/apps/mobile/src/server.ts`, `openspec/changes/consoledegastos-dockerize-full-stack/tasks.md`.

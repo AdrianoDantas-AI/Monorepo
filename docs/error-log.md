@@ -235,3 +235,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: N/A.
 - Prevencao/acao futura: manter `verify` e `openspec validate --all` ao final de cada incremento do adapter Postgres.
 - Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/persistence.ts`, `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.
+
+## 2026-03-04 - `infra:up` falhou por daemon Docker indisponivel
+- Sintoma: `corepack pnpm --dir ConsoleDeGastos infra:up` falhou com erro no pipe `dockerDesktopLinuxEngine`.
+- Causa raiz: Docker Desktop Engine nao estava ativo/acessivel na sessao.
+- Correcao aplicada: Validacao estrutural feita com `docker compose ... config`; compose e scripts mantidos prontos para subida quando daemon estiver ativo.
+- Prevencao/acao futura: Garantir Docker Desktop iniciado antes de `infra:up` e validar com `docker compose version`.
+- Referencias (comando/arquivo): `corepack pnpm --dir ConsoleDeGastos infra:up`, `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config`.
