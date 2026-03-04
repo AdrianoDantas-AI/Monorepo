@@ -179,3 +179,17 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Troca da regex por verificacao direta com `detailHtml.includes(...)`.
 - Prevencao/acao futura: Para payloads HTML/JSON serializados em string, priorizar asserts por `includes` quando regex nao agrega ganho claro.
 - Referencias (comando/arquivo): `TNS/tests/integration/web-dashboard.integration.test.ts`, `corepack pnpm --dir TNS verify`.
+
+## 2026-03-04 - Falha ao criar scaffold em comando unico no PowerShell
+- Sintoma: Comando de geracao em lote retornou `O nome do arquivo ou a extensao e muito grande` (WinError 206).
+- Causa raiz: Tamanho total do comando ultrapassou limite de linha de comando do Windows.
+- Correcao aplicada: Quebra da geracao em blocos menores com `apply_patch`/comandos segmentados.
+- Prevencao/acao futura: Evitar payloads longos em comando unico; preferir criacao incremental de arquivos.
+- Referencias (comando/arquivo): tentativa de scaffold em `ConsoleDeGastos/services/api`.
+
+## 2026-03-04 - Scaffold parcial apos `openspec new change`
+- Sintoma: `openspec new change consoledegastos-mvp-full-screens-ai` criou apenas `.openspec.yaml`.
+- Causa raiz: Comportamento recorrente do OpenSpec CLI no ambiente atual para `new change`.
+- Correcao aplicada: Criacao manual de `proposal.md`, `design.md`, `tasks.md` e `specs/**/spec.md` no diretorio da change.
+- Prevencao/acao futura: Sempre validar conteudo da pasta apos `openspec new change` antes de seguir implementacao.
+- Referencias (comando/arquivo): `openspec/changes/consoledegastos-mvp-full-screens-ai/`.

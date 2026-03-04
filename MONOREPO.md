@@ -59,6 +59,17 @@ Campos obrigatorios por bloco:
 - `Ultima atualizacao`: A definir
 - `Documento de entrada`: /TNS/Codex-TNS.md
 
+### Projeto: ConsoleDeGastos
+- `Nome`: ConsoleDeGastos
+- `Pasta`: /ConsoleDeGastos
+- `Objetivo`: Monitor de gastos, previsoes e insights financeiros com Open Finance via Pluggy e assistente de IA.
+- `Status`: Em desenvolvimento
+- `Stack principal`: TypeScript, Next.js, React Native (Expo), Node.js (Fastify), PostgreSQL, Redis, OpenAI
+- `Responsavel`: Adriano Dantas
+- `Criado em`: 2026-03-04
+- `Ultima atualizacao`: 2026-03-04
+- `Documento de entrada`: /ConsoleDeGastos/Codex-ConsoleDeGastos.md
+
 ## 7. Template para Novo Cadastro
 Copie e preencha o bloco abaixo para cada novo projeto:
 

@@ -364,3 +364,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Entregar criterio de aceite do `S3-015` e consolidar o fluxo operacional no dashboard web.
 - Impacto no backlog/sprint: `S3-015` concluido; proxima task passa para `S3-016` (mapa em tempo real no dashboard).
 - Referencias (arquivos/PR/issue): `TNS/apps/web-dashboard/src/alerts-html.ts`, `TNS/apps/web-dashboard/src/server.ts`, `TNS/apps/web-dashboard/src/dashboard-html.ts`, `TNS/apps/web-dashboard/src/trip-detail-html.ts`, `TNS/tests/integration/web-dashboard.integration.test.ts`, `TNS/tests/unit/web-dashboard-state.unit.test.ts`, `openspec/changes/tns-dashboard-alerts-filters/`.
+
+## 2026-03-04 - ConsoleDeGastos isolado em projeto dedicado no monorepo
+- Contexto: Solicitacao explicita para implementar ConsoleDeGastos sem usar a pasta TNS por se tratar de produto diferente.
+- Decisao anterior: Aproveitar referencias tecnicas do TNS para padrao de scripts e estrutura.
+- Decisao nova: Implementar em branch dedicada (`feat/consoledegastos-mvp-foundation`) e criar workspace isolado em `/ConsoleDeGastos` sem alteracoes funcionais em `/TNS`.
+- Motivo da mudanca: Garantir segregacao de produto, backlog e ciclo tecnico independentes.
+- Impacto no backlog/sprint: Sprint 0 (fundacao) iniciada e validada com OpenSpec + scaffold tecnico + testes obrigatorios.
+- Referencias (arquivos/PR/issue): `MONOREPO.md`, `ConsoleDeGastos/**`, `openspec/changes/consoledegastos-mvp-full-screens-ai/**`.
