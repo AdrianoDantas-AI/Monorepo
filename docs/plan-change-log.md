@@ -420,3 +420,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Permitir inspeção da stack completa com bootstrap simplificado.
 - Impacto no backlog/sprint: Ambiente local padronizado para subida integral via `corepack pnpm --dir ConsoleDeGastos infra:up`.
 - Referencias (arquivos/PR/issue): `ConsoleDeGastos/infra/docker/compose.yml`, `ConsoleDeGastos/docker/node-workspace.Dockerfile`, `ConsoleDeGastos/apps/web/src/server.ts`, `ConsoleDeGastos/apps/mobile/src/server.ts`, `openspec/changes/consoledegastos-dockerize-full-stack/tasks.md`.
+
+## 2026-03-04 - Ajuste de bind da API para acesso externo via container
+- Contexto: Compose full-stack estava com containers saudáveis internamente, mas `localhost:4010` no host retornava conexão resetada.
+- Decisao anterior: API sempre iniciava com bind em `127.0.0.1`.
+- Decisao nova: Tornar host configurável (`HOST`) e usar `0.0.0.0` no serviço `api` do compose.
+- Motivo da mudanca: Permitir acesso ao endpoint da API pelo host com porta publicada do Docker.
+- Impacto no backlog/sprint: Stack dockerizada ficou realmente acessível externamente para conferência manual.
+- Referencias (arquivos/PR/issue): `ConsoleDeGastos/services/api/src/app.ts`, `ConsoleDeGastos/services/api/src/main.ts`, `ConsoleDeGastos/infra/docker/compose.yml`.

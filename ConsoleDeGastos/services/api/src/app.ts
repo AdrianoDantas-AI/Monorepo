@@ -26,6 +26,7 @@ export interface ApiServerRuntime {
 
 export interface StartApiServerOptions {
   persistence?: PersistenceAdapter;
+  host?: string;
 }
 
 const screenSet: Set<ScreenName> = new Set([
@@ -803,10 +804,11 @@ const createRequestHandler =
 
 export const startApiServer = async (port = 0, options: StartApiServerOptions = {}): Promise<ApiServerRuntime> => {
   const persistence = options.persistence ?? createMemoryPersistenceAdapter(createRuntimeStore());
+  const host = options.host ?? "127.0.0.1";
   const store = await persistence.load();
   const server = createServer(createRequestHandler(store, () => persistence.save(store), persistence.mode));
 
-  server.listen(port, "127.0.0.1");
+  server.listen(port, host);
   await once(server, "listening");
 
   const address = server.address();
@@ -815,7 +817,7 @@ export const startApiServer = async (port = 0, options: StartApiServerOptions = 
   }
 
   return {
-    baseUrl: `http://127.0.0.1:${address.port}`,
+    baseUrl: `http://${host === "0.0.0.0" ? "127.0.0.1" : host}:${address.port}`,
     store,
     persistence_mode: persistence.mode,
     close: async () => {

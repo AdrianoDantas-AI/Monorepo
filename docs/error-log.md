@@ -242,3 +242,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Validacao estrutural feita com `docker compose ... config`; compose e scripts mantidos prontos para subida quando daemon estiver ativo.
 - Prevencao/acao futura: Garantir Docker Desktop iniciado antes de `infra:up` e validar com `docker compose version`.
 - Referencias (comando/arquivo): `corepack pnpm --dir ConsoleDeGastos infra:up`, `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config`.
+
+## 2026-03-04 - API no container inacessivel externamente por bind local
+- Sintoma: `localhost:4010/health` retornava reset de conexão enquanto container `api` estava `healthy`.
+- Causa raiz: servidor HTTP da API escutava somente em `127.0.0.1` dentro do container.
+- Correcao aplicada: adicionado suporte a `HOST` no bootstrap da API e configurado `HOST=0.0.0.0` no compose.
+- Prevencao/acao futura: para serviços containerizados com portas publicadas, padronizar bind em `0.0.0.0`.
+- Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/app.ts`, `ConsoleDeGastos/services/api/src/main.ts`, `ConsoleDeGastos/infra/docker/compose.yml`, `Invoke-WebRequest http://localhost:4010/health`.
