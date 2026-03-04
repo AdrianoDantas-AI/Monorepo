@@ -207,3 +207,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: N/A.
 - Prevencao/acao futura: Validar sintaxe com `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config` antes de subir containers.
 - Referencias (comando/arquivo): `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config`, `ConsoleDeGastos/infra/docker/compose.yml`.
+
+## 2026-03-04 - Ciclo de migracao para persistencia por tabelas sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante na refatoracao do adapter Postgres para tabelas de dominio.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Manter `verify` + `openspec validate --all` em cada incremento de persistencia.
+- Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/persistence.ts`, `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.

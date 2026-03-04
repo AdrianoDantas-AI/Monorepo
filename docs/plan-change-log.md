@@ -388,3 +388,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Garantir ambiente reproducivel para evolucao das proximas sprints (sync OpenFinance, jobs e IA).
 - Impacto no backlog/sprint: Sprint 0 cobre baseline de infraestrutura local e reduz setup manual em novas maquinas.
 - Referencias (arquivos/PR/issue): `ConsoleDeGastos/infra/docker/compose.yml`, `ConsoleDeGastos/package.json`, `ConsoleDeGastos/README.md`, `ConsoleDeGastos/Codex-ConsoleDeGastos.md`.
+
+## 2026-03-04 - Persistencia Postgres evoluida para tabelas de dominio
+- Contexto: A API ja persistia estado em Postgres, mas com snapshot JSON unico para todo o runtime.
+- Decisao anterior: Salvar/ler todos os agregados no registro `consoledegastos_runtime_state`.
+- Decisao nova: Persistir `sessions`, `open_finance_connections` e `transactions` em tabelas dedicadas, mantendo snapshot auxiliar para agregados nao modelados.
+- Motivo da mudanca: Melhorar evolucao incremental do schema e reduzir acoplamento a blob unico.
+- Impacto no backlog/sprint: Base pronta para futuras migracoes de contas/categorias/faturas sem quebrar contratos atuais.
+- Referencias (arquivos/PR/issue): `ConsoleDeGastos/services/api/src/persistence.ts`, `openspec/changes/consoledegastos-postgres-domain-persistence/**`.
