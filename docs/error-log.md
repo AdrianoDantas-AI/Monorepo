@@ -228,3 +228,10 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: nova tentativa imediata de `git push`, concluída com sucesso.
 - Prevencao/acao futura: em erro de rede/transporte no push, repetir tentativa antes de iniciar troubleshooting local.
 - Referencias (comando/arquivo): `git push origin feat/consoledegastos-mvp-foundation`.
+
+## 2026-03-04 - Ciclo de persistencia financeira tabular sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante na migracao tabular de `accounts/categories/invoices/recurrents`.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: manter `verify` e `openspec validate --all` ao final de cada incremento do adapter Postgres.
+- Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/persistence.ts`, `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.

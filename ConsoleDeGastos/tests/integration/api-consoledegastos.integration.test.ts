@@ -213,3 +213,74 @@ test("transactions endpoint supports search, sorting and pagination", async () =
     await runtime.close();
   }
 });
+
+test("finance aggregate endpoints remain compatible for accounts, categories, invoices and recurrents", async () => {
+  const runtime = await startApiServer();
+
+  try {
+    const accountsResponse = await fetch(`${runtime.baseUrl}/api/v1/accounts`);
+    assert.equal(accountsResponse.status, 200);
+
+    const accountsPayload = (await accountsResponse.json()) as {
+      data: Array<{ id: string; name: string }>;
+      total: number;
+    };
+
+    assert.ok(accountsPayload.total >= 1);
+    const firstAccount = accountsPayload.data[0];
+
+    const patchAccountResponse = await fetch(`${runtime.baseUrl}/api/v1/accounts/${firstAccount.id}`, {
+      method: "PATCH",
+      headers: jsonHeaders,
+      body: JSON.stringify({ name: "Conta Atualizada Teste" }),
+    });
+    assert.equal(patchAccountResponse.status, 200);
+
+    const accountDetailResponse = await fetch(`${runtime.baseUrl}/api/v1/accounts/${firstAccount.id}`);
+    const accountDetailPayload = (await accountDetailResponse.json()) as {
+      data: { name: string };
+    };
+    assert.equal(accountDetailPayload.data.name, "Conta Atualizada Teste");
+
+    const createCategoryResponse = await fetch(`${runtime.baseUrl}/api/v1/categories`, {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({ name: "mercado", monthly_limit_brl: 800 }),
+    });
+    assert.equal(createCategoryResponse.status, 201);
+
+    const categoriesResponse = await fetch(`${runtime.baseUrl}/api/v1/categories`);
+    const categoriesPayload = (await categoriesResponse.json()) as {
+      data: Array<{ name: string }>;
+    };
+    assert.ok(categoriesPayload.data.some((item) => item.name === "mercado"));
+
+    const recurringPatchResponse = await fetch(`${runtime.baseUrl}/api/v1/recurrents/rec_1`, {
+      method: "PATCH",
+      headers: jsonHeaders,
+      body: JSON.stringify({ confirmed: true }),
+    });
+    assert.equal(recurringPatchResponse.status, 200);
+
+    const recurrentsResponse = await fetch(`${runtime.baseUrl}/api/v1/recurrents`);
+    const recurrentsPayload = (await recurrentsResponse.json()) as {
+      data: Array<{ id: string; confirmed: boolean }>;
+    };
+    assert.equal(recurrentsPayload.data.find((item) => item.id === "rec_1")?.confirmed, true);
+
+    const invoicesResponse = await fetch(`${runtime.baseUrl}/api/v1/invoices`);
+    assert.equal(invoicesResponse.status, 200);
+    const invoicesPayload = (await invoicesResponse.json()) as {
+      data: Array<{ id: string }>;
+      total: number;
+    };
+    assert.ok(invoicesPayload.total >= 1);
+
+    const invoiceTransactionsResponse = await fetch(
+      `${runtime.baseUrl}/api/v1/invoices/${invoicesPayload.data[0].id}/transactions`,
+    );
+    assert.equal(invoiceTransactionsResponse.status, 200);
+  } finally {
+    await runtime.close();
+  }
+});

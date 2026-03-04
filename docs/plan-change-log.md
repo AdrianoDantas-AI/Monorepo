@@ -404,3 +404,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Manter backlog OpenSpec segmentado por incrementos pequenos e mergeavel por etapa.
 - Impacto no backlog/sprint: Novo ciclo de persistencia tabular iniciado com artifacts completos e tasks pendentes prontas para execucao.
 - Referencias (arquivos/PR/issue): `openspec/changes/archive/2026-03-04-consoledegastos-postgres-domain-persistence/`, `openspec/specs/consoledegastos-postgres-domain-persistence/spec.md`, `openspec/changes/consoledegastos-postgres-finance-domain-tables/**`.
+
+## 2026-03-04 - Persistencia financeira tabular concluida no ConsoleDeGastos
+- Contexto: O adapter Postgres ainda dependia de snapshot auxiliar para agregados financeiros core.
+- Decisao anterior: Tabelas dedicadas apenas para `sessions`, `open_finance_connections` e `transactions`.
+- Decisao nova: Expandir modelo tabular para `accounts`, `categories`, `invoices` e `recurrents`, mantendo snapshot apenas para agregados nao modelados.
+- Motivo da mudanca: Consolidar consistencia de dados financeiros entre reinicios e reduzir dependencia de blob JSON.
+- Impacto no backlog/sprint: Change `consoledegastos-postgres-finance-domain-tables` ficou com tasks tecnicas concluídas e base pronta para proximo ciclo de migração (agregados de IA/auditoria).
+- Referencias (arquivos/PR/issue): `ConsoleDeGastos/services/api/src/persistence.ts`, `ConsoleDeGastos/tests/integration/api-consoledegastos.integration.test.ts`, `openspec/changes/consoledegastos-postgres-finance-domain-tables/tasks.md`.
