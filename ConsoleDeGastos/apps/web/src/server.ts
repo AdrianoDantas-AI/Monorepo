@@ -4,10 +4,16 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import {
   buildTransactionsCsv,
+  loadCashflowViewData,
   createManualTransaction,
   getOpenFinanceConnectionStatus,
   loadDashboardViewData,
+  loadInvoicesViewData,
+  loadRecurrentsViewData,
   loadTransactionsViewData,
+  parseCashflowPeriodFromQuery,
+  parseInvoicesMonthFromQuery,
+  parseRecurrentsFiltersFromQuery,
   parseTransactionFiltersFromQuery,
   recategorizeTransaction,
   startOpenFinanceConnection,
@@ -18,9 +24,12 @@ import {
 } from "./api.js";
 import { defaultProtectedPath, findWebRoute, isProtectedPath } from "./routes.js";
 import {
+  renderCashflowPage,
   renderComponentSandboxPage,
   renderDashboardPage,
+  renderInvoicesPage,
   renderLoginPage,
+  renderRecurrentsPage,
   renderModulePage,
   renderNotFoundPage,
   renderTransactionsPage,
@@ -238,6 +247,132 @@ const renderTransactions = async (
         showCreateForm,
         exporting,
         returnTo,
+      }),
+    );
+    return;
+  }
+};
+
+const renderRecurrents = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  apiBaseUrl: string,
+): Promise<void> => {
+  const session = await resolveSessionFromRequest(req, apiBaseUrl);
+  if (!session) {
+    redirect(res, "/login");
+    return;
+  }
+
+  const url = new URL(req.url ?? "/", "http://127.0.0.1");
+  const state = parseDashboardUiState(url.searchParams.get("state"));
+  const filters = parseRecurrentsFiltersFromQuery(url);
+
+  try {
+    const data = state === "loading" ? null : await loadRecurrentsViewData(apiBaseUrl, filters);
+    sendHtml(
+      res,
+      200,
+      renderRecurrentsPage(session, {
+        state,
+        data,
+        errorMessage: null,
+      }),
+    );
+    return;
+  } catch {
+    sendHtml(
+      res,
+      200,
+      renderRecurrentsPage(session, {
+        state: "error",
+        data: null,
+        errorMessage: "Nao foi possivel carregar os recorrentes.",
+      }),
+    );
+    return;
+  }
+};
+
+const renderCashflow = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  apiBaseUrl: string,
+): Promise<void> => {
+  const session = await resolveSessionFromRequest(req, apiBaseUrl);
+  if (!session) {
+    redirect(res, "/login");
+    return;
+  }
+
+  const url = new URL(req.url ?? "/", "http://127.0.0.1");
+  const state = parseDashboardUiState(url.searchParams.get("state"));
+  const period = parseCashflowPeriodFromQuery(url);
+
+  try {
+    const data = state === "loading" ? null : await loadCashflowViewData(apiBaseUrl, period);
+    sendHtml(
+      res,
+      200,
+      renderCashflowPage(session, {
+        state,
+        period,
+        data,
+        errorMessage: null,
+      }),
+    );
+    return;
+  } catch {
+    sendHtml(
+      res,
+      200,
+      renderCashflowPage(session, {
+        state: "error",
+        period,
+        data: null,
+        errorMessage: "Nao foi possivel carregar o fluxo de caixa.",
+      }),
+    );
+    return;
+  }
+};
+
+const renderInvoices = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  apiBaseUrl: string,
+): Promise<void> => {
+  const session = await resolveSessionFromRequest(req, apiBaseUrl);
+  if (!session) {
+    redirect(res, "/login");
+    return;
+  }
+
+  const url = new URL(req.url ?? "/", "http://127.0.0.1");
+  const state = parseDashboardUiState(url.searchParams.get("state"));
+  const monthRef = parseInvoicesMonthFromQuery(url);
+  const selectedInvoiceId = url.searchParams.get("invoice_id");
+
+  try {
+    const data = state === "loading" ? null : await loadInvoicesViewData(apiBaseUrl, monthRef, selectedInvoiceId);
+    sendHtml(
+      res,
+      200,
+      renderInvoicesPage(session, {
+        state,
+        data,
+        errorMessage: null,
+      }),
+    );
+    return;
+  } catch {
+    sendHtml(
+      res,
+      200,
+      renderInvoicesPage(session, {
+        state: "error",
+        data: null,
+        errorMessage: "Nao foi possivel carregar as faturas.",
       }),
     );
     return;
@@ -517,6 +652,21 @@ const createRequestHandler =
 
     if (pathname === "/app/transactions" && method === "GET") {
       await renderTransactions(req, res, apiBaseUrl);
+      return;
+    }
+
+    if (pathname === "/app/recurrents" && method === "GET") {
+      await renderRecurrents(req, res, apiBaseUrl);
+      return;
+    }
+
+    if (pathname === "/app/cashflow" && method === "GET") {
+      await renderCashflow(req, res, apiBaseUrl);
+      return;
+    }
+
+    if (pathname === "/app/invoices" && method === "GET") {
+      await renderInvoices(req, res, apiBaseUrl);
       return;
     }
 

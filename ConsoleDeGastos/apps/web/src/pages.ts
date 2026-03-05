@@ -1,10 +1,14 @@
 import type {
+  CashflowPeriod,
+  CashflowViewData,
   DashboardModalState,
   DashboardPeriod,
   DashboardUiState,
   DashboardViewData,
+  InvoicesViewData,
   OpenFinanceConnectionView,
   TransactionFilters,
+  RecurrentsViewData,
   TransactionsViewData,
 } from "./api.js";
 import type { WebRoute, WebSection } from "./routes.js";
@@ -46,6 +50,25 @@ export interface TransactionsRenderModel {
   returnTo: string;
 }
 
+export interface RecurrentsRenderModel {
+  state: DashboardUiState;
+  data: RecurrentsViewData | null;
+  errorMessage: string | null;
+}
+
+export interface CashflowRenderModel {
+  state: DashboardUiState;
+  period: CashflowPeriod;
+  data: CashflowViewData | null;
+  errorMessage: string | null;
+}
+
+export interface InvoicesRenderModel {
+  state: DashboardUiState;
+  data: InvoicesViewData | null;
+  errorMessage: string | null;
+}
+
 const formatCurrency = (value: number): string =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 2 }).format(value);
 
@@ -60,6 +83,22 @@ const formatSignedCurrency = (value: number): string => {
 
   return formatCurrency(0);
 };
+
+const formatPercent = (value: number): string => `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+
+const formatMonthRef = (monthRef: string): string => {
+  const parsed = new Date(`${monthRef}-01T00:00:00.000Z`);
+  if (Number.isNaN(parsed.getTime())) {
+    return monthRef;
+  }
+  return parsed.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const recurringStatusBadge = (confirmed: boolean): string =>
+  renderBadge({ label: confirmed ? "Confirmado" : "Pendente", tone: confirmed ? "success" : "warning" });
 
 const renderDocument = (title: string, body: string): string => `
 <!doctype html>
@@ -776,6 +815,419 @@ export const renderTransactionsPage = (session: WebSession, model: TransactionsR
   ${renderTransactionsTable(model)}
 </div>
 `,
+  });
+
+const renderRecurrentsFilters = (model: RecurrentsRenderModel): string => {
+  if (!model.data) {
+    return renderSkeleton(2);
+  }
+
+  const { type, month } = model.data.filters;
+  return `
+<div class="stack">
+  <div class="module-tabs">
+    <a class="dashboard-filter ${type === "expense" ? "is-active" : ""}" href="/app/recurrents?type=expense&month=${encodeURIComponent(month)}">Despesas</a>
+    <a class="dashboard-filter ${type === "income" ? "is-active" : ""}" href="/app/recurrents?type=income&month=${encodeURIComponent(month)}">Receitas</a>
+  </div>
+  <form class="transactions-filter-form" method="GET" action="/app/recurrents">
+    <input type="hidden" name="type" value="${type}" />
+    ${renderInput({
+      id: "recurrents-month",
+      name: "month",
+      label: "Mes de referencia",
+      type: "text",
+      value: month,
+      placeholder: "AAAA-MM",
+    })}
+    <div class="transactions-toolbar-actions">
+      <button class="ui-button ui-button--primary" type="submit"><span>Aplicar mes</span></button>
+      ${renderButton({ label: "Mes atual", href: `/app/recurrents?type=${type}`, variant: "ghost" })}
+    </div>
+  </form>
+</div>
+`;
+};
+
+const renderRecurrentsSummary = (model: RecurrentsRenderModel): string => {
+  if (!model.data) {
+    return renderCard({
+      title: "Resumo mensal de recorrentes",
+      subtitle: "Aguardando dados",
+      body: renderSkeleton(5),
+    });
+  }
+
+  const summary = model.data.summary;
+  const progress = Math.max(0, Math.min(100, summary.paid_pct));
+
+  return renderCard({
+    title: "Resumo mensal de recorrentes",
+    subtitle: formatMonthRef(model.data.filters.month),
+    body: `
+<div class="grid-2">
+  <div class="progress-ring" style="--progress:${progress};">
+    <div class="progress-ring__inner">
+      <strong>${progress.toFixed(1)}%</strong>
+      <span>pago</span>
+    </div>
+  </div>
+  <div class="stack">
+    <p class="metric">${formatCurrency(summary.paid_brl)} / ${formatCurrency(summary.expected_brl)}</p>
+    <p class="text-muted">Total pago vs previsto</p>
+    ${renderBadge({ label: `Restante ${formatCurrency(summary.remaining_brl)}`, tone: "info" })}
+    <div class="grid-2">
+      <div class="stack">
+        <strong>Parcelas</strong>
+        <p class="text-muted">${formatCurrency(summary.installments_paid_brl)} / ${formatCurrency(summary.installments_expected_brl)}</p>
+      </div>
+      <div class="stack">
+        <strong>Recorrentes</strong>
+        <p class="text-muted">${formatCurrency(summary.recurrents_paid_brl)} / ${formatCurrency(summary.recurrents_expected_brl)}</p>
+      </div>
+    </div>
+  </div>
+</div>
+`,
+  });
+};
+
+const renderRecurrentsList = (model: RecurrentsRenderModel): string => {
+  if (model.state === "loading") {
+    return renderCard({
+      title: "Recorrentes",
+      subtitle: "Carregando lista",
+      body: renderSkeleton(6),
+    });
+  }
+
+  if (model.state === "error" || !model.data) {
+    return renderErrorState({
+      title: "Falha ao carregar recorrentes",
+      description: model.errorMessage ?? "Nao foi possivel carregar os recorrentes.",
+      retryHref: "/app/recurrents",
+    });
+  }
+
+  if (model.data.groups.length === 0) {
+    return renderEmptyState({
+      title: "Nenhum recorrente encontrado",
+      description: "Sem recorrencias para o tipo e mes selecionados.",
+    });
+  }
+
+  return renderCard({
+    title: "Lancamentos recorrentes",
+    subtitle: `Agrupado por data (${model.data.groups.length} grupo(s))`,
+    body: `
+<div class="stack">
+  ${model.data.groups
+    .map(
+      (group) => `
+    <section class="recurrents-group">
+      <header class="recurrents-group__header">
+        <h3>${group.label}</h3>
+      </header>
+      <ul class="list-plain">
+        ${group.rows
+          .map(
+            (row) => `
+          <li class="recurrents-row">
+            <div>
+              <strong>${row.description}</strong>
+              <p class="text-muted">${row.progress_label} - vence ${row.due_date.slice(0, 10)}</p>
+            </div>
+            <div class="recurrents-row__meta">
+              ${recurringStatusBadge(row.confirmed)}
+              ${renderBadge({ label: `Restante ${formatCurrency(row.remaining_brl)}`, tone: row.remaining_brl > 0 ? "warning" : "success" })}
+              <span>${formatCurrency(row.amount_brl)}</span>
+            </div>
+          </li>
+        `,
+          )
+          .join("")}
+      </ul>
+    </section>
+  `,
+    )
+    .join("")}
+</div>
+`,
+  });
+};
+
+export const renderRecurrentsPage = (session: WebSession, model: RecurrentsRenderModel): string =>
+  renderShell({
+    activePath: "/app/recurrents",
+    pageTitle: "Recorrentes",
+    session,
+    contentHtml: `
+<div class="stack">
+  ${renderRecurrentsFilters(model)}
+  ${renderRecurrentsSummary(model)}
+  ${renderRecurrentsList(model)}
+</div>
+`,
+  });
+
+const renderCashflowFilters = (period: CashflowPeriod): string => `
+<div class="module-tabs">
+  <a class="dashboard-filter ${period === "last_30_days" ? "is-active" : ""}" href="/app/cashflow?period=last_30_days">30 dias</a>
+  <a class="dashboard-filter ${period === "last_3_months" ? "is-active" : ""}" href="/app/cashflow?period=last_3_months">3 meses</a>
+  <a class="dashboard-filter ${period === "ytd" ? "is-active" : ""}" href="/app/cashflow?period=ytd">YTD</a>
+</div>
+`;
+
+const renderCashflowMain = (model: CashflowRenderModel): string => {
+  if (model.state === "loading") {
+    return `
+<div class="stack">
+  ${renderCashflowFilters(model.period)}
+  ${renderCard({ title: "Fluxo consolidado", subtitle: "Carregando", body: renderSkeleton(6) })}
+</div>
+`;
+  }
+
+  if (model.state === "error" || !model.data) {
+    return renderErrorState({
+      title: "Falha ao carregar fluxo de caixa",
+      description: model.errorMessage ?? "Nao foi possivel montar os graficos agora.",
+      retryHref: "/app/cashflow",
+    });
+  }
+
+  const peak = Math.max(
+    1,
+    ...model.data.timeline.map((point) => Math.max(point.expenses_brl, point.incomes_brl)),
+  );
+  const trendTone = model.data.trend_direction === "up" ? "success" : model.data.trend_direction === "down" ? "warning" : "info";
+  const trendLabel = model.data.trend_direction === "up" ? "Tendencia de alta" : model.data.trend_direction === "down" ? "Tendencia de queda" : "Tendencia estavel";
+
+  return `
+<div class="stack">
+  ${renderCashflowFilters(model.period)}
+  ${renderCard({
+    title: "Fluxo consolidado",
+    subtitle: "Visao por periodo com tendencia",
+    body: `
+      <div class="stack">
+        <div class="grid-2">
+          <div class="stack">
+            <p class="metric">${formatCurrency(model.data.metrics.incomes_brl - model.data.metrics.expenses_brl)}</p>
+            ${renderBadge({ label: trendLabel, tone: trendTone })}
+          </div>
+          <div class="stack">
+            <p class="text-muted">Variacao consolidada</p>
+            <p class="metric">${formatPercent(model.data.metrics.variation_pct)}</p>
+          </div>
+        </div>
+        <div class="cashflow-timeline">
+          ${model.data.timeline
+            .map(
+              (point) => `
+            <div class="cashflow-timeline__row">
+              <span>${point.label}</span>
+              <div class="cashflow-bar cashflow-bar--income" style="width:${Math.max(4, (point.incomes_brl / peak) * 100)}%"></div>
+              <div class="cashflow-bar cashflow-bar--expense" style="width:${Math.max(4, (point.expenses_brl / peak) * 100)}%"></div>
+              <strong>${formatSignedCurrency(point.balance_brl)}</strong>
+            </div>
+          `,
+            )
+            .join("")}
+        </div>
+      </div>
+    `,
+  })}
+  <div class="grid-2">
+    ${renderCard({
+      title: "Gastos",
+      subtitle: `${formatCurrency(model.data.metrics.expenses_brl)} no periodo`,
+      body: `
+        <div class="stack">
+          ${renderBadge({ label: `Variacao ${formatPercent(model.data.metrics.variation_pct)}`, tone: model.data.metrics.variation_pct <= 0 ? "success" : "warning" })}
+          ${
+            model.data.expenses_breakdown.length === 0
+              ? `<p class="text-muted">Sem despesas para detalhamento.</p>`
+              : `<ul class="list-plain">
+                  ${model.data.expenses_breakdown
+                    .map(
+                      (item) => `
+                    <li>
+                      <div>
+                        <strong>${item.category}</strong>
+                        <p class="text-muted">${item.participation_pct.toFixed(1)}%</p>
+                      </div>
+                      <span>${formatCurrency(item.amount_brl)}</span>
+                    </li>
+                  `,
+                    )
+                    .join("")}
+                </ul>`
+          }
+          ${renderButton({ label: "Drilldown despesas", href: "/app/transactions?type=expense", variant: "ghost" })}
+        </div>
+      `,
+    })}
+    ${renderCard({
+      title: "Receitas",
+      subtitle: `${formatCurrency(model.data.metrics.incomes_brl)} no periodo`,
+      body: `
+        <div class="stack">
+          ${renderBadge({ label: "Entradas por categoria", tone: "success" })}
+          ${
+            model.data.incomes_breakdown.length === 0
+              ? `<p class="text-muted">Sem receitas para detalhamento.</p>`
+              : `<ul class="list-plain">
+                  ${model.data.incomes_breakdown
+                    .map(
+                      (item) => `
+                    <li>
+                      <div>
+                        <strong>${item.category}</strong>
+                        <p class="text-muted">${item.participation_pct.toFixed(1)}%</p>
+                      </div>
+                      <span>${formatCurrency(item.amount_brl)}</span>
+                    </li>
+                  `,
+                    )
+                    .join("")}
+                </ul>`
+          }
+          ${renderButton({ label: "Drilldown receitas", href: "/app/transactions?type=income", variant: "ghost" })}
+        </div>
+      `,
+    })}
+  </div>
+</div>
+`;
+};
+
+export const renderCashflowPage = (session: WebSession, model: CashflowRenderModel): string =>
+  renderShell({
+    activePath: "/app/cashflow",
+    pageTitle: "Fluxo de Caixa",
+    session,
+    contentHtml: renderCashflowMain(model),
+  });
+
+const renderInvoicesMain = (model: InvoicesRenderModel): string => {
+  if (model.state === "loading") {
+    return `
+<div class="stack">
+  ${renderCard({ title: "Faturas", subtitle: "Carregando", body: renderSkeleton(6) })}
+</div>
+`;
+  }
+
+  if (model.state === "error" || !model.data) {
+    return renderErrorState({
+      title: "Falha ao carregar faturas",
+      description: model.errorMessage ?? "Nao foi possivel carregar as faturas deste mes.",
+      retryHref: "/app/invoices",
+    });
+  }
+
+  const data = model.data;
+
+  return `
+<div class="stack">
+  <form class="transactions-filter-form" method="GET" action="/app/invoices">
+    ${renderInput({
+      id: "invoice-month",
+      name: "month",
+      label: "Mes de referencia",
+      value: data.month_ref,
+      placeholder: "AAAA-MM",
+    })}
+    <div class="transactions-toolbar-actions">
+      <button class="ui-button ui-button--primary" type="submit"><span>Aplicar</span></button>
+      ${renderButton({ label: "Mes atual", href: "/app/invoices", variant: "ghost" })}
+    </div>
+  </form>
+  ${renderCard({
+    title: "Total das faturas",
+    subtitle: formatMonthRef(data.month_ref),
+    body: `
+      <div class="grid-2">
+        <div class="stack">
+          <p class="metric">${formatCurrency(data.totals.total_brl)}</p>
+          <p class="text-muted">Soma mensal consolidada</p>
+        </div>
+        <div class="stack invoices-breakdown">
+          <div><span>Parcelas</span><strong>${formatCurrency(data.totals.installments_brl)}</strong></div>
+          <div><span>Recorrentes</span><strong>${formatCurrency(data.totals.recurring_brl)}</strong></div>
+          <div><span>Avulsas</span><strong>${formatCurrency(data.totals.one_off_brl)}</strong></div>
+        </div>
+      </div>
+    `,
+  })}
+  ${
+    data.invoices.length === 0
+      ? renderEmptyState({
+          title: "Nenhuma fatura encontrada",
+          description: "Nao existem faturas para o mes selecionado.",
+        })
+      : renderCard({
+          title: "Faturas por cartao",
+          subtitle: `${data.invoices.length} cartao(oes)`,
+          body: `
+            <ul class="list-plain">
+              ${data.invoices
+                .map(
+                  (invoice) => `
+                <li>
+                  <div>
+                    <strong>${invoice.card_name}</strong>
+                    <p class="text-muted">${formatCurrency(invoice.total_brl)} - ${invoice.month_ref}</p>
+                  </div>
+                  <div class="transactions-toolbar-actions">
+                    ${renderBadge({ label: `${formatCurrency(invoice.installments_brl)} parcelas`, tone: "warning" })}
+                    ${renderBadge({ label: `${formatCurrency(invoice.one_off_brl)} avulsas`, tone: "info" })}
+                    ${renderButton({
+                      label: "Ver transacoes",
+                      href: `/app/invoices?month=${encodeURIComponent(data.month_ref)}&invoice_id=${encodeURIComponent(invoice.id)}`,
+                      variant: data.selected_invoice_id === invoice.id ? "primary" : "secondary",
+                    })}
+                  </div>
+                </li>
+              `,
+                )
+                .join("")}
+            </ul>
+          `,
+        })
+  }
+  ${renderCard({
+    title: "Transacoes da fatura",
+    subtitle: data.selected_invoice_id ?? "Nenhuma fatura selecionada",
+    body:
+      data.selected_invoice_transactions.length === 0
+        ? `<p class="text-muted">Nenhuma transacao vinculada para exibir.</p>`
+        : `<ul class="list-plain">
+            ${data.selected_invoice_transactions
+              .map(
+                (transaction) => `
+              <li>
+                <div>
+                  <strong>${transaction.description}</strong>
+                  <p class="text-muted">${transaction.category} - ${transaction.date.slice(0, 10)}</p>
+                </div>
+                <span class="${transaction.type === "income" ? "is-positive" : "is-negative"}">${formatCurrency(transaction.amount_brl)}</span>
+              </li>
+            `,
+              )
+              .join("")}
+          </ul>`,
+  })}
+</div>
+`;
+};
+
+export const renderInvoicesPage = (session: WebSession, model: InvoicesRenderModel): string =>
+  renderShell({
+    activePath: "/app/invoices",
+    pageTitle: "Faturas",
+    session,
+    contentHtml: renderInvoicesMain(model),
   });
 
 export const renderModulePage = (route: WebRoute, session: WebSession): string =>

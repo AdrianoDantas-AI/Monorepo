@@ -452,3 +452,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Melhorar rastreabilidade, reduzir risco por lote grande e acelerar feedback de revisão.
 - Impacto no backlog/sprint: Cada sprint passa a encerrar com pacote fechado (código + testes + OpenSpec + PR + checks).
 - Referencias (arquivos/PR/issue): `docs/plan-change-log.md`, `PR #13`.
+
+## 2026-03-05 - Sprint 4 do ConsoleDeGastos executada com telas reais core
+- Contexto: Inicio da Sprint 4 do change `consoledegastos-real-ui-screens-plan` para fechar Recorrentes, Fluxo de Caixa e Faturas na Web.
+- Decisao anterior: Rotas `/app/recurrents`, `/app/cashflow` e `/app/invoices` usavam placeholder genérico do shell.
+- Decisao nova: Implementar renderização real por módulo com loaders dedicados, estados loading/error/empty e testes unit+integration específicos.
+- Motivo da mudanca: Cumprir tasks 4.1-4.8 com valor funcional visível e manter ciclo incremental por sprint.
+- Impacto no backlog/sprint: Sprint 4 concluída; próximas entregas seguem para Sprint 5 (Contas + Drawer + Categorias).
+- Referencias (arquivos/PR/issue): `ConsoleDeGastos/apps/web/src/api.ts`, `ConsoleDeGastos/apps/web/src/pages.ts`, `ConsoleDeGastos/apps/web/src/server.ts`, `ConsoleDeGastos/tests/unit/web-shell.unit.test.ts`, `ConsoleDeGastos/tests/integration/web-shell-navigation.integration.test.ts`, `openspec/changes/consoledegastos-real-ui-screens-plan/tasks.md`.

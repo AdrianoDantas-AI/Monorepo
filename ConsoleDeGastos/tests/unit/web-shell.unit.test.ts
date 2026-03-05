@@ -1,9 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  renderCashflowPage,
   renderComponentSandboxPage,
   renderDashboardPage,
+  renderInvoicesPage,
   renderModulePage,
+  renderRecurrentsPage,
   renderTransactionsPage,
 } from "../../apps/web/src/pages.js";
 import { defaultProtectedPath, webRoutes } from "../../apps/web/src/routes.js";
@@ -232,4 +235,150 @@ test("transactions page renders filters, metrics and table rows", () => {
   assert.ok(html.includes("Uber"));
   assert.ok(html.includes("Gerando CSV"));
   assert.ok(html.includes("Criar transacao manual"));
+});
+
+test("recurrents page renders tabs, monthly ring and grouped rows", () => {
+  const html = renderRecurrentsPage(sessionFixture, {
+    state: "ready",
+    errorMessage: null,
+    data: {
+      filters: {
+        type: "expense",
+        month: "2026-03",
+      },
+      summary: {
+        paid_brl: 39.9,
+        expected_brl: 478.8,
+        remaining_brl: 438.9,
+        paid_pct: 8.3,
+        installments_paid_brl: 39.9,
+        installments_expected_brl: 478.8,
+        recurrents_paid_brl: 0,
+        recurrents_expected_brl: 0,
+      },
+      groups: [
+        {
+          due_date: "2026-03-10",
+          label: "ter., 10 de marco",
+          rows: [
+            {
+              id: "rec_1",
+              description: "Streaming",
+              amount_brl: 39.9,
+              type: "expense",
+              progress_label: "1/12",
+              due_date: "2026-03-10",
+              confirmed: false,
+              paid_brl: 0,
+              expected_total_brl: 478.8,
+              remaining_brl: 478.8,
+            },
+          ],
+        },
+      ],
+    },
+  });
+
+  assert.ok(html.includes("Resumo mensal de recorrentes"));
+  assert.ok(html.includes("Despesas"));
+  assert.ok(html.includes("Receitas"));
+  assert.ok(html.includes("progress-ring"));
+  assert.ok(html.includes("Streaming"));
+});
+
+test("cashflow page renders trend and category breakdown", () => {
+  const html = renderCashflowPage(sessionFixture, {
+    state: "ready",
+    period: "last_3_months",
+    errorMessage: null,
+    data: {
+      period: "last_3_months",
+      metrics: {
+        period: "last_3_months",
+        expenses_brl: 280.5,
+        incomes_brl: 520,
+        variation_pct: 85.4,
+      },
+      trend_direction: "up",
+      timeline: [
+        {
+          key: "2026-02",
+          label: "fev. de 26",
+          expenses_brl: 140.25,
+          incomes_brl: 260,
+          balance_brl: 119.75,
+        },
+        {
+          key: "2026-03",
+          label: "mar. de 26",
+          expenses_brl: 140.25,
+          incomes_brl: 260,
+          balance_brl: 119.75,
+        },
+      ],
+      expenses_breakdown: [
+        {
+          category: "taxi_apps",
+          amount_brl: 140.25,
+          participation_pct: 50,
+        },
+      ],
+      incomes_breakdown: [
+        {
+          category: "transferencias",
+          amount_brl: 520,
+          participation_pct: 100,
+        },
+      ],
+    },
+  });
+
+  assert.ok(html.includes("Fluxo consolidado"));
+  assert.ok(html.includes("Tendencia de alta"));
+  assert.ok(html.includes("Drilldown despesas"));
+  assert.ok(html.includes("Drilldown receitas"));
+});
+
+test("invoices page renders monthly breakdown and invoice drilldown", () => {
+  const html = renderInvoicesPage(sessionFixture, {
+    state: "ready",
+    errorMessage: null,
+    data: {
+      month_ref: "2026-02",
+      totals: {
+        total_brl: 3327.39,
+        installments_brl: 34.97,
+        recurring_brl: 0,
+        one_off_brl: 3292.42,
+      },
+      invoices: [
+        {
+          id: "inv_2026_02_1",
+          card_name: "Cartao BTG BLACK",
+          month_ref: "2026-02",
+          total_brl: 3327.39,
+          installments_brl: 34.97,
+          recurring_brl: 0,
+          one_off_brl: 3292.42,
+        },
+      ],
+      selected_invoice_id: "inv_2026_02_1",
+      selected_invoice_transactions: [
+        {
+          id: "tx_1",
+          description: "Uber",
+          amount_brl: 7.91,
+          type: "expense",
+          category: "taxi_apps",
+          account_id: "acc_bank_1",
+          date: "2026-03-03T11:42:00.000Z",
+        },
+      ],
+    },
+  });
+
+  assert.ok(html.includes("Total das faturas"));
+  assert.ok(html.includes("Cartao BTG BLACK"));
+  assert.ok(html.includes("Transacoes da fatura"));
+  assert.ok(html.includes("Uber"));
 });

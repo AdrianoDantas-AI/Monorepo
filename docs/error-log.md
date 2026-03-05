@@ -277,3 +277,17 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Ajuste para `attachment; filename="${filename}"` sem escapes redundantes no codigo TypeScript.
 - Prevencao/acao futura: Revisar headers string-template sob regra `no-useless-escape` antes de rodar lint completo.
 - Referencias (comando/arquivo): `ConsoleDeGastos/apps/web/src/server.ts`, `corepack pnpm --dir ConsoleDeGastos verify`.
+
+## 2026-03-05 - Typecheck falhou na Sprint 4 por narrowing de `model.data` em callback
+- Sintoma: `corepack pnpm --dir ConsoleDeGastos verify` falhou em `apps/web` com `TS18047: 'model.data' is possibly 'null'` na renderizacao de faturas.
+- Causa raiz: Narrowing de null-check nao foi preservado dentro do callback `.map()` no template da tela de faturas.
+- Correcao aplicada: Introduzido alias local `const data = model.data` apos o guard de erro/null e substituidas referencias internas por `data`.
+- Prevencao/acao futura: Em renderizadores com template string + callbacks, capturar valor não nulo em variável local antes de interpolar.
+- Referencias (comando/arquivo): `ConsoleDeGastos/apps/web/src/pages.ts`, `corepack pnpm --dir ConsoleDeGastos verify`.
+
+## 2026-03-05 - `rg` indisponivel na sessao por permissao de execucao
+- Sintoma: Busca com `rg` falhou com `Acesso negado` ao iniciar `rg.exe` empacotado na sessão.
+- Causa raiz: Restricao de permissao de execução para o binário `rg` no ambiente atual.
+- Correcao aplicada: Fallback para `Get-ChildItem + Select-String` nas buscas de texto.
+- Prevencao/acao futura: Em falha de `rg`, usar imediatamente fallback PowerShell para manter continuidade da execução.
+- Referencias (comando/arquivo): comando `rg -n ...` na raiz do monorepo.

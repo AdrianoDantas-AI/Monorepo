@@ -33,14 +33,14 @@
 
 ## 4. Sprint 4 - Recorrentes + Fluxo de Caixa + Faturas
 
-- [ ] 4.1 Implementar Recorrentes com abas Despesas/Receitas.
-- [ ] 4.2 Implementar anel de progresso mensal (pago vs previsto).
-- [ ] 4.3 Implementar lista por data com progresso de parcela.
-- [ ] 4.4 Implementar Fluxo de Caixa com grafico consolidado e tendencia.
-- [ ] 4.5 Implementar cards de gastos/receitas com variacao percentual.
-- [ ] 4.6 Implementar Faturas com breakdown mensal.
-- [ ] 4.7 Implementar cards por cartao com drilldown.
-- [ ] 4.8 Adicionar integration/E2E dos tres modulos.
+- [x] 4.1 Implementar Recorrentes com abas Despesas/Receitas.
+- [x] 4.2 Implementar anel de progresso mensal (pago vs previsto).
+- [x] 4.3 Implementar lista por data com progresso de parcela.
+- [x] 4.4 Implementar Fluxo de Caixa com grafico consolidado e tendencia.
+- [x] 4.5 Implementar cards de gastos/receitas com variacao percentual.
+- [x] 4.6 Implementar Faturas com breakdown mensal.
+- [x] 4.7 Implementar cards por cartao com drilldown.
+- [x] 4.8 Adicionar integration/E2E dos tres modulos.
 
 ## 5. Sprint 5 - Contas + Drawer + Categorias
 

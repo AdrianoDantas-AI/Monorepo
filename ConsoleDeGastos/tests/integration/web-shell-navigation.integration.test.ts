@@ -251,3 +251,65 @@ test("transactions screen supports filter, pagination, manual create, recategori
     await api.close();
   }
 });
+
+test("recurrents, cashflow and invoices render real modules with loading and drilldown", async () => {
+  const api = await startApiServer();
+  const web = await startWebServer({
+    host: "127.0.0.1",
+    port: 0,
+    apiBaseUrl: api.baseUrl,
+  });
+
+  try {
+    const authCookie = await loginAndGetCookie(web.baseUrl);
+
+    const recurrentsResponse = await fetch(`${web.baseUrl}/app/recurrents?type=expense&month=2026-03`, {
+      headers: { cookie: authCookie },
+    });
+    assert.equal(recurrentsResponse.status, 200);
+    const recurrentsHtml = await recurrentsResponse.text();
+    assert.ok(recurrentsHtml.includes("Resumo mensal de recorrentes"));
+    assert.ok(recurrentsHtml.includes("Streaming"));
+
+    const recurrentsIncomeResponse = await fetch(`${web.baseUrl}/app/recurrents?type=income&month=2026-03`, {
+      headers: { cookie: authCookie },
+    });
+    const recurrentsIncomeHtml = await recurrentsIncomeResponse.text();
+    assert.ok(recurrentsIncomeHtml.includes("Nenhum recorrente encontrado"));
+
+    const cashflowResponse = await fetch(`${web.baseUrl}/app/cashflow?period=last_3_months`, {
+      headers: { cookie: authCookie },
+    });
+    assert.equal(cashflowResponse.status, 200);
+    const cashflowHtml = await cashflowResponse.text();
+    assert.ok(cashflowHtml.includes("Fluxo consolidado"));
+    assert.ok(cashflowHtml.includes("Drilldown despesas"));
+
+    const cashflowLoadingResponse = await fetch(`${web.baseUrl}/app/cashflow?period=last_3_months&state=loading`, {
+      headers: { cookie: authCookie },
+    });
+    const cashflowLoadingHtml = await cashflowLoadingResponse.text();
+    assert.ok(cashflowLoadingHtml.includes("Carregando"));
+
+    const invoicesResponse = await fetch(`${web.baseUrl}/app/invoices?month=2026-02`, {
+      headers: { cookie: authCookie },
+    });
+    assert.equal(invoicesResponse.status, 200);
+    const invoicesHtml = await invoicesResponse.text();
+    assert.ok(invoicesHtml.includes("Total das faturas"));
+    assert.ok(invoicesHtml.includes("Cartao BTG BLACK"));
+
+    const invoicesDetailsResponse = await fetch(
+      `${web.baseUrl}/app/invoices?month=2026-02&invoice_id=inv_2026_02_1`,
+      {
+        headers: { cookie: authCookie },
+      },
+    );
+    const invoicesDetailsHtml = await invoicesDetailsResponse.text();
+    assert.ok(invoicesDetailsHtml.includes("Transacoes da fatura"));
+    assert.ok(invoicesDetailsHtml.includes("Uber"));
+  } finally {
+    await web.close();
+    await api.close();
+  }
+});
