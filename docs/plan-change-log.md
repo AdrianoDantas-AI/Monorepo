@@ -444,3 +444,11 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Aumentar confianca de release com validacao funcional e visual em ambiente dockerizado real.
 - Impacto no backlog/sprint: Roadmap passou de 10 para 11 sprints, com 15 novas tasks de QA automatizado real e gates explicitos de merge/release.
 - Referencias (arquivos/PR/issue): `openspec/changes/consoledegastos-real-ui-screens-plan/tasks.md`, `openspec/changes/consoledegastos-real-ui-screens-plan/design.md`, `openspec/changes/consoledegastos-real-ui-screens-plan/specs/consoledegastos-ui-playwright-real-tests/spec.md`.
+
+## 2026-03-05 - Entrega incremental obrigatoria por sprint no ConsoleDeGastos
+- Contexto: Solicitação do responsável para isolar entrega e revisão contínua do projeto.
+- Decisao anterior: Commits e PRs podiam agrupar múltiplas sprints no mesmo ciclo.
+- Decisao nova: Padronizar `1 sprint = 1 commit + 1 PR`, com verificação de erros/checks de CI ao final de cada sprint.
+- Motivo da mudanca: Melhorar rastreabilidade, reduzir risco por lote grande e acelerar feedback de revisão.
+- Impacto no backlog/sprint: Cada sprint passa a encerrar com pacote fechado (código + testes + OpenSpec + PR + checks).
+- Referencias (arquivos/PR/issue): `docs/plan-change-log.md`, `PR #13`.
