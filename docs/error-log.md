@@ -249,3 +249,31 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: adicionado suporte a `HOST` no bootstrap da API e configurado `HOST=0.0.0.0` no compose.
 - Prevencao/acao futura: para serviços containerizados com portas publicadas, padronizar bind em `0.0.0.0`.
 - Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/app.ts`, `ConsoleDeGastos/services/api/src/main.ts`, `ConsoleDeGastos/infra/docker/compose.yml`, `Invoke-WebRequest http://localhost:4010/health`.
+
+## 2026-03-04 - Ciclo de planejamento UI real sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante durante criacao do planejamento detalhado do restante do ConsoleDeGastos.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Manter `openspec validate --all` apos ajustes de escopo e revisar tasks por sprint antes de iniciar implementacao.
+- Referencias (comando/arquivo): `openspec/changes/consoledegastos-real-ui-screens-plan/tasks.md`, `openspec list --json`.
+
+## 2026-03-04 - Atualizacao de plano com sprint Playwright sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante ao atualizar o change para incluir sprint extra de testes reais via MCP Playwright.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Manter `openspec validate --all` a cada ajuste de escopo e revisar coerencia entre `proposal`, `design`, `tasks` e `specs`.
+- Referencias (comando/arquivo): `openspec/changes/consoledegastos-real-ui-screens-plan/*`, `openspec validate --all`.
+
+## 2026-03-04 - Typecheck falhou no web shell por sessao anulavel em rotas protegidas
+- Sintoma: `corepack pnpm --dir ConsoleDeGastos verify` falhou em `apps/web` com `TS2345` ao renderizar paginas protegidas com `session` potencialmente `null`.
+- Causa raiz: O TypeScript nao conseguiu inferir non-null de sessao mesmo apos guard generico por pathname.
+- Correcao aplicada: Guard explicito por rota em `server.ts` antes de chamar `renderComponentSandboxPage` e `renderModulePage`.
+- Prevencao/acao futura: Em handlers HTTP com narrowing por caminho, manter verificacao local nao anulavel antes de chamar renderizadores tipados.
+- Referencias (comando/arquivo): `ConsoleDeGastos/apps/web/src/server.ts`, `corepack pnpm --dir ConsoleDeGastos verify`.
+
+## 2026-03-05 - Lint falhou no web server por escape desnecessario no header CSV
+- Sintoma: `corepack pnpm --dir ConsoleDeGastos verify` falhou em `apps/web` com `no-useless-escape` na string de `content-disposition`.
+- Causa raiz: Aspas escapadas de forma desnecessaria no template literal de header HTTP.
+- Correcao aplicada: Ajuste para `attachment; filename="${filename}"` sem escapes redundantes no codigo TypeScript.
+- Prevencao/acao futura: Revisar headers string-template sob regra `no-useless-escape` antes de rodar lint completo.
+- Referencias (comando/arquivo): `ConsoleDeGastos/apps/web/src/server.ts`, `corepack pnpm --dir ConsoleDeGastos verify`.

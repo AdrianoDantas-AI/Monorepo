@@ -428,3 +428,19 @@ Este arquivo registra mudancas de plano e o motivo de cada mudanca.
 - Motivo da mudanca: Permitir acesso ao endpoint da API pelo host com porta publicada do Docker.
 - Impacto no backlog/sprint: Stack dockerizada ficou realmente acessível externamente para conferência manual.
 - Referencias (arquivos/PR/issue): `ConsoleDeGastos/services/api/src/app.ts`, `ConsoleDeGastos/services/api/src/main.ts`, `ConsoleDeGastos/infra/docker/compose.yml`.
+
+## 2026-03-04 - Planejamento end-to-end das telas reais do ConsoleDeGastos
+- Contexto: O change `consoledegastos-mvp-full-screens-ai` foi concluido com foco de fundacao e contratos, mas faltava o planejamento detalhado de UI real (web/mobile) por sprint.
+- Decisao anterior: Manter planejamento consolidado em tasks de alto nivel ja marcadas como concluidas.
+- Decisao nova: Abrir change dedicado `consoledegastos-real-ui-screens-plan` com microtasks de ponta a ponta ate release MVP visual.
+- Motivo da mudanca: Dar visibilidade operacional do restante da entrega (tela real) com granularidade por modulo e dependencia.
+- Impacto no backlog/sprint: Novo backlog ativo com 76 tasks distribuidas em 9 sprints + governanca, cobrindo shell, Open Finance, telas core, telas estrategicas, IA, parity mobile e hardening.
+- Referencias (arquivos/PR/issue): `openspec/changes/consoledegastos-real-ui-screens-plan/proposal.md`, `openspec/changes/consoledegastos-real-ui-screens-plan/design.md`, `openspec/changes/consoledegastos-real-ui-screens-plan/tasks.md`.
+
+## 2026-03-04 - Inclusao de sprint extra MCP Playwright no roadmap do ConsoleDeGastos
+- Contexto: O change `consoledegastos-real-ui-screens-plan` cobria telas reais e hardening, sem sprint dedicada exclusiva para teste real automatizado.
+- Decisao anterior: Encerrar qualidade no hardening e governanca final.
+- Decisao nova: Inserir Sprint 10 dedicada a testes reais web com MCP Playwright (smoke PR, full nightly e visual regression), mantendo governanca no Sprint 11.
+- Motivo da mudanca: Aumentar confianca de release com validacao funcional e visual em ambiente dockerizado real.
+- Impacto no backlog/sprint: Roadmap passou de 10 para 11 sprints, com 15 novas tasks de QA automatizado real e gates explicitos de merge/release.
+- Referencias (arquivos/PR/issue): `openspec/changes/consoledegastos-real-ui-screens-plan/tasks.md`, `openspec/changes/consoledegastos-real-ui-screens-plan/design.md`, `openspec/changes/consoledegastos-real-ui-screens-plan/specs/consoledegastos-ui-playwright-real-tests/spec.md`.

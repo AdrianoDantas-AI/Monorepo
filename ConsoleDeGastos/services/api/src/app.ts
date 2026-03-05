@@ -98,6 +98,19 @@ const parsePositiveInt = (value: string | null, fallback: number): number => {
   return parsed;
 };
 
+const parseTimestamp = (value: string | null): number | null => {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+
+  return parsed;
+};
+
 const buildDashboard = (store: RuntimeStore) => {
   const expenses = store.transactions.filter((item) => item.type === "expense").reduce((sum, item) => sum + item.amount_brl, 0);
   const incomes = store.transactions.filter((item) => item.type === "income").reduce((sum, item) => sum + item.amount_brl, 0);
@@ -407,8 +420,11 @@ const createRequestHandler =
 
   if (pathname === "/api/v1/transactions" && method === "GET") {
     const categoryFilter = url.searchParams.get("category");
+    const accountFilter = url.searchParams.get("account_id");
     const typeFilter = url.searchParams.get("type");
     const searchQuery = (url.searchParams.get("q") ?? "").trim().toLowerCase();
+    const fromTimestamp = parseTimestamp(url.searchParams.get("from"));
+    const toTimestamp = parseTimestamp(url.searchParams.get("to"));
     const sort = url.searchParams.get("sort") ?? "date_desc";
     const page = parsePositiveInt(url.searchParams.get("page"), 1);
     const pageSize = Math.min(parsePositiveInt(url.searchParams.get("page_size"), 15), 100);
@@ -420,8 +436,23 @@ const createRequestHandler =
     if (typeFilter === "income" || typeFilter === "expense") {
       rows = rows.filter((item) => item.type === typeFilter);
     }
+    if (accountFilter) {
+      rows = rows.filter((item) => item.account_id === accountFilter);
+    }
     if (searchQuery) {
       rows = rows.filter((item) => item.description.toLowerCase().includes(searchQuery));
+    }
+    if (fromTimestamp !== null) {
+      rows = rows.filter((item) => {
+        const dateValue = Date.parse(item.date);
+        return Number.isNaN(dateValue) ? false : dateValue >= fromTimestamp;
+      });
+    }
+    if (toTimestamp !== null) {
+      rows = rows.filter((item) => {
+        const dateValue = Date.parse(item.date);
+        return Number.isNaN(dateValue) ? false : dateValue <= toTimestamp;
+      });
     }
 
     rows.sort((left, right) => {
