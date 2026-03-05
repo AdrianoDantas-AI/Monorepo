@@ -6,6 +6,7 @@
 3. Se o projeto nao estiver cadastrado, registrar primeiro no `MONOREPO.md` e so depois atuar no projeto.
 4. Ao criar um projeto novo, atualizar o `MONOREPO.md` no mesmo ciclo de trabalho.
 5. Toda mudanca de codigo deve incluir testes de `unit` e `integration` relacionados.
+6. Para mudancas relevantes, abrir e manter artefatos OpenSpec em `openspec/` durante o ciclo.
 
 Documento central obrigatorio:
 - [MONOREPO.md](C:/Users/Adriano%20Dantas/Monorepo/MONOREPO.md)
@@ -42,3 +43,15 @@ Checklist de fechamento do agente:
 - Houve mitigacao/prevecao? Registrar junto na mesma entrada.
 - `unit` e `integration` foram adicionados/atualizados para a mudanca?
 - `corepack pnpm --dir TNS verify` passou com os testes?
+
+## OpenSpec Workflow (Obrigatorio para mudancas relevantes)
+1. Criar change: `openspec new change <nome-kebab-case>`.
+2. Preencher: `proposal.md`, `design.md`, `specs/**/spec.md`, `tasks.md`.
+3. Validar: `openspec validate --all`.
+4. Implementar tasks e atualizar checkboxes.
+5. Arquivar: `openspec archive <change-name> -y`.
+
+Referencias locais:
+- `openspec/README.md`
+- `openspec/specs/`
+- `openspec/changes/archive/`

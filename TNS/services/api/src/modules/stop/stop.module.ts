@@ -10,6 +10,10 @@ export class StopModule {
       throw new TypeError("Stop invalido: order deve ser inteiro >= 0.");
     }
 
+    if (!input.location || typeof input.location !== "object") {
+      throw new TypeError("Stop invalido: location obrigatoria.");
+    }
+
     if (!Number.isFinite(input.location.lat) || !Number.isFinite(input.location.lng)) {
       throw new TypeError("Stop invalido: location.lat/lng devem ser numericos.");
     }

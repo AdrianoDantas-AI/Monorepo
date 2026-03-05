@@ -450,7 +450,25 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 
 - [x] `S2-001` Criar módulos `Trip`, `Stop`, `Leg`, `RoutePlan`, `RouteTrack` no `services/api`.
 - [x] `S2-002` Expandir schema Prisma com entidades de viagem + migration SQL inicial.
-- [ ] `S2-003` em diante (pendente).
+- [x] `S2-003` Criar migration SQL para índices geoespaciais essenciais.
+- [x] `S2-004` Criar seed de dados para trips/stops demo (idempotente, com dry-run e testes).
+- [x] `S2-005` Definir `TripDTO/StopDTO/LegDTO` versionados (`v1`) em `packages/contracts`.
+- [x] `S2-006` Adicionar testes de contrato com snapshots estáveis para DTOs de viagem.
+- [x] `S2-007` Implementar `POST /api/v1/trips` com tenant scoping e teste de conflito.
+- [x] `S2-008` Implementar `GET /api/v1/trips/:tripId` com scoping de tenant.
+- [x] `S2-009` Implementar `POST /api/v1/trips/:tripId/stops/optimize` com estratégia `nearest-neighbor-v1`.
+- [x] `S2-010` Gerar `Legs` com `polyline` e métricas persistidas no `route_plan` durante otimização.
+- [x] `S2-011` Criar selector runtime de `MapProvider` (`mock`/`mapbox`) por env `MAP_PROVIDER_MODE`.
+- [x] `S2-012` Implementar `MapboxMapProvider` mínimo (directions + geocoding) com `fetch` injetável.
+- [x] `S2-013` Aplicar fallback automático para `mock` quando `MAPBOX_ACCESS_TOKEN` estiver ausente.
+- [x] `S2-014` Implementar `POST /api/v1/trips/:tripId/start` com mudança de status para `active`.
+- [x] `S2-015` Implementar deep links (Google/Waze) da próxima parada via `GET /api/v1/trips/:tripId/deep-links/next-stop`.
+- [x] `S2-016` Persistir baseline de ETA/distância por leg (`baseline_eta_s` e `baseline_distance_m`).
+- [x] `S2-017` Consolidar teste de integração do fluxo criar trip -> otimizar -> gerar legs.
+- [x] `S2-018` Adicionar logs estruturados de viagem com `tenant_id`/`trip_id`.
+- [x] `S2-019` Expor métricas de latência por endpoint em `GET /ops/metrics`.
+- [x] `S2-020` Documentar API de trips via OpenAPI (`/openapi.json`) e Swagger (`/docs`).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-trip-observability-metrics/`.
 
 ### Mudanças importantes em APIs/interfaces/tipos públicos (Sprint 2-4)
 
@@ -458,12 +476,14 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 2. `POST /api/v1/trips/:tripId/stops/optimize`
 3. `GET /api/v1/trips/:tripId`
 4. `POST /api/v1/trips/:tripId/start`
-5. `GET /api/v1/trips/:tripId/progress` (solidificado com cálculo real)
-6. `GET /api/v1/alerts` (filtros por tenant/trip/severidade/status)
-7. `GET /ops/release-status` (finalizado para operação local)
-8. WebSocket channels `trip.progress.v1` e `alert.event.v1`
-9. Contratos `TripDTO`, `StopDTO`, `LegDTO`, `RoutePlanDTO`, `RouteTrackDTO`, `AlertEventV1`, `ReleaseStatusDTO`
-10. Interface `MapProvider` com modo `mock` e `mapbox` via feature flag (`MAP_PROVIDER_MODE`)
+5. `GET /api/v1/trips/:tripId/deep-links/next-stop`
+6. `GET /api/v1/trips/:tripId/progress` (solidificado com cálculo real)
+7. `GET /api/v1/alerts` (filtros por tenant/trip/severidade/status)
+8. `GET /ops/release-status` (finalizado para operação local)
+9. `GET /ops/metrics` (latência agregada por endpoint)
+10. WebSocket channels `trip.progress.v1` e `alert.event.v1`
+11. Contratos `TripDTO`, `StopDTO`, `LegDTO`, `RoutePlanDTO`, `RouteTrackDTO`, `NextStopDeepLinksDTO`, `AlertEventV1`, `ReleaseStatusDTO`
+12. Interface `MapProvider` com modo `mock` e `mapbox` via feature flag (`MAP_PROVIDER_MODE`)
 
 ### Backlog granular (Sprint 2)
 
@@ -488,7 +508,7 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 | S2-017 | Testes integração fluxo criar trip -> otimizar -> gerar legs                     |         2h | S2-007..S2-016     | fluxo e2e backend verde          |
 | S2-018 | Logs estruturados de viagem (`tenant_id/trip_id`)                                |       0.5h | S2-007             | logs rastreáveis                 |
 | S2-019 | Métricas de latência endpoints de trips                                          |       0.5h | S2-007             | métrica exportada                |
-| S2-020 | Documentar API de trips no MD                                                    |         1h | S2-005..S2-014     | contratos e exemplos registrados |
+| S2-020 | Documentar API de trips no MD + OpenAPI/Swagger                                  |         1h | S2-005..S2-014     | contratos e exemplos registrados |
 
 ### Critério de conclusão da Sprint 2
 
@@ -504,6 +524,26 @@ Fechar domínio de viagens/paradas/pernas e geração de rota para alimentar tra
 ### Objetivo
 
 Fechar fluxo de operação em tempo real (ingest -> detecção -> evento -> dashboard).
+
+### Status de execução (atual)
+
+- [x] `S3-001` Consolidar tiers `Bronze/Silver/Gold` em configuração versionada (`v1`) no pacote de contratos.
+- [x] `S3-002` Implementar máquina de estado `normal/suspected/confirmed` em módulo puro.
+- [x] `S3-003` Implementar filtro anti-ruído por `accuracy_m` com thresholds por tier.
+- [x] `S3-004` Implementar cálculo real de progresso sobre polyline.
+- [x] `S3-005` Expor cálculo de km percorrido/restante por trip ativa em `GET /api/v1/trips/:tripId/progress`.
+- [x] `S3-006` Atualizar `eta_s` de forma dinâmica no endpoint de progresso com base na distância restante.
+- [x] `S3-007` Finalizar `GET /api/v1/trips/:tripId/progress` com contrato versionado `TripProgressDTO`.
+- [x] `S3-008` Emitir evento `off_route.suspected.v1`.
+- [x] `S3-009` Emitir evento `off_route.confirmed.v1`.
+- [x] `S3-010` Emitir evento `back_on_route.v1`.
+- [x] `S3-011` Criar `GET /api/v1/alerts` com filtros `trip_id`, `severity` e `status`.
+- [x] `S3-012` Publicar canais WS `trip.progress.v1` e `alert.event.v1` com scoping por `tenant_id` e endpoints operacionais `/ops/channels` + `/ops/publish`.
+- [x] `S3-013` Entregar dashboard `trips` com status em tempo real consumindo `trip.progress.v1` e `alert.event.v1`.
+- [x] `S3-014` Entregar tela de detalhe por viagem (`/trips/:tripId`) com snapshot inicial + atualizacao realtime de progresso/ETA.
+- [x] `S3-015` Entregar tela `alerts` com filtros basicos (`trip_id`, `severity`, `status`) via proxy interno no dashboard.
+- [ ] `S3-016` em diante (pendente).
+- OpenSpec ativo no bloco atual: `openspec/changes/tns-dashboard-alerts-filters/`.
 
 ### Backlog granular (Sprint 3)
 

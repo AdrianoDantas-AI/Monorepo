@@ -1,0 +1,51 @@
+{
+  "id": "trip_snapshot_001",
+  "tenant_id": "tenant_snapshot_001",
+  "vehicle_id": "vehicle_snapshot_001",
+  "driver_id": "driver_snapshot_001",
+  "status": "planned",
+  "stops": [
+    {
+      "id": "stop_snapshot_001",
+      "order": 0,
+      "name": "Origem",
+      "address": "Rua A, 100 - Sao Paulo",
+      "location": {
+        "lat": -23.55,
+        "lng": -46.63
+      }
+    },
+    {
+      "id": "stop_snapshot_002",
+      "order": 1,
+      "name": "Destino",
+      "address": "Rua B, 200 - Sao Paulo",
+      "location": {
+        "lat": -23.57,
+        "lng": -46.64
+      }
+    }
+  ],
+  "route_plan": {
+    "legs": [
+      {
+        "id": "leg_snapshot_001",
+        "from_stop_id": "stop_snapshot_001",
+        "to_stop_id": "stop_snapshot_002",
+        "polyline": "snapshot_polyline_001",
+        "distance_m": 12500,
+        "duration_s": 2100,
+        "baseline_distance_m": 12500,
+        "baseline_eta_s": 2100
+      }
+    ],
+    "total_distance_m": 12500,
+    "total_duration_s": 2100
+  },
+  "route_track": {
+    "progress_pct": 42,
+    "distance_done_m": 5250,
+    "distance_remaining_m": 7250,
+    "eta_s": 1300
+  }
+}

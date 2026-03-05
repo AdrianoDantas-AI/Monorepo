@@ -130,3 +130,164 @@ Este arquivo registra erros relevantes, causa raiz e correcao aplicada.
 - Correcao aplicada: Regeração com `pnpm exec prisma migrate diff ... --script` para capturar apenas SQL.
 - Prevencao/acao futura: Para artefatos SQL versionados, preferir `pnpm exec` em vez de `pnpm run` quando houver redirecionamento de saída.
 - Referencias (comando/arquivo): `TNS/services/api/prisma/migrations/2026030301_s2_trip_domain_init/migration.sql`.
+
+## 2026-03-03 - TypeScript TS6059 no `@tns/api` ao importar contrato por caminho relativo
+- Sintoma: `corepack pnpm --dir TNS verify` falhou com `TS6059` informando arquivo fora do `rootDir` (`services/api/src`).
+- Causa raiz: Endpoint `POST /api/v1/trips` importava `packages/contracts/src/trip.ts` por caminho relativo direto.
+- Correcao aplicada: Remocao do import cruzado no `@tns/api`; validacao do payload passou para guard runtime local e validacao de dominio (`TripModule`/`StopModule`).
+- Prevencao/acao futura: Evitar import relativo entre workspaces no runtime de servico; usar pacote publicado (`@tns/contracts`) ou validação local desacoplada.
+- Referencias (comando/arquivo): `TNS/services/api/src/http/app.ts`, `TNS/services/api/src/modules/trip/trip.module.ts`, `TNS/services/api/src/modules/stop/stop.module.ts`.
+
+## 2026-03-03 - Falha de teste por uso de assertiva de referencia em objeto clonado
+- Sintoma: Teste unitario do repositorio em memoria falhou com `Values have same structure but are not reference-equal`.
+- Causa raiz: Uso de `assert.equal` (comparacao por referencia) em objeto retornado por clone.
+- Correcao aplicada: Troca para `assert.deepEqual` no teste.
+- Prevencao/acao futura: Em testes de DTO/entidades retornadas por copia, usar comparacao estrutural por padrao.
+- Referencias (comando/arquivo): `TNS/tests/unit/trip-repository.unit.test.ts`, `corepack pnpm --dir TNS verify`.
+
+## 2026-03-03 - OpenSpec instalado com aviso de engine do Node
+- Sintoma: `npm install -g @fission-ai/openspec@latest` concluiu com `npm WARN EBADENGINE` para `@fission-ai/openspec@1.2.0` e `posthog-node`.
+- Causa raiz: Ambiente atual com `node v20.10.0`, abaixo do minimo recomendado pelo pacote (`>=20.19.0`).
+- Correcao aplicada: Instalacao mantida e validada funcionalmente (`openspec --version`, `openspec validate --all`); fluxo aplicado no repo.
+- Prevencao/acao futura: Atualizar Node para `>=20.19.0` (idealmente LTS atual) para eliminar risco de incompatibilidade futura.
+- Referencias (comando/arquivo): `npm install -g @fission-ai/openspec@latest`, `openspec --version`, `openspec validate --all`.
+
+## 2026-03-03 - Scaffold parcial ao criar change OpenSpec para S3-005
+- Sintoma: `openspec new change tns-trip-progress-distance` criou apenas `.openspec.yaml`, sem `proposal.md/design.md/spec.md/tasks.md`.
+- Causa raiz: Comportamento do CLI nessa execução gerou somente o esqueleto mínimo do change.
+- Correcao aplicada: Artefatos Markdown foram criados manualmente no diretório do change antes da implementação.
+- Prevencao/acao futura: Após `openspec new change`, validar imediatamente o conteúdo da pasta e complementar artefatos ausentes no início do ciclo.
+- Referencias (comando/arquivo): `openspec/changes/tns-trip-progress-distance/`, `openspec new change tns-trip-progress-distance`.
+
+## 2026-03-03 - Push para GitHub falhou com erro remoto HTTP 500
+- Sintoma: `git push origin feat/s2-003-geo-indexes` retornou `The requested URL returned error: 500`.
+- Causa raiz: Instabilidade transitória no endpoint remoto do GitHub.
+- Correcao aplicada: Nova tentativa de `git push` após a falha imediata.
+- Prevencao/acao futura: Em falha HTTP 5xx no push, repetir tentativa antes de iniciar troubleshooting local.
+- Referencias (comando/arquivo): `git push origin feat/s2-003-geo-indexes`.
+
+## 2026-03-03 - `openspec new change` sem suporte a `--json`
+- Sintoma: Execucao de `openspec new change tns-dashboard-trips-realtime --json` falhou com `unknown option '--json'`.
+- Causa raiz: A versao atual do OpenSpec CLI nao implementa flag `--json` para o comando `new change`.
+- Correcao aplicada: Reexecucao sem a flag (`openspec new change tns-dashboard-trips-realtime`) e continuidade do fluxo normalmente.
+- Prevencao/acao futura: Validar opcoes suportadas com `openspec --help` antes de usar flags em comandos de scaffold.
+- Referencias (comando/arquivo): `openspec new change tns-dashboard-trips-realtime --json`, `openspec new change tns-dashboard-trips-realtime`.
+
+## 2026-03-03 - Falha de `verify` por regex invalida em teste de integracao
+- Sintoma: `corepack pnpm --dir TNS verify` falhou com `TransformError` em `web-dashboard.integration.test.ts` (`Syntax error`).
+- Causa raiz: Expressao regular no assert do HTML de detalhe foi escrita com delimitacao invalida.
+- Correcao aplicada: Troca da regex por verificacao direta com `detailHtml.includes(...)`.
+- Prevencao/acao futura: Para payloads HTML/JSON serializados em string, priorizar asserts por `includes` quando regex nao agrega ganho claro.
+- Referencias (comando/arquivo): `TNS/tests/integration/web-dashboard.integration.test.ts`, `corepack pnpm --dir TNS verify`.
+
+## 2026-03-04 - Falha ao criar scaffold em comando unico no PowerShell
+- Sintoma: Comando de geracao em lote retornou `O nome do arquivo ou a extensao e muito grande` (WinError 206).
+- Causa raiz: Tamanho total do comando ultrapassou limite de linha de comando do Windows.
+- Correcao aplicada: Quebra da geracao em blocos menores com `apply_patch`/comandos segmentados.
+- Prevencao/acao futura: Evitar payloads longos em comando unico; preferir criacao incremental de arquivos.
+- Referencias (comando/arquivo): tentativa de scaffold em `ConsoleDeGastos/services/api`.
+
+## 2026-03-04 - Scaffold parcial apos `openspec new change`
+- Sintoma: `openspec new change consoledegastos-mvp-full-screens-ai` criou apenas `.openspec.yaml`.
+- Causa raiz: Comportamento recorrente do OpenSpec CLI no ambiente atual para `new change`.
+- Correcao aplicada: Criacao manual de `proposal.md`, `design.md`, `tasks.md` e `specs/**/spec.md` no diretorio da change.
+- Prevencao/acao futura: Sempre validar conteudo da pasta apos `openspec new change` antes de seguir implementacao.
+- Referencias (comando/arquivo): `openspec/changes/consoledegastos-mvp-full-screens-ai/`.
+
+## 2026-03-04 - Ciclo de persistencia PostgreSQL sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante durante implementacao da camada de persistencia no `ConsoleDeGastos`.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Manter validacao obrigatoria com `corepack pnpm --dir ConsoleDeGastos verify` e `openspec validate --all` a cada incremento.
+- Referencias (comando/arquivo): `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.
+
+## 2026-03-04 - Ciclo de infraestrutura local sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante na criacao do compose local de `postgres` + `redis` para o `ConsoleDeGastos`.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Validar sintaxe com `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config` antes de subir containers.
+- Referencias (comando/arquivo): `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config`, `ConsoleDeGastos/infra/docker/compose.yml`.
+
+## 2026-03-04 - Ciclo de migracao para persistencia por tabelas sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante na refatoracao do adapter Postgres para tabelas de dominio.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Manter `verify` + `openspec validate --all` em cada incremento de persistencia.
+- Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/persistence.ts`, `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.
+
+## 2026-03-04 - Archive/OpenSpec ciclo seguinte sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante ao arquivar `consoledegastos-postgres-domain-persistence` e abrir o novo change de persistencia financeira.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Continuar validando `openspec status` e `openspec validate --all` antes de cada commit de governanca OpenSpec.
+- Referencias (comando/arquivo): `openspec archive consoledegastos-postgres-domain-persistence -y`, `openspec new change consoledegastos-postgres-finance-domain-tables`.
+
+## 2026-03-04 - Push falhou por erro transitorio de rede no GitHub
+- Sintoma: `git push origin feat/consoledegastos-mvp-foundation` falhou com `Failure when receiving data from the peer`.
+- Causa raiz: instabilidade transitória de conexão no canal HTTPS com o remoto.
+- Correcao aplicada: nova tentativa imediata de `git push`, concluída com sucesso.
+- Prevencao/acao futura: em erro de rede/transporte no push, repetir tentativa antes de iniciar troubleshooting local.
+- Referencias (comando/arquivo): `git push origin feat/consoledegastos-mvp-foundation`.
+
+## 2026-03-04 - Ciclo de persistencia financeira tabular sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante na migracao tabular de `accounts/categories/invoices/recurrents`.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: manter `verify` e `openspec validate --all` ao final de cada incremento do adapter Postgres.
+- Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/persistence.ts`, `corepack pnpm --dir ConsoleDeGastos verify`, `openspec validate --all`.
+
+## 2026-03-04 - `infra:up` falhou por daemon Docker indisponivel
+- Sintoma: `corepack pnpm --dir ConsoleDeGastos infra:up` falhou com erro no pipe `dockerDesktopLinuxEngine`.
+- Causa raiz: Docker Desktop Engine nao estava ativo/acessivel na sessao.
+- Correcao aplicada: Validacao estrutural feita com `docker compose ... config`; compose e scripts mantidos prontos para subida quando daemon estiver ativo.
+- Prevencao/acao futura: Garantir Docker Desktop iniciado antes de `infra:up` e validar com `docker compose version`.
+- Referencias (comando/arquivo): `corepack pnpm --dir ConsoleDeGastos infra:up`, `docker compose -f ConsoleDeGastos/infra/docker/compose.yml config`.
+
+## 2026-03-04 - API no container inacessivel externamente por bind local
+- Sintoma: `localhost:4010/health` retornava reset de conexão enquanto container `api` estava `healthy`.
+- Causa raiz: servidor HTTP da API escutava somente em `127.0.0.1` dentro do container.
+- Correcao aplicada: adicionado suporte a `HOST` no bootstrap da API e configurado `HOST=0.0.0.0` no compose.
+- Prevencao/acao futura: para serviços containerizados com portas publicadas, padronizar bind em `0.0.0.0`.
+- Referencias (comando/arquivo): `ConsoleDeGastos/services/api/src/app.ts`, `ConsoleDeGastos/services/api/src/main.ts`, `ConsoleDeGastos/infra/docker/compose.yml`, `Invoke-WebRequest http://localhost:4010/health`.
+
+## 2026-03-04 - Ciclo de planejamento UI real sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante durante criacao do planejamento detalhado do restante do ConsoleDeGastos.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Manter `openspec validate --all` apos ajustes de escopo e revisar tasks por sprint antes de iniciar implementacao.
+- Referencias (comando/arquivo): `openspec/changes/consoledegastos-real-ui-screens-plan/tasks.md`, `openspec list --json`.
+
+## 2026-03-04 - Atualizacao de plano com sprint Playwright sem erro bloqueante
+- Sintoma: Nenhum erro bloqueante ao atualizar o change para incluir sprint extra de testes reais via MCP Playwright.
+- Causa raiz: N/A.
+- Correcao aplicada: N/A.
+- Prevencao/acao futura: Manter `openspec validate --all` a cada ajuste de escopo e revisar coerencia entre `proposal`, `design`, `tasks` e `specs`.
+- Referencias (comando/arquivo): `openspec/changes/consoledegastos-real-ui-screens-plan/*`, `openspec validate --all`.
+
+## 2026-03-04 - Typecheck falhou no web shell por sessao anulavel em rotas protegidas
+- Sintoma: `corepack pnpm --dir ConsoleDeGastos verify` falhou em `apps/web` com `TS2345` ao renderizar paginas protegidas com `session` potencialmente `null`.
+- Causa raiz: O TypeScript nao conseguiu inferir non-null de sessao mesmo apos guard generico por pathname.
+- Correcao aplicada: Guard explicito por rota em `server.ts` antes de chamar `renderComponentSandboxPage` e `renderModulePage`.
+- Prevencao/acao futura: Em handlers HTTP com narrowing por caminho, manter verificacao local nao anulavel antes de chamar renderizadores tipados.
+- Referencias (comando/arquivo): `ConsoleDeGastos/apps/web/src/server.ts`, `corepack pnpm --dir ConsoleDeGastos verify`.
+
+## 2026-03-05 - Lint falhou no web server por escape desnecessario no header CSV
+- Sintoma: `corepack pnpm --dir ConsoleDeGastos verify` falhou em `apps/web` com `no-useless-escape` na string de `content-disposition`.
+- Causa raiz: Aspas escapadas de forma desnecessaria no template literal de header HTTP.
+- Correcao aplicada: Ajuste para `attachment; filename="${filename}"` sem escapes redundantes no codigo TypeScript.
+- Prevencao/acao futura: Revisar headers string-template sob regra `no-useless-escape` antes de rodar lint completo.
+- Referencias (comando/arquivo): `ConsoleDeGastos/apps/web/src/server.ts`, `corepack pnpm --dir ConsoleDeGastos verify`.
+
+## 2026-03-05 - Typecheck falhou na Sprint 4 por narrowing de `model.data` em callback
+- Sintoma: `corepack pnpm --dir ConsoleDeGastos verify` falhou em `apps/web` com `TS18047: 'model.data' is possibly 'null'` na renderizacao de faturas.
+- Causa raiz: Narrowing de null-check nao foi preservado dentro do callback `.map()` no template da tela de faturas.
+- Correcao aplicada: Introduzido alias local `const data = model.data` apos o guard de erro/null e substituidas referencias internas por `data`.
+- Prevencao/acao futura: Em renderizadores com template string + callbacks, capturar valor não nulo em variável local antes de interpolar.
+- Referencias (comando/arquivo): `ConsoleDeGastos/apps/web/src/pages.ts`, `corepack pnpm --dir ConsoleDeGastos verify`.
+
+## 2026-03-05 - `rg` indisponivel na sessao por permissao de execucao
+- Sintoma: Busca com `rg` falhou com `Acesso negado` ao iniciar `rg.exe` empacotado na sessão.
+- Causa raiz: Restricao de permissao de execução para o binário `rg` no ambiente atual.
+- Correcao aplicada: Fallback para `Get-ChildItem + Select-String` nas buscas de texto.
+- Prevencao/acao futura: Em falha de `rg`, usar imediatamente fallback PowerShell para manter continuidade da execução.
+- Referencias (comando/arquivo): comando `rg -n ...` na raiz do monorepo.

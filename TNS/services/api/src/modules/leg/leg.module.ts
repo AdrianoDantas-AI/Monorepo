@@ -7,6 +7,8 @@ type CreateLegInput = {
   polyline: string;
   distance_m: number;
   duration_s: number;
+  baseline_distance_m?: number;
+  baseline_eta_s?: number;
 };
 
 export class LegModule {
@@ -23,10 +25,21 @@ export class LegModule {
       throw new TypeError("Leg invalido: duration_s deve ser numero >= 0.");
     }
 
+    if (!Number.isFinite(input.baseline_distance_m) || input.baseline_distance_m < 0) {
+      throw new TypeError("Leg invalido: baseline_distance_m deve ser numero >= 0.");
+    }
+
+    if (!Number.isFinite(input.baseline_eta_s) || input.baseline_eta_s < 0) {
+      throw new TypeError("Leg invalido: baseline_eta_s deve ser numero >= 0.");
+    }
+
     return { ...input };
   }
 
   fromStops(input: CreateLegInput): LegDTO {
+    const baselineDistanceM = input.baseline_distance_m ?? input.distance_m;
+    const baselineEtaS = input.baseline_eta_s ?? input.duration_s;
+
     return this.create({
       id: input.id,
       from_stop_id: input.from.id,
@@ -34,6 +47,8 @@ export class LegModule {
       polyline: input.polyline,
       distance_m: input.distance_m,
       duration_s: input.duration_s,
+      baseline_distance_m: baselineDistanceM,
+      baseline_eta_s: baselineEtaS,
     });
   }
 }
